@@ -21,6 +21,9 @@ private Boolean estado;
         this.estado = estado;
     }
 
+    public Usuario() {
+    }
+
     public int getId() {
         return id;
     }

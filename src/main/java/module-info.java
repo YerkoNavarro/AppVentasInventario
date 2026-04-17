@@ -10,6 +10,7 @@ module com.sistema.puntoventas {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires java.sql;
+    requires jdk.jdi;
 
     opens com.sistema.puntoventas to javafx.fxml;
     exports com.sistema.puntoventas;
