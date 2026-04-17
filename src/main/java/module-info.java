@@ -9,6 +9,7 @@ module com.sistema.puntoventas {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires java.sql;
 
     opens com.sistema.puntoventas to javafx.fxml;
     exports com.sistema.puntoventas;
