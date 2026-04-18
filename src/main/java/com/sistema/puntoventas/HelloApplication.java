@@ -17,6 +17,8 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
-        DbManager.conectarBD();
+        DbManager dbManager = new DbManager();
+        dbManager.conectarBD();
+        dbManager.crearTablaProductos();
     }
 }
