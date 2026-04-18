@@ -1,6 +1,6 @@
 package com.sistema.puntoventas.repository.impl;
 
-import com.sistema.puntoventas.modelo.Usuario;
+/*import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.repository.IUsuarioRepository;
 import com.sun.jdi.connect.spi.Connection;
 import java.sql.SQLException;
@@ -26,4 +26,4 @@ public class UsuarioRepositoryImpl  implements IUsuarioRepository {
             retunr false;
         }
     }
-}
+}*/

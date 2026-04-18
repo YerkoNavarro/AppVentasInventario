@@ -46,6 +46,26 @@ public class ProductoRepositoryImpl implements IProductoRepository {
         return List.of();
     }
 
+    @Override
+    public boolean actualizarProducto(Producto producto) {
+        return false;
+    }
+
+    @Override
+    public boolean eliminarProducto(int id) {
+        return false;
+    }
+
+    @Override
+    public Producto obtenerProductoPorId(int id) {
+        return null;
+    }
+
+    @Override
+    public List<Producto> obtenerStockCritico() {
+        return List.of();
+    }
+
 
 }
 
