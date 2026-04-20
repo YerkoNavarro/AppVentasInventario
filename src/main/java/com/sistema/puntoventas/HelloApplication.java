@@ -19,6 +19,6 @@ public class HelloApplication extends Application {
 
         DbManager dbManager = new DbManager();
         dbManager.conectarBD();
-        dbManager.crearTablaProductos();
+        dbManager.crearTodasLasTablas();
     }
 }
