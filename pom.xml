@@ -84,13 +84,19 @@
         <dependency>
             <groupId>eu.hansolo</groupId>
             <artifactId>tilesfx</artifactId>
-            <version>21.0.9</version>
+            <version>17.1.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.openjfx</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>eu.hansolo.fx</groupId>
+            <artifactId>countries</artifactId>
+            <version>17.0.19</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
