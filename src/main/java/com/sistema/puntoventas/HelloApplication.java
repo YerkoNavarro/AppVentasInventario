@@ -26,10 +26,10 @@ public class HelloApplication extends Application {
 
         
         
-        Producto producto = new Producto(1, "Producto de prueba actualizado", 5000, 10.50, "Descripción de prueba", "Marca de prueba", 1, 100, "imagen.jpg", 4);
+        Producto producto = new Producto(1, "Producto de prueba actualizado", 5000, 10.50, "Descripción de prueba", "Marca de prueba", 100, 100, "imagen.jpg", 4);
 
         ProductoRepositoryImpl productoRepository = new ProductoRepositoryImpl();
-        productoRepository.obtenerProductoPorNombre("Producto de prueba actualizado");
+        productoRepository.eliminarProducto(1);
        
 
     }
