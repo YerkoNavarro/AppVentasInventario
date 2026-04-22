@@ -10,9 +10,9 @@ public class Producto {
     private int stockActual;
     private int stockMinimo;
     private String imagen;
-    private UnidadMedida unidadMedida;
+    private int unidadMedida;
 
-    public Producto(int id, String nombre, double precioCompra, double precioVenta, String categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, UnidadMedida unidadMedida) {
+    public Producto(int id, String nombre, double precioCompra, double precioVenta, String categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, int unidadMedida) {
         this.id = id;
         this.nombre = nombre;
         this.precioCompra = precioCompra;
@@ -102,11 +102,11 @@ public class Producto {
         this.imagen = imagen;
     }
 
-    public UnidadMedida getUnidadMedida() {
+    public int getUnidadMedida() {
         return unidadMedida;
     }
 
-    public void setUnidadMedida(UnidadMedida unidadMedida) {
+    public void setUnidadMedida(int unidadMedida) {
         this.unidadMedida = unidadMedida;
     }
 
@@ -122,6 +122,7 @@ public class Producto {
                 ", stockActual=" + stockActual +
                 ", stockMinimo=" + stockMinimo +
                 ", imagen='" + imagen + '\'' +
+                ", unidadMedida=" + unidadMedida +
                 '}';
     }
 }

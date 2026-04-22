@@ -15,8 +15,8 @@ import java.sql.DriverManager;
 public class ProductoRepositoryImpl implements IProductoRepository {
 
     private static final String SQL_INSERT = 
-        "INSERT INTO productos (nombre, precio_compra, precio_venta, categoria, " +
-        "fecha_venc, stock_actual, stock_minimo, imagen, unidadMedida) " +
+        "INSERT INTO producto (nombre, precioCompra, precioVenta, categoria, " +
+        "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida) " +
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
@@ -34,7 +34,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             pstmt.setInt(6, producto.getStockActual());
             pstmt.setInt(7, producto.getStockMinimo());
             pstmt.setString(8, producto.getImagen());
-            pstmt.setString(9, producto.getUnidadMedida().name());
+            pstmt.setInt(9, producto.getUnidadMedida());
             int rowsInserted = pstmt.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
@@ -49,7 +49,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
     public List<Producto> obtenerProductos( ) {
         List<Producto> listaProductos = new ArrayList<>();
 
-        String sql = "SELECT * FROM productos ORDER BY nombre ASC";
+        String sql = "SELECT * FROM producto ORDER BY nombre ASC";
         try(Connection conn = DriverManager.getConnection(url);
             var stmt = conn.createStatement();
             var rs = stmt.executeQuery(sql)){
@@ -67,9 +67,10 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                 producto.setStockActual(rs.getInt(7));
                 producto.setStockMinimo(rs.getInt(8));
                 producto.setImagen(rs.getString(9));
-                producto.setUnidadMedida(UnidadMedida.valueOf(rs.getString(10).toUpperCase()));
+                producto.setUnidadMedida(rs.getInt(10));
                 // Agregamos el producto armado a nuestra lista
                 listaProductos.add(producto);
+                System.out.println(listaProductos);
             }
 
         } catch (SQLException e) {
@@ -82,7 +83,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
     @Override
     public List<Producto> obtenerProductoPorNombre(String nombre) {
         List<Producto> listaProductos = new ArrayList<>();
-        String sql = "SELECT * FROM productos WHERE nombre LIKE ?";
+        String sql = "SELECT * FROM producto WHERE nombre LIKE ?";
         try(Connection connect = DriverManager.getConnection(url);
             PreparedStatement ps  = connect.prepareStatement(sql)){
             ps.setString(1,"%" + nombre + "%");
@@ -101,10 +102,11 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                     producto.setStockActual(rs.getInt(7));
                     producto.setStockMinimo(rs.getInt(8));
                     producto.setImagen(rs.getString(9));
-                    producto.setUnidadMedida(UnidadMedida.valueOf(rs.getString(10)));
+                    producto.setUnidadMedida(rs.getInt(10));
 
                     // Agregamos el producto armado a nuestra lista
                     listaProductos.add(producto);
+                    System.out.println(listaProductos);
                 }
             }
 
@@ -117,8 +119,8 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     @Override
     public boolean actualizarProducto(Producto producto) {
-        String sql = "UPDATE productos SET nombre = ?, precio_compra = ?, precio_venta = ?, categoria = ?, " +
-                "fecha_venc = ?, stock_actual = ?, stock_minimo = ?, imagen = ?, unidadMedida = ? WHERE id = ?";    
+        String sql = "UPDATE producto SET nombre = ?, precioCompra = ?, precioVenta = ?, categoria = ?, " +
+                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ? WHERE id = ?";    
 
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
@@ -130,8 +132,12 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             pstmt.setInt(6, producto.getStockActual());
             pstmt.setInt(7, producto.getStockMinimo());
             pstmt.setString(8, producto.getImagen());
-            pstmt.setString(9, producto.getUnidadMedida().name());
+            pstmt.setInt(9, producto.getUnidadMedida());
             pstmt.setInt(10, producto.getId());
+            pstmt.executeUpdate();
+            System.out.println("producto actualizado correctamente");
+
+            
         return false;
         } catch (SQLException e) {
 

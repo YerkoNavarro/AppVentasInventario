@@ -1,6 +1,9 @@
 package com.sistema.puntoventas;
 
 import com.sistema.puntoventas.conexion.DbManager;
+import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -20,5 +23,14 @@ public class HelloApplication extends Application {
         DbManager dbManager = new DbManager();
         dbManager.conectarBD();
         dbManager.crearTodasLasTablas();
+
+        
+        
+        Producto producto = new Producto(1, "Producto de prueba actualizado", 5000, 10.50, "Descripción de prueba", "Marca de prueba", 1, 100, "imagen.jpg", 4);
+
+        ProductoRepositoryImpl productoRepository = new ProductoRepositoryImpl();
+        productoRepository.obtenerProductoPorNombre("Producto de prueba actualizado");
+       
+
     }
 }

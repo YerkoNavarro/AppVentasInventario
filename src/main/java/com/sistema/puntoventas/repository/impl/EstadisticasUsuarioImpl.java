@@ -1,10 +1,11 @@
 package com.sistema.puntoventas.repository.impl;
 
-import com.sistema.puntoventas.conexion.Conexion;
+//import com.sistema.puntoventas.conexion.Conexion;
 import com.sistema.puntoventas.modelo.EstadisticasUsuario;
 import com.sistema.puntoventas.repository.IEstadisticasUsuario;
 import java.sql.*;
 
+/* 
 public class EstadisticasUsuarioImpl implements IEstadisticasUsuario {
 
     @Override
@@ -38,3 +39,4 @@ public class EstadisticasUsuarioImpl implements IEstadisticasUsuario {
         return stats;
     }
 }
+    */

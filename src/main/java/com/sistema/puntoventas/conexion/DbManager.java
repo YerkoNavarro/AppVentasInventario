@@ -25,13 +25,15 @@ public class DbManager {
                 + " fechaVenc TEXT,"
                 + " stockActual INTEGER,"
                 + " stockMinimo INTEGER,"
-                + " imagen TEXT"
+                + " imagen TEXT,"
+                + " unidadMedida TEXT"
                 + ");";
 
         try (var conn = DriverManager.getConnection(url);
              var stmt = conn.createStatement()) {
             // create a new table
             stmt.execute(sql);
+            System.out.println("Tabla productos creada correctamente");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
