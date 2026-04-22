@@ -1,5 +1,6 @@
 package com.sistema.puntoventas.repository.impl;
 
+import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.UnidadMedida;
 import com.sistema.puntoventas.repository.IProductoRepository;
@@ -14,7 +15,7 @@ import java.sql.DriverManager;
 
 public class ProductoRepositoryImpl implements IProductoRepository {
 
-    private static final String SQL_INSERT = 
+    private static final String SQL_INSERT =
         "INSERT INTO producto (nombre, precioCompra, precioVenta, categoria, " +
         "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida) " +
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -29,12 +30,12 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             pstmt.setString(1, producto.getNombre());
             pstmt.setDouble(2, producto.getPrecioCompra());
             pstmt.setDouble(3, producto.getPrecioVenta());
-            pstmt.setString(4, producto.getCategoria());
+            pstmt.setString(4, obtenerNombreCategoria(producto));
             pstmt.setString(5, producto.getFechaVenc());
             pstmt.setInt(6, producto.getStockActual());
             pstmt.setInt(7, producto.getStockMinimo());
             pstmt.setString(8, producto.getImagen());
-            pstmt.setInt(9, producto.getUnidadMedida());
+            pstmt.setString(9, obtenerUnidadMedida(producto));
             int rowsInserted = pstmt.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
@@ -62,12 +63,12 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                 producto.setNombre(rs.getString(2));
                 producto.setPrecioCompra(rs.getDouble(3));
                 producto.setPrecioVenta(rs.getDouble(4));
-                producto.setCategoria(rs.getString(5));
+                producto.setCategoria(mapCategoria(rs.getString(5)));
                 producto.setFechaVenc(rs.getString(6));
                 producto.setStockActual(rs.getInt(7));
                 producto.setStockMinimo(rs.getInt(8));
                 producto.setImagen(rs.getString(9));
-                producto.setUnidadMedida(rs.getInt(10));
+                producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
                 // Agregamos el producto armado a nuestra lista
                 listaProductos.add(producto);
                 System.out.println(listaProductos);
@@ -97,12 +98,12 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                     producto.setNombre(rs.getString(2));
                     producto.setPrecioCompra(rs.getDouble(3));
                     producto.setPrecioVenta(rs.getDouble(4));
-                    producto.setCategoria(rs.getString(5));
+                    producto.setCategoria(mapCategoria(rs.getString(5)));
                     producto.setFechaVenc(rs.getString(6));
                     producto.setStockActual(rs.getInt(7));
                     producto.setStockMinimo(rs.getInt(8));
                     producto.setImagen(rs.getString(9));
-                    producto.setUnidadMedida(rs.getInt(10));
+                    producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
 
                     // Agregamos el producto armado a nuestra lista
                     listaProductos.add(producto);
@@ -120,30 +121,30 @@ public class ProductoRepositoryImpl implements IProductoRepository {
     @Override
     public boolean actualizarProducto(Producto producto) {
         String sql = "UPDATE producto SET nombre = ?, precioCompra = ?, precioVenta = ?, categoria = ?, " +
-                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ? WHERE id = ?";    
+                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ? WHERE id = ?";
 
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, producto.getNombre());
             pstmt.setDouble(2, producto.getPrecioCompra());
             pstmt.setDouble(3, producto.getPrecioVenta());
-            pstmt.setString(4, producto.getCategoria());
+            pstmt.setString(4, obtenerNombreCategoria(producto));
             pstmt.setString(5, producto.getFechaVenc());
             pstmt.setInt(6, producto.getStockActual());
             pstmt.setInt(7, producto.getStockMinimo());
             pstmt.setString(8, producto.getImagen());
-            pstmt.setInt(9, producto.getUnidadMedida());
+            pstmt.setString(9, obtenerUnidadMedida(producto));
             pstmt.setInt(10, producto.getId());
             pstmt.executeUpdate();
             System.out.println("producto actualizado correctamente");
 
-            
+
         return true;
         } catch (SQLException e) {
 
             System.err.println("Error al actualizar producto: " + e.getMessage());
             return false;
-        }     
+        }
     }
 
     @Override
@@ -163,34 +164,34 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             System.err.println(e.getMessage());
             return false;
         }
-        
+
     }
 
     @Override
     public Producto obtenerProductoPorId(int id) {
          Producto producto = new Producto();
         String sql = "SELECT * FROM producto WHERE id = ?";
-        
+
         try(Connection connect = DriverManager.getConnection(url);
             PreparedStatement ps  = connect.prepareStatement(sql)){
             ps.setInt(1, id);
-           
+
             try(ResultSet rs =  ps.executeQuery()){
                 // Recorremos los resultados fila por fila
                 while (rs.next()) {
-                    
+
 
                     // Extraemos la información de la base de datos y la metemos en el objeto
                     producto.setId(rs.getInt(1));
                     producto.setNombre(rs.getString(2));
                     producto.setPrecioCompra(rs.getDouble(3));
                     producto.setPrecioVenta(rs.getDouble(4));
-                    producto.setCategoria(rs.getString(5));
+                    producto.setCategoria(mapCategoria(rs.getString(5)));
                     producto.setFechaVenc(rs.getString(6));
                     producto.setStockActual(rs.getInt(7));
                     producto.setStockMinimo(rs.getInt(8));
                     producto.setImagen(rs.getString(9));
-                    producto.setUnidadMedida(rs.getInt(10));
+                    producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
 
                     // Agregamos el producto armado a nuestra lista
                     System.out.println("producto encontrado correctamente");
@@ -204,7 +205,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
         }
         return producto;
-        
+
     }
 
     @Override
@@ -215,34 +216,82 @@ public class ProductoRepositoryImpl implements IProductoRepository {
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
-             
+
             while (rs.next()) {
                 Producto producto = new Producto();
                 producto.setId(rs.getInt("id"));
                 producto.setNombre(rs.getString("nombre"));
                 producto.setPrecioCompra(rs.getDouble("precioCompra"));
                 producto.setPrecioVenta(rs.getDouble("precioVenta"));
-                producto.setCategoria(rs.getString("categoria"));
+                producto.setCategoria(mapCategoria(rs.getString("categoria")));
                 producto.setFechaVenc(rs.getString("fechaVenc"));
                 producto.setStockActual(rs.getInt("stockActual"));
                 producto.setStockMinimo(rs.getInt("stockMinimo"));
                 producto.setImagen(rs.getString("imagen"));
-                producto.setUnidadMedida(rs.getInt("unidadMedida"));
+                producto.setUnidadMedida(mapUnidadMedida(rs.getString("unidadMedida")));
                 productosStockCritico.add(producto);
             }
             if (productosStockCritico.isEmpty()) {
                      System.out.println("No se encontraron productos en stock crítico.");
                 }else {
                 System.out.println("hay "+ productosStockCritico.size()+" productos con stock critico");
-                
+
                 }
 
         } catch (SQLException e) {
             System.err.println("Error al obtener productos en stock crítico: " + e.getMessage());
         }
-        
+
         return productosStockCritico;
     }
+
+                    @Override
+                    public boolean existeCategoria(String nombre) {
+                        String sql = "SELECT 1 FROM producto WHERE categoria = ? LIMIT 1";
+
+                        try (Connection conn = DriverManager.getConnection(url);
+                             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                            pstmt.setString(1, nombre);
+
+                            try (ResultSet rs = pstmt.executeQuery()) {
+                                return rs.next();
+                            }
+                        } catch (SQLException e) {
+                            System.err.println("Error al verificar categoría: " + e.getMessage());
+                            return false;
+                        }
+                    }
+
+                    private String obtenerNombreCategoria(Producto producto) {
+                        return producto.getCategoria() != null ? producto.getCategoria().getNombreCategoria() : null;
+                    }
+
+                    private String obtenerUnidadMedida(Producto producto) {
+                        return producto.getUnidadMedida() != null ? producto.getUnidadMedida().name() : null;
+                    }
+
+                    private Categoria mapCategoria(String nombreCategoria) {
+                        if (nombreCategoria == null || nombreCategoria.isBlank()) {
+                            return null;
+                        }
+
+                        Categoria categoria = new Categoria();
+                        categoria.setNombreCategoria(nombreCategoria);
+                        return categoria;
+                    }
+
+                    private UnidadMedida mapUnidadMedida(String valor) {
+                        if (valor == null || valor.isBlank()) {
+                            return null;
+                        }
+
+                        try {
+                            return UnidadMedida.valueOf(valor.trim().toUpperCase());
+                        } catch (IllegalArgumentException e) {
+                            return null;
+                        }
+                    }
 
 
 }
