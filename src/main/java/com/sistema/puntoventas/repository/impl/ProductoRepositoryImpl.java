@@ -1,6 +1,7 @@
 package com.sistema.puntoventas.repository.impl;
 
 import com.sistema.puntoventas.conexion.Conexion.DatabaseConnection;
+import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.UnidadMedida;
 import com.sistema.puntoventas.repository.IProductoRepository;
@@ -24,7 +25,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             ps.setString(1, producto.getNombre());
             ps.setDouble(2, producto.getPrecioCompra());
             ps.setDouble(3, producto.getPrecioVenta());
-            ps.setString(4, producto.getCategoria());
+            ps.setInt(4, producto.getCategoria().getId());
             ps.setString(5, producto.getFechaVenc());
             ps.setInt(6, producto.getStockActual());
             ps.setInt(7, producto.getStockMinimo());
@@ -57,7 +58,9 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                 producto.setNombre(rs.getString(2));
                 producto.setPrecioCompra(rs.getDouble(3));
                 producto.setPrecioVenta(rs.getDouble(4));
-                producto.setCategoria(rs.getString(5));
+                Categoria categoriaObj = new Categoria();
+                categoriaObj.setNombreCategoria(rs.getString(5));
+                producto.setCategoria(categoriaObj);
                 producto.setFechaVenc(rs.getString(6));
                 producto.setStockActual(rs.getInt(7));
                 producto.setStockMinimo(rs.getInt(8));
@@ -91,7 +94,9 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                     producto.setNombre(rs.getString(2));
                     producto.setPrecioCompra(rs.getDouble(3));
                     producto.setPrecioVenta(rs.getDouble(4));
-                    producto.setCategoria(rs.getString(5));
+                    Categoria categoriaObj = new Categoria();
+                    categoriaObj.setNombreCategoria(rs.getString(5));
+                    producto.setCategoria(categoriaObj);
                     producto.setFechaVenc(rs.getString(6));
                     producto.setStockActual(rs.getInt(7));
                     producto.setStockMinimo(rs.getInt(8));
@@ -128,6 +133,11 @@ public class ProductoRepositoryImpl implements IProductoRepository {
     @Override
     public List<Producto> obtenerStockCritico() {
         return List.of();
+    }
+
+    @Override
+    public boolean existeCategoria(String nombre) {
+        return false;
     }
 
 

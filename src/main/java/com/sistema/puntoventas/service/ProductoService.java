@@ -24,6 +24,8 @@ public class ProductoService {
             return "El precio de compra debe ser mayor a cero";
         }
 
+
+
         if (productoRepository.obtenerProductoPorNombre(producto.getNombre()) != null) {
             return "El producto ya existe, no se puede registrar";
         }

@@ -12,4 +12,5 @@ public interface IProductoRepository {
     boolean eliminarProducto(int id);
     Producto obtenerProductoPorId(int id);
     List<Producto>obtenerStockCritico();
+    boolean existeCategoria(String nombre);
 }
