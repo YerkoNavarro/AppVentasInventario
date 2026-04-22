@@ -1,6 +1,5 @@
 package com.sistema.puntoventas.repository.impl;
 
-import com.sistema.puntoventas.conexion.Conexion.DatabaseConnection;
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.UnidadMedida;
 import com.sistema.puntoventas.repository.IProductoRepository;
@@ -11,26 +10,32 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.DriverManager;
 
 public class ProductoRepositoryImpl implements IProductoRepository {
 
-    private final DatabaseConnection conexion = DatabaseConnection.getInstance();
+    private static final String SQL_INSERT = 
+        "INSERT INTO productos (nombre, precio_compra, precio_venta, categoria, " +
+        "fecha_venc, stock_actual, stock_minimo, imagen, unidadMedida) " +
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    private static final String url = "jdbc:sqlite:DBventasInventario.db";
+
 
     @Override
     public boolean registrarProducto(Producto producto) {
-        String sql = "INSERT INTO productos (nombre, precio_compra, precio_venta, categoria, fecha_venc, stock_actual, stock_minimo, imagen,unidadMedida) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
-        try (Connection connect = conexion.getConnection();
-             PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setString(1, producto.getNombre());
-            ps.setDouble(2, producto.getPrecioCompra());
-            ps.setDouble(3, producto.getPrecioVenta());
-            ps.setString(4, producto.getCategoria());
-            ps.setString(5, producto.getFechaVenc());
-            ps.setInt(6, producto.getStockActual());
-            ps.setInt(7, producto.getStockMinimo());
-            ps.setString(8, producto.getImagen());
-            ps.setString(9, producto.getUnidadMedida().name());
-            int rowsInserted = ps.executeUpdate();
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(SQL_INSERT)) {
+            pstmt.setString(1, producto.getNombre());
+            pstmt.setDouble(2, producto.getPrecioCompra());
+            pstmt.setDouble(3, producto.getPrecioVenta());
+            pstmt.setString(4, producto.getCategoria());
+            pstmt.setString(5, producto.getFechaVenc());
+            pstmt.setInt(6, producto.getStockActual());
+            pstmt.setInt(7, producto.getStockMinimo());
+            pstmt.setString(8, producto.getImagen());
+            pstmt.setString(9, producto.getUnidadMedida().name());
+            int rowsInserted = pstmt.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
             System.err.println("Error al registrar producto: " + e.getMessage());
@@ -45,9 +50,9 @@ public class ProductoRepositoryImpl implements IProductoRepository {
         List<Producto> listaProductos = new ArrayList<>();
 
         String sql = "SELECT * FROM productos ORDER BY nombre ASC";
-        try(Connection connect = conexion.getConnection();
-        PreparedStatement ps  = connect.prepareStatement(sql);
-        ResultSet rs =  ps.executeQuery()){
+        try(Connection conn = DriverManager.getConnection(url);
+            var stmt = conn.createStatement();
+            var rs = stmt.executeQuery(sql)){
             // Recorremos los resultados fila por fila
             while (rs.next()) {
                 Producto producto = new Producto();
@@ -78,7 +83,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
     public List<Producto> obtenerProductoPorNombre(String nombre) {
         List<Producto> listaProductos = new ArrayList<>();
         String sql = "SELECT * FROM productos WHERE nombre LIKE ?";
-        try(Connection connect = conexion.getConnection();
+        try(Connection connect = DriverManager.getConnection(url);
             PreparedStatement ps  = connect.prepareStatement(sql)){
             ps.setString(1,"%" + nombre + "%");
             try(ResultSet rs =  ps.executeQuery()){
@@ -112,7 +117,27 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     @Override
     public boolean actualizarProducto(Producto producto) {
+        String sql = "UPDATE productos SET nombre = ?, precio_compra = ?, precio_venta = ?, categoria = ?, " +
+                "fecha_venc = ?, stock_actual = ?, stock_minimo = ?, imagen = ?, unidadMedida = ? WHERE id = ?";    
+
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, producto.getNombre());
+            pstmt.setDouble(2, producto.getPrecioCompra());
+            pstmt.setDouble(3, producto.getPrecioVenta());
+            pstmt.setString(4, producto.getCategoria());
+            pstmt.setString(5, producto.getFechaVenc());
+            pstmt.setInt(6, producto.getStockActual());
+            pstmt.setInt(7, producto.getStockMinimo());
+            pstmt.setString(8, producto.getImagen());
+            pstmt.setString(9, producto.getUnidadMedida().name());
+            pstmt.setInt(10, producto.getId());
         return false;
+        } catch (SQLException e) {
+
+            System.err.println("Error al actualizar producto: " + e.getMessage());
+            return false;
+        }     
     }
 
     @Override
