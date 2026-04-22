@@ -3,7 +3,7 @@ import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.repository.IUsuarioRepository;
 //import com.sistema.puntoventas.repository.impl.UsuarioRepositoryImpl;
 import java.util.List;
-/* 
+/*
 public class UsuarioService {
     private IUsuarioRepository usuarioRepository;
     public UsuarioService(){
