@@ -1,7 +1,5 @@
 package com.sistema.puntoventas.repository.impl;
 
-import com.sistema.puntoventas.conexion.Conexion.DatabaseConnection;
-import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.UnidadMedida;
 import com.sistema.puntoventas.repository.IProductoRepository;
@@ -12,26 +10,32 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.DriverManager;
 
 public class ProductoRepositoryImpl implements IProductoRepository {
 
-    private final DatabaseConnection conexion = DatabaseConnection.getInstance();
+    private static final String SQL_INSERT = 
+        "INSERT INTO producto (nombre, precioCompra, precioVenta, categoria, " +
+        "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida) " +
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    private static final String url = "jdbc:sqlite:DBventasInventario.db";
+
 
     @Override
     public boolean registrarProducto(Producto producto) {
-        String sql = "INSERT INTO productos (nombre, precio_compra, precio_venta, categoria, fecha_venc, stock_actual, stock_minimo, imagen,unidadMedida) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
-        try (Connection connect = conexion.getConnection();
-             PreparedStatement ps = connect.prepareStatement(sql)) {
-            ps.setString(1, producto.getNombre());
-            ps.setDouble(2, producto.getPrecioCompra());
-            ps.setDouble(3, producto.getPrecioVenta());
-            ps.setInt(4, producto.getCategoria().getId());
-            ps.setString(5, producto.getFechaVenc());
-            ps.setInt(6, producto.getStockActual());
-            ps.setInt(7, producto.getStockMinimo());
-            ps.setString(8, producto.getImagen());
-            ps.setString(9, producto.getUnidadMedida().name());
-            int rowsInserted = ps.executeUpdate();
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(SQL_INSERT)) {
+            pstmt.setString(1, producto.getNombre());
+            pstmt.setDouble(2, producto.getPrecioCompra());
+            pstmt.setDouble(3, producto.getPrecioVenta());
+            pstmt.setString(4, producto.getCategoria());
+            pstmt.setString(5, producto.getFechaVenc());
+            pstmt.setInt(6, producto.getStockActual());
+            pstmt.setInt(7, producto.getStockMinimo());
+            pstmt.setString(8, producto.getImagen());
+            pstmt.setInt(9, producto.getUnidadMedida());
+            int rowsInserted = pstmt.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
             System.err.println("Error al registrar producto: " + e.getMessage());
@@ -45,10 +49,10 @@ public class ProductoRepositoryImpl implements IProductoRepository {
     public List<Producto> obtenerProductos( ) {
         List<Producto> listaProductos = new ArrayList<>();
 
-        String sql = "SELECT * FROM productos ORDER BY nombre ASC";
-        try(Connection connect = conexion.getConnection();
-        PreparedStatement ps  = connect.prepareStatement(sql);
-        ResultSet rs =  ps.executeQuery()){
+        String sql = "SELECT * FROM producto ORDER BY nombre ASC";
+        try(Connection conn = DriverManager.getConnection(url);
+            var stmt = conn.createStatement();
+            var rs = stmt.executeQuery(sql)){
             // Recorremos los resultados fila por fila
             while (rs.next()) {
                 Producto producto = new Producto();
@@ -58,16 +62,15 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                 producto.setNombre(rs.getString(2));
                 producto.setPrecioCompra(rs.getDouble(3));
                 producto.setPrecioVenta(rs.getDouble(4));
-                Categoria categoriaObj = new Categoria();
-                categoriaObj.setNombreCategoria(rs.getString(5));
-                producto.setCategoria(categoriaObj);
+                producto.setCategoria(rs.getString(5));
                 producto.setFechaVenc(rs.getString(6));
                 producto.setStockActual(rs.getInt(7));
                 producto.setStockMinimo(rs.getInt(8));
                 producto.setImagen(rs.getString(9));
-                producto.setUnidadMedida(UnidadMedida.valueOf(rs.getString(10).toUpperCase()));
+                producto.setUnidadMedida(rs.getInt(10));
                 // Agregamos el producto armado a nuestra lista
                 listaProductos.add(producto);
+                System.out.println(listaProductos);
             }
 
         } catch (SQLException e) {
@@ -80,8 +83,8 @@ public class ProductoRepositoryImpl implements IProductoRepository {
     @Override
     public List<Producto> obtenerProductoPorNombre(String nombre) {
         List<Producto> listaProductos = new ArrayList<>();
-        String sql = "SELECT * FROM productos WHERE nombre LIKE ?";
-        try(Connection connect = conexion.getConnection();
+        String sql = "SELECT * FROM producto WHERE nombre LIKE ?";
+        try(Connection connect = DriverManager.getConnection(url);
             PreparedStatement ps  = connect.prepareStatement(sql)){
             ps.setString(1,"%" + nombre + "%");
             try(ResultSet rs =  ps.executeQuery()){
@@ -94,17 +97,16 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                     producto.setNombre(rs.getString(2));
                     producto.setPrecioCompra(rs.getDouble(3));
                     producto.setPrecioVenta(rs.getDouble(4));
-                    Categoria categoriaObj = new Categoria();
-                    categoriaObj.setNombreCategoria(rs.getString(5));
-                    producto.setCategoria(categoriaObj);
+                    producto.setCategoria(rs.getString(5));
                     producto.setFechaVenc(rs.getString(6));
                     producto.setStockActual(rs.getInt(7));
                     producto.setStockMinimo(rs.getInt(8));
                     producto.setImagen(rs.getString(9));
-                    producto.setUnidadMedida(UnidadMedida.valueOf(rs.getString(10)));
+                    producto.setUnidadMedida(rs.getInt(10));
 
                     // Agregamos el producto armado a nuestra lista
                     listaProductos.add(producto);
+                    System.out.println(listaProductos);
                 }
             }
 
@@ -117,27 +119,129 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     @Override
     public boolean actualizarProducto(Producto producto) {
-        return false;
+        String sql = "UPDATE producto SET nombre = ?, precioCompra = ?, precioVenta = ?, categoria = ?, " +
+                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ? WHERE id = ?";    
+
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, producto.getNombre());
+            pstmt.setDouble(2, producto.getPrecioCompra());
+            pstmt.setDouble(3, producto.getPrecioVenta());
+            pstmt.setString(4, producto.getCategoria());
+            pstmt.setString(5, producto.getFechaVenc());
+            pstmt.setInt(6, producto.getStockActual());
+            pstmt.setInt(7, producto.getStockMinimo());
+            pstmt.setString(8, producto.getImagen());
+            pstmt.setInt(9, producto.getUnidadMedida());
+            pstmt.setInt(10, producto.getId());
+            pstmt.executeUpdate();
+            System.out.println("producto actualizado correctamente");
+
+            
+        return true;
+        } catch (SQLException e) {
+
+            System.err.println("Error al actualizar producto: " + e.getMessage());
+            return false;
+        }     
     }
 
     @Override
     public boolean eliminarProducto(int id) {
-        return false;
+        String sql = "DELETE FROM producto WHERE id = ?";
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            // execute the delete statement
+            pstmt.executeUpdate();
+            System.out.println("producto eliminado correctamente");
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
+        
     }
 
     @Override
     public Producto obtenerProductoPorId(int id) {
-        return null;
+         Producto producto = new Producto();
+        String sql = "SELECT * FROM producto WHERE id = ?";
+        
+        try(Connection connect = DriverManager.getConnection(url);
+            PreparedStatement ps  = connect.prepareStatement(sql)){
+            ps.setInt(1, id);
+           
+            try(ResultSet rs =  ps.executeQuery()){
+                // Recorremos los resultados fila por fila
+                while (rs.next()) {
+                    
+
+                    // Extraemos la información de la base de datos y la metemos en el objeto
+                    producto.setId(rs.getInt(1));
+                    producto.setNombre(rs.getString(2));
+                    producto.setPrecioCompra(rs.getDouble(3));
+                    producto.setPrecioVenta(rs.getDouble(4));
+                    producto.setCategoria(rs.getString(5));
+                    producto.setFechaVenc(rs.getString(6));
+                    producto.setStockActual(rs.getInt(7));
+                    producto.setStockMinimo(rs.getInt(8));
+                    producto.setImagen(rs.getString(9));
+                    producto.setUnidadMedida(rs.getInt(10));
+
+                    // Agregamos el producto armado a nuestra lista
+                    System.out.println("producto encontrado correctamente");
+                    System.out.println(producto);
+                    // System.out.println(listaProductos); // This line was likely a debug print and can be removed or commented out.
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos: " + e.getMessage());
+
+        }
+        return producto;
+        
     }
 
     @Override
     public List<Producto> obtenerStockCritico() {
-        return List.of();
-    }
+        List<Producto> productosStockCritico = new ArrayList<>();
+        String sql = "SELECT * FROM producto WHERE stockActual <= stockMinimo";
 
-    @Override
-    public boolean existeCategoria(String nombre) {
-        return false;
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+             
+            while (rs.next()) {
+                Producto producto = new Producto();
+                producto.setId(rs.getInt("id"));
+                producto.setNombre(rs.getString("nombre"));
+                producto.setPrecioCompra(rs.getDouble("precioCompra"));
+                producto.setPrecioVenta(rs.getDouble("precioVenta"));
+                producto.setCategoria(rs.getString("categoria"));
+                producto.setFechaVenc(rs.getString("fechaVenc"));
+                producto.setStockActual(rs.getInt("stockActual"));
+                producto.setStockMinimo(rs.getInt("stockMinimo"));
+                producto.setImagen(rs.getString("imagen"));
+                producto.setUnidadMedida(rs.getInt("unidadMedida"));
+                productosStockCritico.add(producto);
+            }
+            if (productosStockCritico.isEmpty()) {
+                     System.out.println("No se encontraron productos en stock crítico.");
+                }else {
+                System.out.println("hay "+ productosStockCritico.size()+" productos con stock critico");
+                
+                }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos en stock crítico: " + e.getMessage());
+        }
+        
+        return productosStockCritico;
     }
 
 
