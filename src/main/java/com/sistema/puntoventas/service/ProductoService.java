@@ -4,6 +4,8 @@ import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.repository.IProductoRepository;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 
+import java.util.List;
+
 public class ProductoService {
 
     private IProductoRepository productoRepository;
@@ -11,24 +13,82 @@ public class ProductoService {
         this.productoRepository = new ProductoRepositoryImpl();
     }
 
-    public String registrarProducto(Producto producto){
+    public void registrarProducto(Producto producto) throws Exception{
         if (producto == null){
-            return "Un producto no puede ser nulo";
+            throw new Exception("El producto no puede ser nulo");
         }
 
-        if (producto.getNombre() == null || producto.getNombre().isEmpty()){
-            return "El nombre del producto no puede ser nulo o vacío";
+        if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del producto es obligatorio.");
         }
 
         if(producto.getPrecioCompra() <= 0){
-            return "El precio de compra debe ser mayor a cero";
+            throw new Exception("El precio de compra debe ser mayor a cero") ;
+        }
+
+        List<Producto> nombreproducto = productoRepository.obtenerProductoPorNombre(producto.getNombre().trim());
+        if (!nombreproducto.isEmpty()) {
+            for (Producto p : nombreproducto) {
+                if (p.getNombre().equalsIgnoreCase(producto.getNombre().trim())) {
+                    throw new Exception("Validación fallida: Ya existe un registro con el nombre '" + producto.getNombre() + "'.");
+                }
+            }
+        }
+
+
+        // Validación de margen (Ejemplo: Mínimo 10% de ganancia)
+        double precioMinimoVenta = producto.getPrecioCompra() * 1.10;
+        if (producto.getPrecioVenta() < precioMinimoVenta) {
+            throw new Exception("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
+        }
+
+        /* if (producto.getTipoProducto().equalsIgnoreCase("PLATILLO")) {
+        // Para platillos, el costo viene de los ingredientes. Se valida que se venda a un precio válido.
+        if (producto.getPrecioVenta() <= 0) {
+            throw new Exception("El platillo debe tener un precio de venta mayor a cero.");
+        }
+        // Aquí en el futuro llamarías a PlatilloService para calcular el costo de los ingredientes
+    }*/
+
+
+        if (producto.getUnidadMedida() == null) {
+            throw new Exception("Debe asignar una Unidad de Medida al producto.");
         }
 
 
 
-        if (productoRepository.obtenerProductoPorNombre(producto.getNombre()) != null) {
-            return "El producto ya existe, no se puede registrar";
+        boolean guardado = productoRepository.registrarProducto(producto);
+
+        if (!guardado) {
+            throw new Exception("Error interno: No se pudo guardar el producto en la base de datos.");
         }
-        return "";
+
     }
+
+
+    public List<Producto> obtenerProductos() {
+        return productoRepository.obtenerProductos();
+    }
+
+    public boolean actualzarProducto(Producto producto) throws Exception{
+        if (producto == null){
+            throw new Exception("El producto no puede ser nulo");
+        }
+
+        if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del producto es obligatorio.");
+        }
+
+        if(producto.getPrecioCompra() <= 0){
+            return false;
+        }
+
+        if (producto.getUnidadMedida() == null) {
+            throw new Exception("Debe asignar una Unidad de Medida al producto.");
+        }
+
+        return productoRepository.actualizarProducto(producto);
+    }
+
+
 }

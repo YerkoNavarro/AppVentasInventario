@@ -11,6 +11,7 @@ public class Producto {
     private int stockMinimo;
     private String imagen;
     private UnidadMedida unidadMedida;
+    /*private String tipoProducto;*/
 
     public Producto(int id, String nombre, double precioCompra, double precioVenta, Categoria categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, UnidadMedida unidadMedida) {
         this.id = id;

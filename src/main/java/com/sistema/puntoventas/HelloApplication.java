@@ -14,9 +14,9 @@ import java.io.IOException;
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/sistema/puntoventas/PanelProductos-vista.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
+        stage.setTitle("Cafeteria Eluney");
         stage.setScene(scene);
         stage.show();
 
@@ -26,10 +26,9 @@ public class HelloApplication extends Application {
 
         
         
-        Producto producto = new Producto(1, "Producto de prueba actualizado", 5000, 10.50, "Descripción de prueba", "Marca de prueba", 100, 100, "imagen.jpg", 4);
+        /*Producto producto = new Producto(1, "Producto de prueba actualizado", 5000, 10.50, "Descripción de prueba", "Marca de prueba", 100, 100, "imagen.jpg", 4);*/
 
-        ProductoRepositoryImpl productoRepository = new ProductoRepositoryImpl();
-        productoRepository.eliminarProducto(1);
+
        
 
     }

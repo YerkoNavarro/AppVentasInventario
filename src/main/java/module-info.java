@@ -17,5 +17,6 @@ module com.sistema.puntoventas {
 
 
     opens com.sistema.puntoventas to javafx.fxml;
+    opens com.sistema.puntoventas.controller to javafx.fxml;
     exports com.sistema.puntoventas;
 }
