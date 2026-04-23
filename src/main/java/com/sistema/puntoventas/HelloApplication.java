@@ -2,7 +2,9 @@ package com.sistema.puntoventas;
 
 import com.sistema.puntoventas.conexion.DbManager;
 import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
+import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -26,11 +28,10 @@ public class HelloApplication extends Application {
 
         
         
-        Producto producto = new Producto(1, "Producto de prueba actualizado", 5000, 10.50, "Descripción de prueba", "Marca de prueba", 100, 100, "imagen.jpg", 4);
-
-        ProductoRepositoryImpl productoRepository = new ProductoRepositoryImpl();
-        productoRepository.eliminarProducto(1);
        
+       
+       
+        
 
     }
 }
