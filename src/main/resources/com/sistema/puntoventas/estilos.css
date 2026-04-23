@@ -1,0 +1,50 @@
+/* Contenedor del Sidebar */
+.sidebar {
+    -fx-background-color: white;
+    -fx-border-color: #f3f4f6;
+    -fx-border-width: 0 1 0 0; /* Línea sutil a la derecha */
+}
+
+/* Título / Logo */
+.logo-label {
+    -fx-text-fill: #111827;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0;
+}
+
+/* Estilo base para todos los botones del menú */
+.menu-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 8;
+    -fx-padding: 10 15;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.menu-button:hover {
+    -fx-background-color: #f9fafb;
+    -fx-text-fill: #111827;
+}
+
+/* Clase para el botón que está seleccionado actualmente */
+.menu-button-active {
+    -fx-background-color: #0d6efd;
+    -fx-text-fill: white;
+}
+
+.menu-button-active:hover {
+    -fx-background-color: #0b5ed7;
+    -fx-text-fill: white;
+}
+
+/* Estilo para los círculos de los iconos (puedes quitarlos si usas iconos reales) */
+.icon-circle {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 4 9;
+    -fx-background-radius: 999;
+}
