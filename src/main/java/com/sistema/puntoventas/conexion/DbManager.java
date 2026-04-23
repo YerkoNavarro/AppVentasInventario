@@ -24,7 +24,8 @@ public class DbManager {
                 + " stockActual INTEGER,"
                 + " stockMinimo INTEGER,"
                 + " imagen TEXT,"
-                + " unidadMedida TEXT"
+                + " unidadMedida TEXT,"
+                + "tipoProducto TEXT"
                 + ");";
 
         try (var conn = DriverManager.getConnection(url);

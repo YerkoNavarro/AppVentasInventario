@@ -2,6 +2,7 @@ package com.sistema.puntoventas.controller;
 
 import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.TipoProducto;
 import com.sistema.puntoventas.modelo.UnidadMedida;
 import com.sistema.puntoventas.service.ProductoService;
 import javafx.fxml.FXML;
@@ -50,6 +51,9 @@ public class ProductoController {
         @FXML
         private ComboBox<UnidadMedida> cmbUnidadMedida;
 
+        @FXML
+        private ComboBox<TipoProducto> cmbTipoProducto;
+
 
         private ProductoService productoService;
 
@@ -57,6 +61,11 @@ public class ProductoController {
         public void initialize() {
             productoService = new ProductoService();
             cmbUnidadMedida.getItems().setAll(UnidadMedida.values());
+            cmbTipoProducto.getItems().setAll(
+                    TipoProducto.PLATILLO,
+                    TipoProducto.DIRECTO,
+                    TipoProducto.SOLO_INVENTARIO
+            );
             cmbUnidadMedida.setConverter(new StringConverter<>() {
                 @Override
                 public String toString(UnidadMedida unidadMedida) {
@@ -104,6 +113,7 @@ public class ProductoController {
                 nuevoProducto.setFechaVenc(txtFechaVenc.getText());
                 nuevoProducto.setImagen(txtImagen.getText());
                 nuevoProducto.setUnidadMedida(cmbUnidadMedida.getValue());
+                nuevoProducto.setTipoProducto(cmbTipoProducto.getValue());
 
 
 
@@ -134,6 +144,7 @@ public class ProductoController {
         txtStockMinimo.clear();
         txtImagen.clear();
         cmbUnidadMedida.getSelectionModel().clearSelection();
+        cmbTipoProducto.getSelectionModel().clearSelection();
     }
 
     private String formatearUnidadMedida(UnidadMedida unidadMedida) {
@@ -145,6 +156,15 @@ public class ProductoController {
         return Character.toUpperCase(texto.charAt(0)) + texto.substring(1);
     }
 
+    private String formatearTipoProducto(TipoProducto tipoProducto){
+            if(tipoProducto == null){
+                return "";
+            }
+
+            String texto = tipoProducto.name().toLowerCase();
+            return Character.toUpperCase(texto.charAt(0)) + texto.substring(1);
     }
 
 
+
+}

@@ -2,6 +2,7 @@ package com.sistema.puntoventas.repository.impl;
 
 import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.TipoProducto;
 import com.sistema.puntoventas.modelo.UnidadMedida;
 import com.sistema.puntoventas.repository.IProductoRepository;
 
@@ -17,8 +18,8 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     private static final String SQL_INSERT =
         "INSERT INTO producto (nombre, precioCompra, precioVenta, categoria, " +
-        "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida) " +
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida, tipoProducto) " +
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
 
@@ -36,6 +37,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             pstmt.setInt(7, producto.getStockMinimo());
             pstmt.setString(8, producto.getImagen());
             pstmt.setString(9, obtenerUnidadMedida(producto));
+            pstmt.setString(10, producto.getTipoProducto().name());
             int rowsInserted = pstmt.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
@@ -69,6 +71,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                 producto.setStockMinimo(rs.getInt(8));
                 producto.setImagen(rs.getString(9));
                 producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
+                producto.setTipoProducto(TipoProducto.valueOf(rs.getString(11)));
                 // Agregamos el producto armado a nuestra lista
                 listaProductos.add(producto);
                 System.out.println(listaProductos);
@@ -104,6 +107,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                     producto.setStockMinimo(rs.getInt(8));
                     producto.setImagen(rs.getString(9));
                     producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
+                    producto.setTipoProducto(TipoProducto.valueOf(rs.getString(11)));
 
                     // Agregamos el producto armado a nuestra lista
                     listaProductos.add(producto);
@@ -135,6 +139,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             pstmt.setString(8, producto.getImagen());
             pstmt.setString(9, obtenerUnidadMedida(producto));
             pstmt.setInt(10, producto.getId());
+            pstmt.setString(11, producto.getTipoProducto().name());
             pstmt.executeUpdate();
             System.out.println("producto actualizado correctamente");
 
@@ -192,6 +197,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                     producto.setStockMinimo(rs.getInt(8));
                     producto.setImagen(rs.getString(9));
                     producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
+                    producto.setTipoProducto(TipoProducto.valueOf(rs.getString(11)));
 
                     // Agregamos el producto armado a nuestra lista
                     System.out.println("producto encontrado correctamente");
@@ -229,6 +235,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                 producto.setStockMinimo(rs.getInt("stockMinimo"));
                 producto.setImagen(rs.getString("imagen"));
                 producto.setUnidadMedida(mapUnidadMedida(rs.getString("unidadMedida")));
+                producto.setTipoProducto(TipoProducto.valueOf(rs.getString("tipoProducto")));
                 productosStockCritico.add(producto);
             }
             if (productosStockCritico.isEmpty()) {
@@ -263,7 +270,49 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                         }
                     }
 
-                    private String obtenerNombreCategoria(Producto producto) {
+    @Override
+    public List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto) {
+        List<Producto> productosPorTipo = new ArrayList<>();
+        String sql = "SELECT * FROM producto WHERE tipoProducto = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, tipoProducto.name());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Producto producto = new Producto();
+                    producto.setId(rs.getInt("id"));
+                    producto.setNombre(rs.getString("nombre"));
+                    producto.setPrecioCompra(rs.getDouble("precioCompra"));
+                    producto.setPrecioVenta(rs.getDouble("precioVenta"));
+                    producto.setCategoria(mapCategoria(rs.getString("categoria")));
+                    producto.setFechaVenc(rs.getString("fechaVenc"));
+                    producto.setStockActual(rs.getInt("stockActual"));
+                    producto.setStockMinimo(rs.getInt("stockMinimo"));
+                    producto.setImagen(rs.getString("imagen"));
+                    producto.setUnidadMedida(mapUnidadMedida(rs.getString("unidadMedida")));
+                    producto.setTipoProducto(TipoProducto.valueOf(rs.getString("tipoProducto")));
+                    productosPorTipo.add(producto);
+                }
+            }
+            if (productosPorTipo.isEmpty()) {
+                     System.out.println("No se encontraron productos del tipo " + tipoProducto);
+                }else {
+                System.out.println("hay "+ productosPorTipo.size()+" productos del tipo " + tipoProducto);
+
+                }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos por tipo: " + e.getMessage());
+        }
+
+        return productosPorTipo;
+
+    }
+
+        private String obtenerNombreCategoria(Producto producto) {
                         return producto.getCategoria() != null ? producto.getCategoria().getNombreCategoria() : null;
                     }
 
