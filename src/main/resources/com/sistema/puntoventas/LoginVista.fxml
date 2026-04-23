@@ -9,18 +9,19 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="461.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.LoginVista">
-   <!-- Referencia al archivo CSS -->
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.LoginController">
    <stylesheets>
       <URL value="@LoginVista.css" />
    </stylesheets>
 
    <children>
-      <Pane prefHeight="469.0" prefWidth="319.0" styleClass="main-container">
+      <!-- Contenedor Lateral Izquierdo (Imagen de marca) -->
+      <Pane prefHeight="1080.0" prefWidth="800.0" styleClass="main-container" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <ImageView fitHeight="270.0" fitWidth="436.0" layoutX="-58.0" layoutY="113.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="500.0" fitWidth="600.0" layoutX="100.0" layoutY="290.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../../../Img/logo-eluney.png" />
                </image>
@@ -28,28 +29,44 @@
          </children>
       </Pane>
 
-      <Pane layoutX="338.0" layoutY="90.0" prefHeight="266.0" prefWidth="283.0" styleClass="login-card">
+      <!-- Contenedor Derecho (Formulario Centrado) -->
+      <VBox alignment="CENTER" layoutX="800.0" prefHeight="1080.0" prefWidth="1120.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="800.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label layoutX="68.0" layoutY="14.0" text="Control inventario">
-               <font>
-                  <Font name="System Bold" size="18.0" />
-               </font>
-            </Label>
-            <Label layoutX="34.0" layoutY="56.0" text="Ingresa tus credenciales para acceder" textFill="#666666" />
+            <Pane prefHeight="550.0" prefWidth="500.0" styleClass="login-card" maxWidth="500.0">
+               <children>
+                  <Label layoutX="114.0" layoutY="50.0" text="Control Inventario">
+                     <font>
+                        <Font name="System Bold" size="32.0" />
+                     </font>
+                  </Label>
 
-            <Label layoutX="29.0" layoutY="109.0" text="Rut">
-               <font> <Font size="10.0" /> </font>
-            </Label>
-            <TextField layoutX="19.0" layoutY="122.0" prefHeight="30.0" prefWidth="254.0" promptText="12.345.678-9" />
+                  <Label layoutX="85.0" layoutY="110.0" text="Ingresa tus credenciales para acceder" textFill="#666666">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
 
-            <Label layoutX="24.0" layoutY="152.0" text="Contraseña">
-               <font> <Font size="10.0" /> </font>
-            </Label>
-            <!-- Cambié TextField por PasswordField para mayor seguridad -->
-            <PasswordField layoutX="18.0" layoutY="167.0" prefHeight="30.0" prefWidth="254.0" />
+                  <!-- Campo RUT -->
+                  <Label layoutX="50.0" layoutY="190.0" text="RUT">
+                     <font> <Font name="System Bold" size="14.0" /> </font>
+                  </Label>
+                  <TextField fx:id="rutTextField" layoutX="50.0" layoutY="215.0" prefHeight="50.0" prefWidth="400.0" promptText="12.345.678-9" style="-fx-font-size: 16px;" />
 
-            <Button layoutX="19.0" layoutY="218.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="254.0" styleClass="button" text="Continuar" />
+                  <!-- Campo Contraseña -->
+                  <Label layoutX="50.0" layoutY="290.0" text="Contraseña">
+                     <font> <Font name="System Bold" size="14.0" /> </font>
+                  </Label>
+                  <PasswordField fx:id="passwordField" layoutX="50.0" layoutY="315.0" prefHeight="50.0" prefWidth="400.0" style="-fx-font-size: 16px;" />
+
+                  <!-- Botón -->
+                  <Button fx:id="continuarButton" layoutX="50.0" layoutY="410.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="60.0" prefWidth="400.0" styleClass="button" text="CONTINUAR">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Button>
+               </children>
+            </Pane>
          </children>
-      </Pane>
+      </VBox>
    </children>
 </AnchorPane>
