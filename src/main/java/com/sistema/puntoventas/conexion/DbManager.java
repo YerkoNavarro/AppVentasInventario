@@ -2,7 +2,6 @@ package com.sistema.puntoventas.conexion;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 public class DbManager {
     String url = "jdbc:sqlite:DBventasInventario.db";
 
@@ -13,7 +12,6 @@ public class DbManager {
             System.out.println(e.getMessage());
         }
     }
-
     public void crearTablaProductos(){
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS producto ("

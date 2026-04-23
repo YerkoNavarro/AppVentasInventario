@@ -7,7 +7,7 @@ import com.sun.jdi.connect.spi.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 
-/* 
+/*
 public class UsuarioRepositoryImpl  implements IUsuarioRepository {
     public boolean registrarUsuario (Usuario Usuario){
         String sql= "INSERT INTO Usuario (nombre, apellido, rut, contraseña, telefono, rol, estado) VALUES (?,?,?,?,?,?,?)";

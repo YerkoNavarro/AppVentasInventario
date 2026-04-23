@@ -1,0 +1,38 @@
+/* Fondo principal con el azul de la marca */
+.main-container {
+    -fx-background-color: #a8b7cd;
+}
+
+/* Tarjeta blanca central */
+.login-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10; /* Bordes redondeados para el panel */
+}
+
+/* Estilo para los campos de texto (Rut y Contraseña) */
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: #D1D1D1; /* Color gris suave para el borde */
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 5;
+}
+
+/* Efecto cuando haces clic en el campo de texto */
+.text-field:focused {
+    -fx-border-color: #083884;
+    -fx-border-width: 2;
+}
+
+/* Estilo para el botón */
+.button {
+    -fx-background-color: #083884;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #062a63;
+}
