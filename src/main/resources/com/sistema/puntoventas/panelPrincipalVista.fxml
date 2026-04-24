@@ -1,142 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="1080.0" prefWidth="1920.0" stylesheets="@PanelPrincipalVista.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelPrincipalVistaController">
-   <children>
-      <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@css/PanelPrincipalVista.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelPrincipalVistaController">
+    <children>
+        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
-         <!-- MENU IZQUIERDO (SIN TOCAR) -->
-         <left>
-            <VBox prefHeight="514.0" prefWidth="250.0" spacing="12.0" style="-fx-background-color: grey;" BorderPane.alignment="CENTER">
-               <padding>
-                  <Insets bottom="18.0" left="16.0" right="16.0" top="18.0" />
-               </padding>
-               <children>
-                  <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Panel principal" />
-                  <VBox spacing="10.0">
-                     <children>
-                        <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-background-radius: 12; -fx-padding: 10 14;" text="Usuarios">
-                           <graphic>
-                              <Label style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4 9; -fx-background-radius: 999;" text="U" />
-                           </graphic>
-                        </Button>
-                        <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-background-radius: 12; -fx-padding: 10 14;" text="Productos">
-                           <graphic>
-                              <Label style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4 9; -fx-background-radius: 999;" text="P" />
-                           </graphic>
-                        </Button>
-                        <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-background-radius: 12; -fx-padding: 10 14;" text="Ventas">
-                           <graphic>
-                              <Label style="-fx-background-color: #22c55e; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4 9; -fx-background-radius: 999;" text="V" />
-                           </graphic>
-                        </Button>
-                        <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-background-radius: 12; -fx-padding: 10 14;" text="Inventario">
-                           <graphic>
-                              <Label style="-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4 9; -fx-background-radius: 999;" text="I" />
-                           </graphic>
-                        </Button>
-                        <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600; -fx-background-radius: 12; -fx-padding: 10 14;" text="Estadisticas">
-                           <graphic>
-                              <Label style="-fx-background-color: #a855f7; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4 9; -fx-background-radius: 999;" text="E" />
-                           </graphic>
-                        </Button>
-                     </children>
-                  </VBox>
-                  <Region VBox.vgrow="ALWAYS" />
-                  <Button alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" style="-fx-background-color: #1d4ed8; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 700; -fx-background-radius: 12; -fx-padding: 10 14;" text="Configuracion">
-                     <graphic>
-                        <Label style="-fx-background-color: #ffffff22; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4 9; -fx-background-radius: 999;" text="C" />
-                     </graphic>
-                  </Button>
-               </children>
-            </VBox>
-         </left>
+            <left>
+                <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="30.0" />
+                    </padding>
+                    <children>
+                        <Label styleClass="logo-label" text="Eluney" />
 
-         <!-- PANEL CENTRAL (CONTENIDO DINÁMICO) -->
-         <center>
-            <ScrollPane fitToWidth="true" style="-fx-background-color: #f1f5f9;">
-               <content>
-                  <VBox spacing="25.0">
-                     <padding>
-                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-                     </padding>
-                     <children>
-                        <!-- Titulo -->
-                        <VBox>
-                           <children>
-                              <Label text="Dashboard">
-                                 <font><Font name="System Bold" size="30.0" /></font>
-                              </Label>
-                              <Label text="Resumen de las actividades diarias" textFill="#64748b">
-                                 <font><Font size="16.0" /></font>
-                              </Label>
-                           </children>
+                        <VBox spacing="5.0">
+                            <children>
+                                <Button fx:id="btnUsuarios" maxWidth="Infinity" styleClass="menu-button" text="Usuarios">
+                                    <graphic>
+                                        <Label style="-fx-background-color: #6366f1;" styleClass="icon-circle" text="U" />
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="btnProductos" maxWidth="Infinity" styleClass="menu-button, menu-button-active" text="Productos">
+                                    <graphic>
+                                        <Label style="-fx-background-color: #0ea5e9;" styleClass="icon-circle" text="P" />
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="btnVentas" maxWidth="Infinity" styleClass="menu-button" text="Ventas">
+                                    <graphic>
+                                        <Label style="-fx-background-color: #22c55e;" styleClass="icon-circle" text="V" />
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="btnInventario" maxWidth="Infinity" styleClass="menu-button" text="Inventario">
+                                    <graphic>
+                                        <Label style="-fx-background-color: #f59e0b;" styleClass="icon-circle" text="I" />
+                                    </graphic>
+                                </Button>
+                            </children>
                         </VBox>
 
-                        <!-- Tarjetas KPI -->
-                        <HBox spacing="20.0">
-                           <children>
-                              <VBox prefHeight="140.0" prefWidth="300.0" styleClass="card-kpi-blue" HBox.hgrow="ALWAYS" />
-                              <VBox prefHeight="140.0" prefWidth="300.0" styleClass="card-kpi-green" HBox.hgrow="ALWAYS" />
-                              <VBox prefHeight="140.0" prefWidth="300.0" styleClass="card-kpi-yellow" HBox.hgrow="ALWAYS" />
-                           </children>
-                        </HBox>
+                        <Region VBox.vgrow="ALWAYS" />
 
-                        <!-- Rejilla de Botones Interactivos -->
-                        <GridPane hgap="20.0" vgap="20.0">
-                           <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                           </columnConstraints>
-                           <children>
-                              <!-- Botón Dashboard -->
-                              <VBox alignment="CENTER" onMouseClicked="#handleNavegacion" spacing="10.0" styleClass="card-menu-item" GridPane.columnIndex="0">
-                                 <children>
-                                    <Label text="Dashboard" styleClass="label-titulo-card" />
-                                    <Label alignment="CENTER" text="Visión general de todas las métricas." textAlignment="CENTER" wrapText="true" />
-                                 </children>
-                                 <padding><Insets bottom="25.0" left="15.0" right="15.0" top="25.0" /></padding>
-                              </VBox>
-                              <!-- Botón Órdenes -->
-                              <VBox alignment="CENTER" onMouseClicked="#handleNavegacion" spacing="10.0" styleClass="card-menu-item" GridPane.columnIndex="1">
-                                 <children>
-                                    <Label text="Órdenes" styleClass="label-titulo-card" />
-                                    <Label alignment="CENTER" text="Gestión y seguimiento de compras." textAlignment="CENTER" wrapText="true" />
-                                 </children>
-                                 <padding><Insets bottom="25.0" left="15.0" right="15.0" top="25.0" /></padding>
-                              </VBox>
-                              <!-- Botón Productos -->
-                              <VBox alignment="CENTER" onMouseClicked="#handleNavegacion" spacing="10.0" styleClass="card-menu-item" GridPane.columnIndex="2">
-                                 <children>
-                                    <Label text="Productos" styleClass="label-titulo-card" />
-                                    <Label alignment="CENTER" text="Administrar inventario disponible." textAlignment="CENTER" wrapText="true" />
-                                 </children>
-                                 <padding><Insets bottom="25.0" left="15.0" right="15.0" top="25.0" /></padding>
-                              </VBox>
-                           </children>
-                        </GridPane>
-                     </children>
-                  </VBox>
-               </content>
-            </ScrollPane>
-         </center>
-      </BorderPane>
-   </children>
+                        <Button maxWidth="Infinity" styleClass="menu-button" text="Configuración">
+                            <graphic>
+                                <Label style="-fx-background-color: #9ca3af;" styleClass="icon-circle" text="C" />
+                            </graphic>
+                        </Button>
+                    </children>
+                </VBox>
+            </left>
+
+            <center>
+                <StackPane fx:id="contentArea" style="-fx-background-color: #f1f5f9;" />
+            </center>
+
+        </BorderPane>
+    </children>
 </AnchorPane>
