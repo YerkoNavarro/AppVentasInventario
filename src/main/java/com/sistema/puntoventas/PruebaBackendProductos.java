@@ -1,5 +1,6 @@
 package com.sistema.puntoventas;
 
+import com.sistema.puntoventas.conexion.DbManager;
 import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.TipoProducto;
@@ -10,6 +11,7 @@ public class PruebaBackendProductos {
     public static void main(String[] args) {
 
         System.out.println("--- INICIANDO PRUEBA DE BASE DE DATOS ---");
+
 
 
         ProductoService productoService = new ProductoService();
@@ -35,10 +37,15 @@ public class PruebaBackendProductos {
         try {
             System.out.println("Enviando producto al servicio...");
 
+           /* productoService.eliminarProducto(1);
+            productoService.eliminarCategoria(1);
+            productoService.eliminarCategoria(2);*/
+
             // Llamamos a tu método registrarProducto
             productoService.registrarProducto(producto1);
             productoService.registrarCategoria(categoria1);
             productoService.registrarCategoria(categoria2);
+
 
             System.out.println("¡ÉXITO! El producto '" + producto1.getNombre() + "' fue guardado en la BD.");
             System.out.println("¡ÉXITO! La categoria '" + categoria1.getNombreCategoria() + "' fue guardado en la BD.");

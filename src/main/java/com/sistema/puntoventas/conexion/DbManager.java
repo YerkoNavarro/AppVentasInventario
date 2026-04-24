@@ -1,6 +1,8 @@
 package com.sistema.puntoventas.conexion;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DbManager {
@@ -42,13 +44,14 @@ public class DbManager {
                 + " nombre TEXT NOT NULL,"
                 + " precioCompra REAL,"
                 + " precioVenta REAL,"
-                + " categoria TEXT,"
+                + " idCategoria INTEGER NOT NULL,"
                 + " fechaVenc TEXT,"
                 + " stockActual INTEGER,"
                 + " stockMinimo INTEGER,"
                 + " imagen TEXT,"
                 + " unidadMedida TEXT,"
-                + " tipoProducto TEXT"
+                + " tipoProducto TEXT,"
+                + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
                 + ");";
 
         try (var conn = DriverManager.getConnection(url);
@@ -121,6 +124,7 @@ public class DbManager {
 
     public void crearTodasLasTablas() {
         crearTablaUsuario();
+        crearTablaCategoria();
         creartablaVentas();
         crearTablaDetalleVenta();
         crearTablaProductos();
@@ -143,6 +147,24 @@ public class DbManager {
             System.out.println("Usuario administrador verificado/creado.");
         } catch (SQLException e) {
             System.err.println("Error al crear admin: " + e.getMessage());
+        }
+    }
+
+
+    public void crearTablaCategoria() {
+        String sql = "CREATE TABLE IF NOT EXISTS categoria ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " nombreCategoria TEXT UNIQUE NOT NULL,"
+                + " descripcion TEXT,"
+                +  "activa boolean"
+                + ");";
+
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'categoria' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla categoria: " + e.getMessage());
         }
     }
 }
