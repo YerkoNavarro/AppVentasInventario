@@ -437,6 +437,28 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             return false;
         }
 
+    @Override
+    public int obtenerStockActual(int id) {
+        if (id <= 0) {
+            return -1;
+        }
+
+        String sql = "SELECT stockActual FROM producto WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("stockActual");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener stock actual: " + e.getMessage());
+        }
+
+        return -1;
+    }
 
 
     private String obtenerNombreCategoria(Producto producto) {

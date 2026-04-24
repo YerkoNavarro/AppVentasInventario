@@ -2,6 +2,7 @@ package com.sistema.puntoventas.service;
 
 import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.TipoProducto;
 import com.sistema.puntoventas.repository.IProductoRepository;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 
@@ -45,13 +46,13 @@ public class ProductoService {
             throw new Exception("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
         }
 
-        /* if (producto.getTipoProducto().equalsIgnoreCase("PLATILLO")) {
-        // Para platillos, el costo viene de los ingredientes. Se valida que se venda a un precio válido.
-        if (producto.getPrecioVenta() <= 0) {
-            throw new Exception("El platillo debe tener un precio de venta mayor a cero.");
+        if (producto.getTipoProducto() == TipoProducto.PLATILLO) {
+            // Para platillos, el costo viene de los ingredientes. Se valida que se venda a un precio válido.
+            if (producto.getPrecioVenta() <= 0) {
+                throw new Exception("El platillo debe tener un precio de venta mayor a cero.");
+            }
+            // Aquí en el futuro llamarías a PlatilloService para calcular el costo de los ingredientes
         }
-        // Aquí en el futuro llamarías a PlatilloService para calcular el costo de los ingredientes
-    }*/
 
 
         if (producto.getUnidadMedida() == null) {
@@ -71,6 +72,14 @@ public class ProductoService {
 
     public List<Producto> obtenerProductos() {
         return productoRepository.obtenerProductos();
+    }
+
+    public List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto) throws Exception {
+        if (tipoProducto == null) {
+            throw new Exception("Debe seleccionar un tipo de producto.");
+        }
+
+        return productoRepository.buscarPorTipoProducto(tipoProducto);
     }
 
     public boolean actualzarProducto(Producto producto) throws Exception{
@@ -135,6 +144,14 @@ public class ProductoService {
 
         stockCritico.sort(Comparator.comparingDouble(Producto::getStockActual));
         return stockCritico;
+    }
+
+    public int obtenerStockActual(int id) throws Exception {
+        if (id <= 0) {
+            throw new Exception("ID de producto no válido.");
+        }
+
+        return productoRepository.obtenerStockActual(id);
     }
 
     public boolean existeCategoria(String nombreCategoria) throws Exception {

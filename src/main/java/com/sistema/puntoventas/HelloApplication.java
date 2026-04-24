@@ -1,8 +1,10 @@
 package com.sistema.puntoventas;
 
 import com.sistema.puntoventas.conexion.DbManager;
+import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
+import com.sistema.puntoventas.modelo.TipoProducto;
+import com.sistema.puntoventas.modelo.UnidadMedida;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -25,10 +27,9 @@ public class HelloApplication extends Application {
         dbManager.conectarBD();
         dbManager.crearTodasLasTablas();
 
-        
-        
-        /*Producto producto = new Producto(1, "Producto de prueba actualizado", 5000, 10.50, "Descripción de prueba", "Marca de prueba", 100, 100, "imagen.jpg", 4);*/
 
+        Categoria categoria1  =new Categoria(1,true, "Bebidas calientes y frías", "Bebidas");
+        Producto producto1 = new Producto(2, "Café Americano", 1000, 1500, null, "Cafetería Eluney", 100, 100, "cafe_americano.jpg", UnidadMedida.UNIDAD, TipoProducto.DIRECTO);
 
        
 
