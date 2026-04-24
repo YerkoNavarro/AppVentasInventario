@@ -11,8 +11,11 @@ public interface IProductoRepository {
     List<Producto>obtenerProductoPorNombre(String nombre);
     boolean actualizarProducto(Producto producto);
     boolean eliminarProducto(int id);
+    boolean desactivarProducto(int id);
     Producto obtenerProductoPorId(int id);
     List<Producto>obtenerStockCritico();
     boolean existeCategoria(String nombre);
     List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto);
+    boolean estaAsociadoVentaOPlatillo(int id);
+
 }

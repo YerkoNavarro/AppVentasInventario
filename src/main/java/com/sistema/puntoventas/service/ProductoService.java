@@ -91,4 +91,35 @@ public class ProductoService {
     }
 
 
+    public String  eliminarProducto(int id) throws Exception{
+
+        if (id <= 0) {
+            throw new Exception("ID de producto no válido.");
+        }
+
+        Producto producto = productoRepository.obtenerProductoPorId(id);
+        if(producto == null){
+            throw new Exception("El producto no existe");
+        }
+
+        boolean dependencia = productoRepository.estaAsociadoVentaOPlatillo(id);
+        if(dependencia){
+            boolean desactivado = productoRepository.desactivarProducto(id);
+            if(!desactivado){
+                throw new Exception("Error al desactivar");
+            }
+            return "Este producto esta asociado a venta o platillo y fue desactivado";
+
+        }else{
+            // Eliminamos  de la BD
+            boolean eliminado = productoRepository.eliminarProducto(id);
+            if (!eliminado) {
+                throw new Exception("Error al intentar eliminar el producto permanentemente.");
+            }
+            return "El producto no tenía asociaciones y fue ELIMINADO de la base de datos.";
+        }
+
+    }
+
+
 }

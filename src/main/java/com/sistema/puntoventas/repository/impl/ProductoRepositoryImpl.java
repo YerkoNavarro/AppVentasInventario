@@ -173,6 +173,23 @@ public class ProductoRepositoryImpl implements IProductoRepository {
     }
 
     @Override
+    public boolean desactivarProducto(int id) {
+        String sql = "UPDATE producto SET estado = 'INACTIVO' WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+            int filasAfectadas = pstmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al desactivar el producto: " + e.getMessage());
+        }
+
+        return false;
+    }
+
+    @Override
     public Producto obtenerProductoPorId(int id) {
          Producto producto = new Producto();
         String sql = "SELECT * FROM producto WHERE id = ?";
@@ -312,7 +329,28 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     }
 
-        private String obtenerNombreCategoria(Producto producto) {
+        @Override
+        public boolean estaAsociadoVentaOPlatillo(int id) {
+            String sql = "SELECT COUNT(*) AS total FROM detalle_venta WHERE idProducto = ?";
+
+            try (Connection conn = DriverManager.getConnection(url);
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setInt(1, id);
+                ResultSet rs = pstmt.executeQuery();
+
+                if (rs.next()) {
+                    return rs.getInt("total") > 0; // Si hay más de 0, está asociado
+                }
+            } catch (SQLException e) {
+                System.err.println("Error al verificar dependencias del producto: " + e.getMessage());
+            }
+            return false;
+        }
+
+
+
+    private String obtenerNombreCategoria(Producto producto) {
                         return producto.getCategoria() != null ? producto.getCategoria().getNombreCategoria() : null;
                     }
 
