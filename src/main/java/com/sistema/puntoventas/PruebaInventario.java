@@ -24,7 +24,7 @@ public class PruebaInventario {
         dbManager.crearUsuarioAdmin(); // Esto nos asegura que existe un usuario con ID para la prueba
 
         // 2. Crear un producto de prueba (Para evitar error de Foreign Key)
-        System.out.println("\n[Paso 2] Insertando producto de prueba...");
+        System.out.println("\n[Paso 2] Insertando/Actualizando producto de prueba...");
         insertarProductoPrueba();
 
         // 3. Probar el Repositorio de Movimientos
@@ -39,21 +39,29 @@ public class PruebaInventario {
                 "Compra inicial a proveedor",
                 1 // ID del usuario Admin
         );
+        // Creamos un movimiento: Una ENTRADA de 50 unidades
+        MovimientoInventario nuevoMovimiento2 = new MovimientoInventario(
+                3, // ID del producto (El que acabamos de crear)
+                TipoMovimiento.MERMA,
+                5, // Cantidad
+                "Compra inicial a proveedor",
+                3 // ID del usuario Admin
+        );
 
         // A. Probamos guardar en el historial_inventario
         boolean registrado = repoMovimientos.registrarMovimiento(nuevoMovimiento);
         if (registrado) {
-            System.out.println("✅ ÉXITO: El movimiento se guardó en historial_inventario.");
+            System.out.println("ÉXITO: El movimiento se guardó en historial_inventario.");
         } else {
-            System.out.println("❌ ERROR: No se pudo guardar el movimiento.");
+            System.out.println("ERROR: No se pudo guardar el movimiento.");
         }
 
         // B. Probamos actualizar el stock en la tabla producto (sumamos los 50)
         boolean stockActualizado = repoMovimientos.actualizarStockFisico(1, 50);
         if (stockActualizado) {
-            System.out.println("✅ ÉXITO: El stock del producto se actualizó correctamente.");
+            System.out.println("ÉXITO: El stock del producto se actualizó correctamente.");
         } else {
-            System.out.println("❌ ERROR: No se pudo actualizar el stock del producto.");
+            System.out.println("ERROR: No se pudo actualizar el stock del producto.");
         }
 
         // C. Probamos el sistema de alertas
@@ -71,15 +79,17 @@ public class PruebaInventario {
 
     private static void insertarProductoPrueba() {
         String url = "jdbc:sqlite:DBventasInventario.db";
-        // Usamos INSERT OR IGNORE para que no de error si corres la prueba varias veces
-        String sql = "INSERT OR IGNORE INTO producto (id, nombre, precioCompra, precioVenta, categoria, stockActual, stockMinimo) " +
-                "VALUES (1, 'Café de Grano 1Kg', 8000, 12000, 'Insumos', 10, 15)";
+        // CAMBIO: Ahora usamos INSERT OR REPLACE. Si el ID 1 ya existe, lo sobrescribe
+        // con los valores que pongas aquí. Así podrás probar cambios sin problemas.
+        String sql = "INSERT OR REPLACE INTO producto (id, nombre, precioCompra, precioVenta, categoria, stockActual, stockMinimo) " +
+                "VALUES (1, 'Café de Grano 1Kg Editado', 8500, 12500, 'Insumos', 10, 15)";
+
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.executeUpdate();
-            System.out.println("   -> Producto 'Café de Grano 1Kg' (ID: 1) creado/verificado.");
+            System.out.println("   -> Producto (ID: 1) creado/actualizado correctamente.");
         } catch (SQLException e) {
-            System.err.println("   -> Error al crear producto: " + e.getMessage());
+            System.err.println("   -> Error al crear o actualizar producto: " + e.getMessage());
         }
     }
 
@@ -89,7 +99,7 @@ public class PruebaInventario {
             // Verificamos cómo quedó el stock
             var rsProd = conn.createStatement().executeQuery("SELECT nombre, stockActual FROM producto WHERE id = 1");
             if (rsProd.next()) {
-                System.out.println("📦 ESTADO DEL PRODUCTO:");
+                System.out.println("ESTADO DEL PRODUCTO:");
                 System.out.println("   - Nombre: " + rsProd.getString("nombre"));
                 System.out.println("   - Stock Actual en BD: " + rsProd.getInt("stockActual"));
             }
@@ -97,7 +107,7 @@ public class PruebaInventario {
             // Verificamos el último registro en el historial
             var rsHist = conn.createStatement().executeQuery("SELECT tipoMovimiento, cantidad, motivo FROM historial_inventario ORDER BY idMovimiento DESC LIMIT 1");
             if (rsHist.next()) {
-                System.out.println("📝 ÚLTIMO MOVIMIENTO GUARDADO:");
+                System.out.println("ÚLTIMO MOVIMIENTO GUARDADO:");
                 System.out.println("   - Tipo: " + rsHist.getString("tipoMovimiento"));
                 System.out.println("   - Cantidad: " + rsHist.getInt("cantidad"));
                 System.out.println("   - Motivo: " + rsHist.getString("motivo"));

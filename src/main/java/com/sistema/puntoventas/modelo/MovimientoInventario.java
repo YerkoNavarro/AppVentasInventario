@@ -80,6 +80,16 @@ public class MovimientoInventario {
         this.idUsuario = idUsuario;
     }
 
-
-
+    @Override
+    public String toString() {
+        return "MovimientoInventario{" +
+                "idMovimiento=" + idMovimiento +
+                ", idProducto=" + idProducto +
+                ", tipoMovimiento=" + tipoMovimiento +
+                ", cantidad=" + cantidad +
+                ", fecha=" + fecha +
+                ", motivo='" + motivo + '\'' +
+                ", idUsuario=" + idUsuario +
+                '}';
+    }
 }
