@@ -14,7 +14,7 @@
 <AnchorPane prefHeight="461.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.LoginVista">
    <!-- Referencia al archivo CSS -->
    <stylesheets>
-      <URL value="@LoginVista.css" />
+      <URL value="@css/LoginVista.css" />
    </stylesheets>
 
    <children>

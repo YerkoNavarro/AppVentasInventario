@@ -3,41 +3,48 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@estilos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelPrincipalVistaController">
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" stylesheets="@css/PanelPrincipalVista.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelPrincipalVistaController">
     <children>
         <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
             <left>
                 <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
                     <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="30.0" />
                     </padding>
                     <children>
-                        <Label styleClass="logo-label" text="PELIO CLONE" />
+                        <Label styleClass="logo-label" text="Eluney" />
 
                         <VBox spacing="5.0">
                             <children>
-                                <Button fx:id="btnUsuarios" styleClass="menu-button" text="Usuarios" maxWidth="Infinity">
+                                <Button fx:id="btnUsuarios" maxWidth="Infinity" styleClass="menu-button" text="Usuarios">
                                     <graphic>
                                         <Label style="-fx-background-color: #6366f1;" styleClass="icon-circle" text="U" />
                                     </graphic>
                                 </Button>
-                                <Button fx:id="btnProductos" styleClass="menu-button, menu-button-active" text="Productos" maxWidth="Infinity">
+                                <Button fx:id="btnProductos" maxWidth="Infinity" styleClass="menu-button, menu-button-active" text="Productos">
                                     <graphic>
                                         <Label style="-fx-background-color: #0ea5e9;" styleClass="icon-circle" text="P" />
                                     </graphic>
                                 </Button>
-                                <Button fx:id="btnVentas" styleClass="menu-button" text="Ventas" maxWidth="Infinity">
+                                <Button fx:id="btnVentas" maxWidth="Infinity" styleClass="menu-button" text="Ventas">
                                     <graphic>
                                         <Label style="-fx-background-color: #22c55e;" styleClass="icon-circle" text="V" />
                                     </graphic>
                                 </Button>
-                                <Button fx:id="btnInventario" styleClass="menu-button" text="Inventario" maxWidth="Infinity">
+                                <Button fx:id="btnInventario" maxWidth="Infinity" styleClass="menu-button" text="Inventario">
                                     <graphic>
                                         <Label style="-fx-background-color: #f59e0b;" styleClass="icon-circle" text="I" />
                                     </graphic>
@@ -47,7 +54,7 @@
 
                         <Region VBox.vgrow="ALWAYS" />
 
-                        <Button styleClass="menu-button" text="Configuración" maxWidth="Infinity">
+                        <Button maxWidth="Infinity" styleClass="menu-button" text="Configuración">
                             <graphic>
                                 <Label style="-fx-background-color: #9ca3af;" styleClass="icon-circle" text="C" />
                             </graphic>
@@ -57,10 +64,75 @@
             </left>
 
             <center>
-                <StackPane fx:id="contentArea" style="-fx-background-color: #f9fafb;">
-                    <padding>
-                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-                    </padding>
+                <StackPane fx:id="contentArea" style="-fx-background-color: #f1f5f9;">
+                    <children>
+
+                        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+                            <content>
+                                <VBox spacing="25.0">
+                                    <padding>
+                                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                                    </padding>
+                                    <children>
+                                        <VBox>
+                                            <children>
+                                                <Label text="Dashboard">
+                                                    <font><Font name="System Bold" size="30.0" /></font>
+                                                </Label>
+                                                <Label text="Resumen de las actividades diarias" textFill="#64748b">
+                                                    <font><Font size="16.0" /></font>
+                                                </Label>
+                                            </children>
+                                        </VBox>
+
+                                        <HBox spacing="20.0">
+                                            <children>
+                                                <VBox prefHeight="140.0" prefWidth="300.0" styleClass="card-kpi-blue" HBox.hgrow="ALWAYS" />
+                                                <VBox prefHeight="140.0" prefWidth="300.0" styleClass="card-kpi-green" HBox.hgrow="ALWAYS" />
+                                                <VBox prefHeight="140.0" prefWidth="300.0" styleClass="card-kpi-yellow" HBox.hgrow="ALWAYS" />
+                                            </children>
+                                        </HBox>
+
+                                        <GridPane hgap="20.0" vgap="20.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <VBox alignment="CENTER" onMouseClicked="#handleNavegacion" spacing="10.0" styleClass="card-menu-item" GridPane.columnIndex="0">
+                                                    <children>
+                                                        <Label styleClass="label-titulo-card" text="Dashboard" />
+                                                        <Label alignment="CENTER" text="Visión general de todas las métricas." textAlignment="CENTER" wrapText="true" />
+                                                    </children>
+                                                    <padding><Insets bottom="25.0" left="15.0" right="15.0" top="25.0" /></padding>
+                                                </VBox>
+                                                <VBox alignment="CENTER" onMouseClicked="#handleNavegacion" spacing="10.0" styleClass="card-menu-item" GridPane.columnIndex="1">
+                                                    <children>
+                                                        <Label styleClass="label-titulo-card" text="Órdenes" />
+                                                        <Label alignment="CENTER" text="Gestión y seguimiento de compras." textAlignment="CENTER" wrapText="true" />
+                                                    </children>
+                                                    <padding><Insets bottom="25.0" left="15.0" right="15.0" top="25.0" /></padding>
+                                                </VBox>
+                                                <VBox alignment="CENTER" onMouseClicked="#handleNavegacion" spacing="10.0" styleClass="card-menu-item" GridPane.columnIndex="2">
+                                                    <children>
+                                                        <Label styleClass="label-titulo-card" text="Productos" />
+                                                        <Label alignment="CENTER" text="Administrar inventario disponible." textAlignment="CENTER" wrapText="true" />
+                                                    </children>
+                                                    <padding><Insets bottom="25.0" left="15.0" right="15.0" top="25.0" /></padding>
+                                                </VBox>
+                                            </children>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                 </rowConstraints>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+
+                    </children>
                 </StackPane>
             </center>
         </BorderPane>
