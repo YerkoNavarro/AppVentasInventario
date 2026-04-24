@@ -269,23 +269,112 @@ public class ProductoRepositoryImpl implements IProductoRepository {
         return productosStockCritico;
     }
 
-                    @Override
-                    public boolean existeCategoria(String nombre) {
-                        String sql = "SELECT 1 FROM producto WHERE categoria = ? LIMIT 1";
+    @Override
+    public boolean registrarCategoria(Categoria categoria) {
+        if (categoria == null || categoria.getNombreCategoria() == null || categoria.getNombreCategoria().trim().isEmpty()) {
+            return false;
+        }
 
-                        try (Connection conn = DriverManager.getConnection(url);
-                             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String nombre = categoria.getNombreCategoria().trim();
+        String sqlExiste = "SELECT 1 FROM categoria WHERE nombreCategoria = ? LIMIT 1";
+        String sqlInsert = "INSERT INTO categoria (nombreCategoria, descripcion, activa) VALUES (?, ?, ?)";
 
-                            pstmt.setString(1, nombre);
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmtExiste = conn.prepareStatement(sqlExiste);
+             PreparedStatement pstmtInsert = conn.prepareStatement(sqlInsert)) {
 
-                            try (ResultSet rs = pstmt.executeQuery()) {
-                                return rs.next();
-                            }
-                        } catch (SQLException e) {
-                            System.err.println("Error al verificar categoría: " + e.getMessage());
-                            return false;
-                        }
-                    }
+            pstmtExiste.setString(1, nombre);
+            try (ResultSet rs = pstmtExiste.executeQuery()) {
+                if (rs.next()) {
+                    return false;
+                }
+            }
+
+            pstmtInsert.setString(1, nombre);
+            pstmtInsert.setString(2, categoria.getDescripcion());
+            pstmtInsert.setBoolean(3, categoria.isActiva());
+
+            return pstmtInsert.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al registrar categoría: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean existeCategoria(String nombre) {
+        String sql = "SELECT 1 FROM producto WHERE categoria = ? LIMIT 1";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, nombre);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar categoría: " + e.getMessage());
+                return false;
+        }
+    }
+
+    @Override
+    public boolean actualizarCategoria(int id) {
+        if (id <= 0) {
+            return false;
+        }
+
+        String sql = "UPDATE categoria SET activa = CASE WHEN activa = 1 THEN 0 ELSE 1 END WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar categoría: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean eliminarCategoria(int id) {
+        if (id <= 0) {
+            return false;
+        }
+
+        String sqlBuscarNombre = "SELECT nombreCategoria FROM categoria WHERE id = ?";
+        String sqlAsociada = "SELECT COUNT(*) AS total FROM producto WHERE lower(trim(categoria)) = lower(trim(?))";
+        String sqlEliminar = "DELETE FROM categoria WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmtBuscar = conn.prepareStatement(sqlBuscarNombre);
+             PreparedStatement pstmtAsociada = conn.prepareStatement(sqlAsociada);
+             PreparedStatement pstmtEliminar = conn.prepareStatement(sqlEliminar)) {
+
+            pstmtBuscar.setInt(1, id);
+            String nombreCategoria;
+            try (ResultSet rs = pstmtBuscar.executeQuery()) {
+                if (!rs.next()) {
+                    return false;
+                }
+                nombreCategoria = rs.getString("nombreCategoria");
+            }
+
+            pstmtAsociada.setString(1, nombreCategoria);
+            try (ResultSet rs = pstmtAsociada.executeQuery()) {
+                if (rs.next() && rs.getInt("total") > 0) {
+                    return false;
+                }
+            }
+
+            pstmtEliminar.setInt(1, id);
+            return pstmtEliminar.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar categoría: " + e.getMessage());
+            return false;
+        }
+    }
 
     @Override
     public List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto) {

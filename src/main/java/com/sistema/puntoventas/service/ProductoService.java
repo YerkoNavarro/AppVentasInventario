@@ -1,9 +1,12 @@
 package com.sistema.puntoventas.service;
 
+import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.repository.IProductoRepository;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ProductoService {
@@ -122,4 +125,74 @@ public class ProductoService {
     }
 
 
+    public List<Producto>obtenerStockCritico(){
+        List<Producto> stockCritico = productoRepository.obtenerStockCritico();
+
+        if(stockCritico == null){
+            return new ArrayList<>();
+
+        }
+
+        stockCritico.sort(Comparator.comparingDouble(Producto::getStockActual));
+        return stockCritico;
+    }
+
+    public boolean existeCategoria(String nombreCategoria) throws Exception {
+        if (nombreCategoria == null || nombreCategoria.trim().isEmpty()) {
+            throw new Exception("No existe categoria");
+        }
+
+        return productoRepository.existeCategoria(nombreCategoria.trim());
+    }
+
+    public void registrarCategoria(Categoria categoria) throws Exception {
+        if (categoria == null) {
+            throw new Exception("La categoría no puede ser nula.");
+        }
+
+        String nombre = categoria.getNombreCategoria();
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("El nombre de la categoría es obligatorio.");
+        }
+
+        categoria.setNombreCategoria(nombre.trim());
+        if (categoria.getDescripcion() != null) {
+            categoria.setDescripcion(categoria.getDescripcion().trim());
+        }
+
+        if (productoRepository.existeCategoria(categoria.getNombreCategoria())) {
+            throw new Exception("La categoría ya existe.");
+        }
+
+        boolean registrada = productoRepository.registrarCategoria(categoria);
+        if (!registrada) {
+            throw new Exception("No se pudo registrar la categoría.");
+        }
+    }
+
+    public boolean actualizarCategoria(int id) throws Exception {
+        if (id <= 0) {
+            throw new Exception("ID de categoría no válido.");
+        }
+
+        boolean actualizada = productoRepository.actualizarCategoria(id);
+        if (!actualizada) {
+            throw new Exception("No se pudo actualizar la categoría.");
+        }
+
+        return true;
+    }
+
+    public boolean eliminarCategoria(int id) throws Exception {
+        if (id <= 0) {
+            throw new Exception("ID de categoría no válido.");
+        }
+
+        boolean eliminada = productoRepository.eliminarCategoria(id);
+        if (!eliminada) {
+            throw new Exception("No se pudo eliminar la categoría porque está asociada a un producto o platillo, no existe o hubo un error.");
+        }
+
+        return true;
+    }
 }
