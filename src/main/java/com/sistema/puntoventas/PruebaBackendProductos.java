@@ -21,8 +21,8 @@ public class PruebaBackendProductos {
                 "pie de limon",
                 1000,
                 1500,
-                pasteles,
-                "2026",
+                categoria2,
+                "2026-10-01",
                 100,
                 1,
                 "cafe_americano.jpg",
@@ -40,7 +40,9 @@ public class PruebaBackendProductos {
             productoService.registrarCategoria(categoria1);
             productoService.registrarCategoria(categoria2);
 
-            System.out.println("✅ ¡ÉXITO! El producto '" + producto1.getNombre() + "' fue guardado en la BD.");
+            System.out.println("¡ÉXITO! El producto '" + producto1.getNombre() + "' fue guardado en la BD.");
+            System.out.println("¡ÉXITO! La categoria '" + categoria1.getNombreCategoria() + "' fue guardado en la BD.");
+            System.out.println("¡ÉXITO! La categoria '" + categoria2.getNombreCategoria() + "' fue guardado en la BD.");
 
         } catch (Exception e) {
             // Si alguna validación falla (ej. precio <= 0, o nombre duplicado), caerá aquí
