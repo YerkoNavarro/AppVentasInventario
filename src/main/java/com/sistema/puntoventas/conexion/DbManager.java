@@ -17,7 +17,7 @@ public class DbManager {
     public void crearTablaProductos(){
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS producto ("
-                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " id INTEGER PRIMARY KEY ,"
                 + " nombre TEXT NOT NULL,"
                 + " precioCompra REAL,"
                 + " precioVenta REAL,"

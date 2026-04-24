@@ -8,6 +8,6 @@ import com.sistema.puntoventas.modelo.venta;
 public interface IDetalleVenta {
 
     public List<detalleVenta> obtenerDetalleVentasporIdVenta(int id);
-    public String obtenerInfoVentaDetalle(int id); //idDetalleVenta
+    public List<String> obtenerInfoVentaDetalle(int id); //idDetalleVenta
 
 }

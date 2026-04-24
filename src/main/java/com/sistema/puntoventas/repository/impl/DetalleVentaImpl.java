@@ -16,18 +16,19 @@ public class DetalleVentaImpl implements IDetalleVenta {
     
     public List<detalleVenta> obtenerDetalleVentasporIdVenta(int id) {  //id de la venta
         List<detalleVenta> listaDetalleVenta = new ArrayList<>();
-        detalleVenta detalleVenta = new detalleVenta();
         String sql = "SELECT * FROM detalle_venta WHERE idVenta = ?";
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try(ResultSet rs = pstmt.executeQuery()){
                 while (rs.next()) {
-                    detalleVenta.setIdDetalle(rs.getInt("id"));
+                    detalleVenta detalleVenta = new detalleVenta();
+                    detalleVenta.setIdDetalle(rs.getInt("idDetalle"));
                     detalleVenta.setIdVenta(rs.getInt("idVenta"));
                     detalleVenta.setIdProducto(rs.getInt("idProducto"));
                     System.out.println("detalleventa encontrado correctamente");
                     listaDetalleVenta.add(detalleVenta);
+                    
                 }
             }
             
@@ -38,20 +39,29 @@ public class DetalleVentaImpl implements IDetalleVenta {
         return listaDetalleVenta;
     }
 
-    public String obtenerInfoVentaDetalle(int id) { //idDetalleVenta
+    public List<String> obtenerInfoVentaDetalle(int id) { //idVenta
+
+        List<String> listaInfoDetalleVenta = new ArrayList<>();
 
         String infoDetalleVenta = "";
-        String sql = "SELECT detalle_venta.*, venta.fechaVenta, venta.totalVenta FROM detalle_venta JOIN venta ON detalle_venta.idVenta = venta.id";
+        String sql = "SELECT dv.idDetalle, dv.idProducto, dv.idVenta, v.fechaHora, v.totalVenta, p.nombre, p.precioVenta " +
+                     "FROM detalle_venta dv " +
+                     "JOIN venta v ON dv.idVenta = v.idVenta " +
+                     "JOIN producto p ON p.id = dv.idProducto " +
+                     "WHERE v.idVenta = ?";
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
-            try(ResultSet rs = pstmt.executeQuery()){
-                if (rs.next()) {
-                    infoDetalleVenta = "ID Detalle: " + rs.getInt("id") +
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) { // Changed from if to while to handle multiple results if the query was changed
+                    infoDetalleVenta = "ID Detalle: " + rs.getInt("idDetalle") +
                                        ", ID Venta: " + rs.getInt("idVenta") +
                                        ", ID Producto: " + rs.getInt("idProducto") +
-                                       ", Fecha Venta: " + rs.getString("fechaVenta") +
-                                       ", Total Venta: " + rs.getDouble("totalVenta");
+                                       ", Nombre Producto: " + rs.getString("nombre") +
+                                       ", Precio Venta: " + rs.getDouble("precioVenta") + // Added precioVenta
+                                       ", Fecha Venta: " + rs.getString("fechaHora") + 
+                                       ", Total Venta: " + rs.getDouble("totalVenta"); 
+                    listaInfoDetalleVenta.add(infoDetalleVenta);
                 }
             }
            
@@ -59,7 +69,7 @@ public class DetalleVentaImpl implements IDetalleVenta {
                 System.err.println("Error al obtener información del detalle de venta: " + e.getMessage());
                 
             }
-        return infoDetalleVenta;
+        return listaInfoDetalleVenta;
 
     }
 

@@ -43,6 +43,14 @@ public class detalleVenta {
         return idProducto;
     }
 
-
+    //toString
+    @Override
+    public String toString() {
+        return "detalleVenta{" +
+                "idDetalle=" + idDetalle +
+                ", idVenta=" + idVenta +
+                ", idProducto=" + idProducto +
+                '}';
+    }
 
 }
