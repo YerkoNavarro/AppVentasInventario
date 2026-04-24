@@ -68,6 +68,7 @@ public class DbManager {
                 + " fechaHora TEXT NOT NULL,"
                 + " idUsuario INTEGER,"
                 + " totalVenta REAL,"
+                + " estado INTEGER,"
                 + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
                 + ");";
         try (var conn = DriverManager.getConnection(url);
