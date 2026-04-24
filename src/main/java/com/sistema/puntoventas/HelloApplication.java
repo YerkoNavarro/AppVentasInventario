@@ -1,5 +1,9 @@
 package com.sistema.puntoventas;
 
+import com.sistema.puntoventas.conexion.DbManager;
+import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -10,10 +14,23 @@ import java.io.IOException;
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/sistema/puntoventas/panelPrincipalVista.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        stage.setTitle("Cafeteria Eluney");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
+
+        DbManager dbManager = new DbManager();
+        dbManager.conectarBD();
+        dbManager.crearTodasLasTablas();
+
+        
+        
+        /*Producto producto = new Producto(1, "Producto de prueba actualizado", 5000, 10.50, "Descripción de prueba", "Marca de prueba", 100, 100, "imagen.jpg", 4);*/
+
+
+       
+
     }
 }

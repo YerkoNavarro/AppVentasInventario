@@ -8,12 +8,15 @@ module com.sistema.puntoventas {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-    requires eu.hansolo.tilesfx;
+
+    requires org.xerial.sqlitejdbc;
+
     requires java.sql;
     requires jdk.jdi;
 
 
 
     opens com.sistema.puntoventas to javafx.fxml;
+    opens com.sistema.puntoventas.controller to javafx.fxml;
     exports com.sistema.puntoventas;
 }
