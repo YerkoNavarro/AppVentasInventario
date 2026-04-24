@@ -16,7 +16,6 @@ public class DbManager {
     }
 
     public void crearTablaUsuario() {
-        // Se utiliza 'password' para evitar errores de caracteres especiales como la 'ñ'
         String sql = "CREATE TABLE IF NOT EXISTS usuario ("
                 + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + " nombre TEXT NOT NULL,"
@@ -25,7 +24,7 @@ public class DbManager {
                 + " password TEXT NOT NULL,"
                 + " telefono TEXT,"
                 + " rol TEXT,"
-                + " estado INTEGER" // Manejado como 0 o 1 en SQLite[cite: 2]
+                + " estado INTEGER"
                 + ");";
 
         try (var conn = DriverManager.getConnection(url);
@@ -49,7 +48,7 @@ public class DbManager {
                 + " stockMinimo INTEGER,"
                 + " imagen TEXT,"
                 + " unidadMedida TEXT,"
-                + "tipoProducto TEXT"
+                + " tipoProducto TEXT"
                 + ");";
 
         try (var conn = DriverManager.getConnection(url);
@@ -98,26 +97,48 @@ public class DbManager {
         }
     }
 
+    public void crearTablaHistorialInventario() {
+        String sql = "CREATE TABLE IF NOT EXISTS historial_inventario ("
+                + " idMovimiento INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " idProducto INTEGER NOT NULL,"
+                + " tipoMovimiento TEXT NOT NULL,"
+                + " cantidad INTEGER NOT NULL,"
+                + " fecha TEXT DEFAULT CURRENT_TIMESTAMP,"
+                + " motivo TEXT NOT NULL,"
+                + " idUsuario INTEGER NOT NULL,"
+                + " FOREIGN KEY (idProducto) REFERENCES producto(id),"
+                + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
+                + ");";
+
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'historial_inventario' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla historial_inventario: " + e.getMessage());
+        }
+    }
+
     public void crearTodasLasTablas() {
         crearTablaUsuario();
         creartablaVentas();
         crearTablaDetalleVenta();
         crearTablaProductos();
+        crearTablaHistorialInventario();
         System.out.println("Inicialización de todas las tablas completada.");
     }
 
     public void crearUsuarioAdmin() {
-        // El nombre de la columna debe ser 'password' para coincidir con la tabla
         String sql = "INSERT OR IGNORE INTO usuario (nombre, apellido, rut, password, telefono, rol, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, "Admin");
             pstmt.setString(2, "Admin");
-            pstmt.setString(3, "12345678-9"); // Tu RUT de acceso
-            pstmt.setString(4, "admin");      // Tu contraseña de acceso
+            pstmt.setString(3, "12345678-9");
+            pstmt.setString(4, "admin");
             pstmt.setString(5, "99999999");
             pstmt.setString(6, "ADMIN");
-            pstmt.setInt(7, 1); // Estado activo
+            pstmt.setInt(7, 1);
             pstmt.executeUpdate();
             System.out.println("Usuario administrador verificado/creado.");
         } catch (SQLException e) {
