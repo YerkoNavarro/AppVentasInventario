@@ -16,6 +16,9 @@ public class PanelPrincipalVistaController {
 
 
 
+
+
+
         // 1. CONEXIÓN CON LOS ELEMENTOS DEL FXML
         @FXML private Button btnUsuarios;
         @FXML private Button btnProductos;
