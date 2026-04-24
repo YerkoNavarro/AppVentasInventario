@@ -33,10 +33,7 @@ public class PanelPrincipalVistaController {
         // 2. MÉTODO DE INICIALIZACIÓN
         @FXML
         public void initialize() {
-            // Guardamos el Dashboard (que está escrito en el FXML) en una variable
-            if (!contentArea.getChildren().isEmpty()) {
-                vistaDashboardInicial = contentArea.getChildren().get(0);
-            }
+            cargarVistaMódulo("DashboardVista.fxml", null);
 
             // Asignamos qué archivo FXML se abrirá al hacer clic en cada botón
             // (Asegúrate de que los nombres de los archivos .fxml coincidan con los tuyos)
