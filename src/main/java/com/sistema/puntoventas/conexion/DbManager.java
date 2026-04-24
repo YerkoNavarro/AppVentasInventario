@@ -87,8 +87,6 @@ public class DbManager {
                 + " idDetalle INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + " idVenta INTEGER,"
                 + " idProducto INTEGER,"
-                + " cantidad INTEGER NOT NULL,"
-                + " precioUnitario REAL NOT NULL,"
                 + " FOREIGN KEY (idVenta) REFERENCES venta(idVenta) ON DELETE CASCADE,"
                 + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
                 + ");";

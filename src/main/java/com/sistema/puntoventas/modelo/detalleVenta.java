@@ -8,6 +8,10 @@ public class detalleVenta {
 
 
     //constructor
+
+    public detalleVenta() {
+    }
+
     public detalleVenta(int idDetalle, int idVenta, int idProducto) {
         this.idDetalle = idDetalle;
         this.idVenta = idVenta;
