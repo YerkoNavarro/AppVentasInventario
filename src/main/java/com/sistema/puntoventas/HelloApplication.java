@@ -4,9 +4,11 @@ import com.sistema.puntoventas.conexion.DbManager;
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.detalleVenta;
 import com.sistema.puntoventas.modelo.venta;
+import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.repository.impl.DetalleVentaImpl;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
+import com.sistema.puntoventas.service.VentaService;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -63,13 +65,25 @@ public class HelloApplication extends Application {
         */
 
         
-        DetalleVentaImpl detalleVentaImpl = new DetalleVentaImpl();
-        List<String> info = detalleVentaImpl.obtenerInfoVentaDetalle(1);
-        for (String linea : info) {
-            System.out.println(linea);
-        
-    }
+       VentaService ventaService = new VentaService();
 
+
+
+      List<ventaAplicacion> ventas = ventaService.traerTodasLasVentas();
+
+        
+
+        for (ventaAplicacion va : ventas) {
+    System.out.println("idVenta: " + va.getVenta().getIdVenta() + 
+                       " | fecha: " + va.getVenta().getFechaHora() + 
+                       " | total: " + va.getVenta().getTotalVenta());
+
+    for (Producto p : va.getDetalleVentas()) {
+        System.out.println("  -> " + p.getNombre() + " $" + p.getPrecioVenta());
+    }
+    System.out.println("----------");
+}
+    
     
 
 

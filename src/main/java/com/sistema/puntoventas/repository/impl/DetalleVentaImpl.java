@@ -5,9 +5,14 @@ import com.sistema.puntoventas.repository.IDetalleVenta;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.detalleVenta;
+import com.sistema.puntoventas.modelo.venta;
+import com.sistema.puntoventas.modelo.ventaAplicacion;
 
 
 public class DetalleVentaImpl implements IDetalleVenta {
@@ -72,6 +77,51 @@ public class DetalleVentaImpl implements IDetalleVenta {
         return listaInfoDetalleVenta;
 
     }
+
+    public List<ventaAplicacion> obtenerTodasLasVentas() {  //trae toda la info de ventas y producto asociados
+        List<ventaAplicacion> listaVentas  = new ArrayList<>();
+        Map<Integer,ventaAplicacion> mapVentas = new LinkedHashMap<>();
+        String sql = "SELECT v.idVenta, v.fechaHora, v.totalVenta, p.nombre, p.precioVenta " +
+                     "FROM venta v " +
+                     "JOIN detalle_venta dv ON v.idVenta = dv.idVenta " +
+                     "JOIN producto p ON dv.idProducto = p.id";
+
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int idVenta = rs.getInt("idVenta");
+                    
+                    
+                    
+                    if (!mapVentas.containsKey(idVenta)) { //si no contiene el id crea la venta app en el map
+                       venta v = new venta();
+                       v.setIdVenta(idVenta);
+                       v.setFechaHora(rs.getString("fechaHora"));
+                       v.setTotalVenta(rs.getDouble("totalVenta"));
+                        
+                        ventaAplicacion ventaApp = new ventaAplicacion();
+                        ventaApp.setVenta(v);
+                        ventaApp.setDetalleVentas(new ArrayList<>());
+                        mapVentas.put(idVenta, ventaApp);
+                    }
+                    Producto p = new Producto();
+                    p.setNombre(rs.getString("nombre"));
+                    p.setPrecioVenta(rs.getDouble("precioVenta"));
+                    
+                    mapVentas.get(idVenta).getDetalleVentas().add(p); //busca la venta por id y le agrega el producto 
+
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al obtener todas las ventas: " + e.getMessage());
+        }
+        listaVentas.addAll(mapVentas.values()); // pasa los valores del map a la lista
+        return listaVentas;
+
+    }
+
+        
 
 
 
