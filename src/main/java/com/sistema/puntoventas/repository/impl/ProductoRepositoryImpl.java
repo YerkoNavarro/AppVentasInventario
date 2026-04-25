@@ -17,7 +17,7 @@ import java.sql.DriverManager;
 public class ProductoRepositoryImpl implements IProductoRepository {
 
     private static final String SQL_INSERT =
-        "INSERT INTO producto (nombre, precioCompra, precioVenta, categoria, " +
+        "INSERT INTO producto (nombre, precioCompra, precioVenta, idcategoria, " +
         "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida, tipoProducto) " +
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
@@ -31,7 +31,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             pstmt.setString(1, producto.getNombre());
             pstmt.setDouble(2, producto.getPrecioCompra());
             pstmt.setDouble(3, producto.getPrecioVenta());
-            pstmt.setString(4, obtenerNombreCategoria(producto));
+            pstmt.setInt(4, producto.getCategoria().getId());
             pstmt.setString(5, producto.getFechaVenc());
             pstmt.setInt(6, producto.getStockActual());
             pstmt.setInt(7, producto.getStockMinimo());
@@ -124,7 +124,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     @Override
     public boolean actualizarProducto(Producto producto) {
-        String sql = "UPDATE producto SET nombre = ?, precioCompra = ?, precioVenta = ?, categoria = ?, " +
+        String sql = "UPDATE producto SET nombre = ?, precioCompra = ?, precioVenta = ?, idcategoria = ?, " +
                 "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ? WHERE id = ?";
 
         try (var conn = DriverManager.getConnection(url);
@@ -132,7 +132,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             pstmt.setString(1, producto.getNombre());
             pstmt.setDouble(2, producto.getPrecioCompra());
             pstmt.setDouble(3, producto.getPrecioVenta());
-            pstmt.setString(4, obtenerNombreCategoria(producto));
+            pstmt.setInt(4, producto.getCategoria().getId());
             pstmt.setString(5, producto.getFechaVenc());
             pstmt.setInt(6, producto.getStockActual());
             pstmt.setInt(7, producto.getStockMinimo());
