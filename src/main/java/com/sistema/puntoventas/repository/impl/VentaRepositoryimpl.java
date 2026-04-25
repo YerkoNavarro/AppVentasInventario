@@ -3,6 +3,8 @@ package com.sistema.puntoventas.repository.impl;
 
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.repository.IventaRepository;
+
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,18 +18,34 @@ public class VentaRepositoryimpl implements IventaRepository {
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
  
     @Override
-    public Boolean registrarVentaCompleta(venta venta){
+    public Boolean registrarVentaCompleta(venta venta, List<Integer> idProductos) {
+        String sqlDetalle = "INSERT INTO detalle_venta (idVenta, idProducto) VALUES (?, ?)";
         String sql = "INSERT INTO venta (fechaHora, idUsuario, totalVenta, estado) VALUES (?, ?, ?, ?)";
-        try (var conn = DriverManager.getConnection(url);
-             var pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, venta.getFechaHora());
-                pstmt.setInt(2, venta.getIdUsuario());
-                pstmt.setDouble(3, venta.getTotalVenta());
-                pstmt.setInt(4, 1); // 1 significa que la venta está activa
-                int rowsInserted = pstmt.executeUpdate();
-                System.out.println("Venta registrada correctamente");
-                return rowsInserted > 0;
-        } catch (SQLException e) {
+    
+        try (Connection conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
+            pstmt.setString(1, venta.getFechaHora());
+            pstmt.setInt(2, venta.getIdUsuario());
+            pstmt.setDouble(3, venta.getTotalVenta());
+            pstmt.setInt(4, 1);
+            int rowsInserted = pstmt.executeUpdate();
+
+            ResultSet keys = pstmt.getGeneratedKeys();
+            int idVenta = keys.getInt(1);
+
+            for (Integer idProducto : idProductos) {
+                try (PreparedStatement pstmtDetalle = conn.prepareStatement(sqlDetalle)) {
+                    pstmtDetalle.setInt(1, idVenta);
+                    pstmtDetalle.setInt(2, idProducto);
+                    pstmtDetalle.executeUpdate();
+                }
+            }
+
+            System.out.println("Venta registrada correctamente");
+            return rowsInserted > 0;
+
+        }catch (SQLException e) {
             System.err.println("Error al registrar venta: " + e.getMessage());
             return false;
         }
