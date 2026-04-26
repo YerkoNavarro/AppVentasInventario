@@ -1,7 +1,10 @@
 package com.sistema.puntoventas.repository.impl;
 
 import com.sistema.puntoventas.modelo.RankingProductosDTO;
-import com.sistema.puntoventas.repository.IEstadisticas;
+import com.sistema.puntoventas.repository.IEstadisticasRepository;
+
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,7 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EstadisticasRepositoryImpl implements IEstadisticas {
+public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
 
     @Override
@@ -82,11 +85,58 @@ public class EstadisticasRepositoryImpl implements IEstadisticas {
 
     @Override
     public int obtenerVentasUsuario(int idUsuario) {
-        return 0;
+        int cantidadVentas = 0;
+        String sql = "SELECT COUNT(idVenta) " +
+                     "COALESCE(SUM(totalVenta)) AS TotalVentas " +
+                    "FROM venta " +
+                    "WHERE idUsuario = ? AND estado = 1";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idUsuario);
+
+            try(ResultSet rs = pstmt.executeQuery()){
+                cantidadVentas = rs.getInt("TotalVentas");
+            }
+        }catch (SQLException e) {
+            System.err.println("Error al obtener ventas por usuario: " + e.getMessage());
+        }
+
+        return cantidadVentas;
     }
 
     @Override
     public int prepararDatosParaIA() {
-        return 0;
+        int filasExportadas = 0;
+        String rutaArchivo = "datos_ventas.csv";
+        String sql = "SELECT DATE(fechaHora) AS ds"+
+                      "SUM(totalVenta) AS y " +
+                      "FROM venta " +
+                      "WHERE estado = 1 " +
+                      "GROUP BY DATE(fechaHora) " +
+                      "ORDER BY DATE(fechaHora) ASC";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery();
+             FileWriter fw = new FileWriter(rutaArchivo);
+             PrintWriter pw = new PrintWriter(fw)){
+            pw.println("ds,y");
+
+            while(rs.next()){
+                String fecha = rs.getString("ds");
+                double total = rs.getInt("y");
+                pw.println(fecha + "," + total);
+                filasExportadas++;
+            }
+
+            System.out.println("Éxito: Archivo CSV generado con " + filasExportadas + " días de historial.");
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al preparar datos para IA: " + e.getMessage(), e);
+        }catch (Exception e){
+            throw new RuntimeException("Error al escribir el archivo CSV: " + e.getMessage(), e);
+        }
+        return filasExportadas;
     }
 }
