@@ -55,7 +55,7 @@ public class EstadisticaService {
         System.out.println("Ejecutando la IA Predictiva");
 
         try{
-            ProcessBuilder processBuilder = new ProcessBuilder("python", "modelo_predictivo.py");
+            ProcessBuilder processBuilder = new ProcessBuilder("python", "src/main/java/com/sistema/puntoventas/modelo_predictivo.py");
 
             // Unimos los errores de Python a la salida estándar para verlos en Java
             processBuilder.redirectErrorStream(true);
@@ -74,7 +74,7 @@ public class EstadisticaService {
             if(exitCode == 0){
                 System.out.println("Predicción terminada correctamente");
             }else{
-                System.err.println("El script de python fallo, código de error"+exitCode);
+                System.err.println("El script de python fallo, código de error "+exitCode);
             }
 
         }catch (Exception e){

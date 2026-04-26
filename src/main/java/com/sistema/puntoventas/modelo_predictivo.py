@@ -8,7 +8,7 @@ logging.getLogger("prophet").setLevel(logging.WARNING)
 
 def generar_prediccion():
     try:
-        df1 = pd.read.csv("ventas_historicas.csv")
+        df1 = pd.read_csv("datos_ventas.csv")
         modelo = Prophet(weekly_seasonality=True, yearly_seasonality=False, daily_seasonality=False)
         modelo.fit(df1)
         futuro = modelo.make_future_dataframe(periods=7)#le decimos que vamos a predecir los próximos 7 días

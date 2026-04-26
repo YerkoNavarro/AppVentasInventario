@@ -109,7 +109,7 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
     public int prepararDatosParaIA() {
         int filasExportadas = 0;
         String rutaArchivo = "datos_ventas.csv";
-        String sql = "SELECT DATE(fechaHora) AS ds"+
+        String sql = "SELECT DATE(fechaHora) AS ds," +
                       "SUM(totalVenta) AS y " +
                       "FROM venta " +
                       "WHERE estado = 1 " +
