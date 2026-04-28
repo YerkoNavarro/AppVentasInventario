@@ -5,14 +5,15 @@ public class Producto {
     private String nombre;
     private double precioCompra;
     private double precioVenta;
-    private String categoria;
+    private Categoria categoria;
     private String fechaVenc;
     private int stockActual;
     private int stockMinimo;
     private String imagen;
-    private int unidadMedida;
+    private UnidadMedida unidadMedida;
+    private TipoProducto tipoProducto;
 
-    public Producto(int id, String nombre, double precioCompra, double precioVenta, String categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, int unidadMedida) {
+    public Producto(int id, String nombre, double precioCompra, double precioVenta, Categoria categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, UnidadMedida unidadMedida, TipoProducto tipoProducto) {
         this.id = id;
         this.nombre = nombre;
         this.precioCompra = precioCompra;
@@ -23,6 +24,7 @@ public class Producto {
         this.stockMinimo = stockMinimo;
         this.imagen = imagen;
         this.unidadMedida = unidadMedida;
+        this.tipoProducto = tipoProducto;
     }
 
 
@@ -62,11 +64,11 @@ public class Producto {
         this.precioVenta = precioVenta;
     }
 
-    public String getCategoria() {
+    public Categoria getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(String categoria) {
+    public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
 
@@ -102,12 +104,20 @@ public class Producto {
         this.imagen = imagen;
     }
 
-    public int getUnidadMedida() {
+    public UnidadMedida getUnidadMedida() {
         return unidadMedida;
     }
 
-    public void setUnidadMedida(int unidadMedida) {
+    public void setUnidadMedida(UnidadMedida unidadMedida) {
         this.unidadMedida = unidadMedida;
+    }
+
+    public TipoProducto getTipoProducto() {
+        return tipoProducto;
+    }
+
+    public void setTipoProducto(TipoProducto tipoProducto) {
+        this.tipoProducto = tipoProducto;
     }
 
     @Override
@@ -122,7 +132,6 @@ public class Producto {
                 ", stockActual=" + stockActual +
                 ", stockMinimo=" + stockMinimo +
                 ", imagen='" + imagen + '\'' +
-                ", unidadMedida=" + unidadMedida +
                 '}';
     }
 }

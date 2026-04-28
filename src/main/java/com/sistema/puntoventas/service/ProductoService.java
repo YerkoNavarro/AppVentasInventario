@@ -1,8 +1,14 @@
 package com.sistema.puntoventas.service;
 
+import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.TipoProducto;
 import com.sistema.puntoventas.repository.IProductoRepository;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class ProductoService {
 
@@ -11,22 +17,199 @@ public class ProductoService {
         this.productoRepository = new ProductoRepositoryImpl();
     }
 
-    public String registrarProducto(Producto producto){
+    public void registrarProducto(Producto producto) throws Exception{
         if (producto == null){
-            return "Un producto no puede ser nulo";
+            throw new Exception("El producto no puede ser nulo");
         }
 
-        if (producto.getNombre() == null || producto.getNombre().isEmpty()){
-            return "El nombre del producto no puede ser nulo o vacío";
+        if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del producto es obligatorio.");
         }
 
         if(producto.getPrecioCompra() <= 0){
-            return "El precio de compra debe ser mayor a cero";
+            throw new Exception("El precio de compra debe ser mayor a cero") ;
         }
 
-        if (productoRepository.obtenerProductoPorNombre(producto.getNombre()) != null) {
-            return "El producto ya existe, no se puede registrar";
+        List<Producto> nombreproducto = productoRepository.obtenerProductoPorNombre(producto.getNombre().trim());
+        if (!nombreproducto.isEmpty()) {
+            for (Producto p : nombreproducto) {
+                if (p.getNombre().equalsIgnoreCase(producto.getNombre().trim())) {
+                    throw new Exception("Validación fallida: Ya existe un registro con el nombre '" + producto.getNombre() + "'.");
+                }
+            }
         }
-        return "";
+
+
+        // Validación de margen (Ejemplo: Mínimo 10% de ganancia)
+        double precioMinimoVenta = producto.getPrecioCompra() * 1.10;
+        if (producto.getPrecioVenta() < precioMinimoVenta) {
+            throw new Exception("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
+        }
+
+        if (producto.getTipoProducto() == TipoProducto.PLATILLO) {
+            // Para platillos, el costo viene de los ingredientes. Se valida que se venda a un precio válido.
+            if (producto.getPrecioVenta() <= 0) {
+                throw new Exception("El platillo debe tener un precio de venta mayor a cero.");
+            }
+            // Aquí en el futuro llamarías a PlatilloService para calcular el costo de los ingredientes
+        }
+
+
+        if (producto.getUnidadMedida() == null) {
+            throw new Exception("Debe asignar una Unidad de Medida al producto.");
+        }
+
+
+
+        boolean guardado = productoRepository.registrarProducto(producto);
+
+        if (!guardado) {
+            throw new Exception("Error interno: No se pudo guardar el producto en la base de datos.");
+        }
+
+    }
+
+
+    public List<Producto> obtenerProductos() {
+        return productoRepository.obtenerProductos();
+    }
+
+    public List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto) throws Exception {
+        if (tipoProducto == null) {
+            throw new Exception("Debe seleccionar un tipo de producto.");
+        }
+
+        return productoRepository.buscarPorTipoProducto(tipoProducto);
+    }
+
+    public boolean actualzarProducto(Producto producto) throws Exception{
+        if (producto == null){
+            throw new Exception("El producto no puede ser nulo");
+        }
+
+        if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del producto es obligatorio.");
+        }
+
+        if(producto.getPrecioCompra() <= 0){
+            return false;
+        }
+
+        if (producto.getUnidadMedida() == null) {
+            throw new Exception("Debe asignar una Unidad de Medida al producto.");
+        }
+
+        return productoRepository.actualizarProducto(producto);
+    }
+
+
+    public String  eliminarProducto(int id) throws Exception{
+
+        if (id <= 0) {
+            throw new Exception("ID de producto no válido.");
+        }
+
+        Producto producto = productoRepository.obtenerProductoPorId(id);
+        if(producto == null){
+            throw new Exception("El producto no existe");
+        }
+
+        boolean dependencia = productoRepository.estaAsociadoVentaOPlatillo(id);
+        if(dependencia){
+            boolean desactivado = productoRepository.desactivarProducto(id);
+            if(!desactivado){
+                throw new Exception("Error al desactivar");
+            }
+            return "Este producto esta asociado a venta o platillo y fue desactivado";
+
+        }else{
+            // Eliminamos  de la BD
+            boolean eliminado = productoRepository.eliminarProducto(id);
+            if (!eliminado) {
+                throw new Exception("Error al intentar eliminar el producto permanentemente.");
+            }
+            return "El producto no tenía asociaciones y fue ELIMINADO de la base de datos.";
+        }
+
+    }
+
+
+    public List<Producto>obtenerStockCritico(){
+        List<Producto> stockCritico = productoRepository.obtenerStockCritico();
+
+        if(stockCritico == null){
+            return new ArrayList<>();
+
+        }
+
+        stockCritico.sort(Comparator.comparingDouble(Producto::getStockActual));
+        return stockCritico;
+    }
+
+    public int obtenerStockActual(int id) throws Exception {
+        if (id <= 0) {
+            throw new Exception("ID de producto no válido.");
+        }
+
+        return productoRepository.obtenerStockActual(id);
+    }
+
+    public boolean existeCategoria(String nombreCategoria) throws Exception {
+        if (nombreCategoria == null || nombreCategoria.trim().isEmpty()) {
+            throw new Exception("No existe categoria");
+        }
+
+        return productoRepository.existeCategoria(nombreCategoria.trim());
+    }
+
+    public void registrarCategoria(Categoria categoria) throws Exception {
+        if (categoria == null) {
+            throw new Exception("La categoría no puede ser nula.");
+        }
+
+        String nombre = categoria.getNombreCategoria();
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("El nombre de la categoría es obligatorio.");
+        }
+
+        categoria.setNombreCategoria(nombre.trim());
+        if (categoria.getDescripcion() != null) {
+            categoria.setDescripcion(categoria.getDescripcion().trim());
+        }
+
+        if (productoRepository.existeCategoria(categoria.getNombreCategoria())) {
+            throw new Exception("La categoría ya existe.");
+        }
+
+        boolean registrada = productoRepository.registrarCategoria(categoria);
+        if (!registrada) {
+            throw new Exception("No se pudo registrar la categoría.");
+        }
+    }
+
+    public boolean actualizarCategoria(int id) throws Exception {
+        if (id <= 0) {
+            throw new Exception("ID de categoría no válido.");
+        }
+
+        boolean actualizada = productoRepository.actualizarCategoria(id);
+        if (!actualizada) {
+            throw new Exception("No se pudo actualizar la categoría.");
+        }
+
+        return true;
+    }
+
+    public boolean eliminarCategoria(int id) throws Exception {
+        if (id <= 0) {
+            throw new Exception("ID de categoría no válido.");
+        }
+
+        boolean eliminada = productoRepository.eliminarCategoria(id);
+        if (!eliminada) {
+            throw new Exception("No se pudo eliminar la categoría porque está asociada a un producto o platillo, no existe o hubo un error.");
+        }
+
+        return true;
     }
 }

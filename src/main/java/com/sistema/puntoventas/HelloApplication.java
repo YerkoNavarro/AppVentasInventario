@@ -2,6 +2,7 @@ package com.sistema.puntoventas;
 
 import com.sistema.puntoventas.conexion.DbManager;
 import com.sistema.puntoventas.modelo.Producto;
+
 import com.sistema.puntoventas.modelo.detalleVenta;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
@@ -22,15 +23,16 @@ import java.util.List;
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/sistema/puntoventas/panelPrincipalVista.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+        stage.setTitle("Eluney");
         stage.setScene(scene);
         stage.show();
 
         DbManager dbManager = new DbManager();
         dbManager.conectarBD();
         dbManager.crearTodasLasTablas();
+        dbManager.crearUsuarioAdmin();
 
         /* 
         VentaRepositoryimpl ventaRepositoryimpl = new VentaRepositoryimpl();
@@ -59,6 +61,7 @@ public class HelloApplication extends Application {
         }
         
         
+
         ProductoRepositoryImpl productoRepositoryImpl = new ProductoRepositoryImpl();
         Producto producto = new Producto(3, "producto3", 50000, 10000, "fritura", "2024-12-31", 0, 0, "", 0);
         productoRepositoryImpl.registrarProducto(producto);
