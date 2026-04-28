@@ -125,7 +125,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
     @Override
     public boolean actualizarProducto(Producto producto) {
         String sql = "UPDATE producto SET nombre = ?, precioCompra = ?, precioVenta = ?, idcategoria = ?, " +
-                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ? WHERE id = ?";
+                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ?, tipoProducto = ? WHERE id = ?";
 
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
@@ -303,7 +303,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     @Override
     public boolean existeCategoria(String nombre) {
-        String sql = "SELECT 1 FROM producto WHERE categoria = ? LIMIT 1";
+        String sql = "SELECT 1 FROM categoria WHERE nombreCategoria = ? LIMIT 1";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
