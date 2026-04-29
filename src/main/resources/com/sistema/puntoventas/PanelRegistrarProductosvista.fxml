@@ -6,7 +6,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="1080.0" prefWidth="1920.0" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.ProductoController">
+<AnchorPane prefHeight="1920.0" prefWidth="1080.0" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.ProductoController">
    <children>
       <Label layoutX="328.0" layoutY="43.0" styleClass="field-label" text="nombre" />
       <Label layoutX="328.0" layoutY="93.0" styleClass="field-label" text="precio compra" />
