@@ -12,6 +12,8 @@ import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 
+import java.util.List;
+
 public class ProductoController {
 
         @FXML
@@ -73,7 +75,8 @@ public class ProductoController {
             );
 
             try {
-                cmbCategoria.getItems().setAll(productoService.obtenerCategorias());
+                List<Categoria>categorias = productoService.obtenerCategorias();
+                cmbCategoria.getItems().setAll(categorias);
             }catch (Exception e){
                 mostrarMensaje("Aviso ","No hay categorias, se recomienda agregar una", Alert.AlertType.INFORMATION);
             }
@@ -130,7 +133,7 @@ public class ProductoController {
         }
 
         @FXML
-        void registrarProducto(ActionEvent event) {
+       public  void registrarProducto(ActionEvent event) {
             try{
                 double precioCompra = Double.parseDouble(txtPrecioCompra.getText());
                 double precioVenta = Double.parseDouble(txtPrecioVenta.getText());
@@ -143,9 +146,7 @@ public class ProductoController {
                 nuevoProducto.setPrecioVenta(precioVenta);
                 nuevoProducto.setStockActual(stockActual);
                 nuevoProducto.setStockMinimo(stockMinimo);
-                Categoria categoriaObj = new Categoria();
-                categoriaObj.setNombreCategoria(cmbCategoria.getValue().getNombreCategoria());
-                nuevoProducto.setCategoria(categoriaObj);
+                nuevoProducto.setCategoria(cmbCategoria.getValue());
                 nuevoProducto.setFechaVenc(txtFechaVenc.getText());
                 nuevoProducto.setImagen(txtImagen.getText());
                 nuevoProducto.setUnidadMedida(cmbUnidadMedida.getValue());

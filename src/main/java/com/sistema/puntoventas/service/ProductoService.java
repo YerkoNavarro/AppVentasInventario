@@ -21,6 +21,8 @@ public class ProductoService {
 
     public ProductoService() {
         this.productoRepository = new ProductoRepositoryImpl();
+        this.categoriaRepository = new ProductoRepositoryImpl();
+        this.stockRepository = new ProductoRepositoryImpl();
     }
 
     //-----------------------------------------------------------------------------------------------------------------
