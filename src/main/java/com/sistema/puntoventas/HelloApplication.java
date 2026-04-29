@@ -14,23 +14,22 @@ import java.io.IOException;
 public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/sistema/puntoventas/panelPrincipalVista.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Cafeteria Eluney");
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/sistema/puntoventas/panelPrincipalVista.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1920, 1080);
+        stage.setTitle("Eluney");
         stage.setScene(scene);
-        stage.setResizable(false);
         stage.show();
 
         DbManager dbManager = new DbManager();
         dbManager.conectarBD();
         dbManager.crearTodasLasTablas();
+        dbManager.crearUsuarioAdmin();
 
         
         
-        /*Producto producto = new Producto(1, "Producto de prueba actualizado", 5000, 10.50, "Descripción de prueba", "Marca de prueba", 100, 100, "imagen.jpg", 4);*/
 
 
-       
+
 
     }
 }
