@@ -5,11 +5,13 @@ import com.sistema.puntoventas.modelo.TipoMovimiento;
 import com.sistema.puntoventas.repository.IMovimientoRepository;
 // Asumiendo que tienes esta interfaz creada
 import com.sistema.puntoventas.repository.IProductoRepository;
+import com.sistema.puntoventas.repository.IstockRepository;
 
 public class InventarioService {
 
     private final IMovimientoRepository movimientoRepo;
-    private final IProductoRepository productoRepo; // Descomentado y listo para usar
+    private final IProductoRepository productoRepo;
+    private IstockRepository stockRepo;
 
     public InventarioService(IMovimientoRepository movimientoRepo, IProductoRepository productoRepo) {
         this.movimientoRepo = movimientoRepo;
@@ -23,7 +25,7 @@ public class InventarioService {
 
         // Obtenemos el stock real desde la base de datos
         // (Asegúrate de tener un método similar a 'obtenerStockActual' en tu IProductoRepository)
-        int stockActual = productoRepo.obtenerStockActual(idProducto);
+        int stockActual = stockRepo.obtenerStockActual(idProducto);
 
         return stockActual >= cantidadRequerida;
     }

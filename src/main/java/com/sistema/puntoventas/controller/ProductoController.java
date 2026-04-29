@@ -25,7 +25,7 @@ public class ProductoController {
         private Label lblEstado;
 
         @FXML
-        private TextField txtCategoria;
+        private ComboBox<Categoria> cmbCategoria;
 
         @FXML
         private TextField txtFechaVenc;
@@ -58,7 +58,7 @@ public class ProductoController {
         private ProductoService productoService;
 
         @FXML
-        public void initialize() {
+        public void initialize() throws Exception {
             productoService = new ProductoService();
             cmbUnidadMedida.getItems().setAll(UnidadMedida.values());
             cmbTipoProducto.getItems().setAll(
@@ -66,6 +66,8 @@ public class ProductoController {
                     TipoProducto.DIRECTO,
                     TipoProducto.SOLO_INVENTARIO
             );
+            cmbCategoria.getItems().setAll(productoService.obtenerCategorias());
+
             cmbUnidadMedida.setConverter(new StringConverter<>() {
                 @Override
                 public String toString(UnidadMedida unidadMedida) {
@@ -91,6 +93,30 @@ public class ProductoController {
                     setText(empty ? null : formatearUnidadMedida(item));
                 }
             });
+
+                cmbTipoProducto.setConverter(new StringConverter<>() {
+                    @Override
+                    public String toString(TipoProducto tipoProducto) {
+                        return formatearTipoProducto(tipoProducto);
+                    }
+
+                    @Override
+                    public TipoProducto fromString(String string) {
+                        return null;
+                    }
+                });
+
+                cmbCategoria.setConverter(new StringConverter<Categoria>() {
+                    @Override
+                    public String toString(Categoria categoria) {
+                        return categoria != null ? categoria.getNombreCategoria() : "";
+                    }
+
+                    @Override
+                    public Categoria fromString(String string) {
+                        return null;
+                    }
+                });
         }
 
         @FXML
@@ -108,7 +134,7 @@ public class ProductoController {
                 nuevoProducto.setStockActual(stockActual);
                 nuevoProducto.setStockMinimo(stockMinimo);
                 Categoria categoriaObj = new Categoria();
-                categoriaObj.setNombreCategoria(txtCategoria.getText());
+                categoriaObj.setNombreCategoria(cmbCategoria.getValue().getNombreCategoria());
                 nuevoProducto.setCategoria(categoriaObj);
                 nuevoProducto.setFechaVenc(txtFechaVenc.getText());
                 nuevoProducto.setImagen(txtImagen.getText());
@@ -138,7 +164,7 @@ public class ProductoController {
         txtNombre.clear();
         txtPrecioCompra.clear();
         txtPrecioVenta.clear();
-        txtCategoria.clear();
+        cmbCategoria.getSelectionModel().clearSelection();
         txtFechaVenc.clear();
         txtStockActual.clear();
         txtStockMinimo.clear();

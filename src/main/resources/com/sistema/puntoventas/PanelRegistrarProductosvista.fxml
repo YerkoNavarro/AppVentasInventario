@@ -20,7 +20,7 @@
       <TextField fx:id="txtNombre" layoutX="75.0" layoutY="39.0" promptText="Nombre" styleClass="field" />
       <TextField fx:id="txtPrecioCompra" layoutX="76.0" layoutY="98.0" promptText="Precio compra" styleClass="field" />
       <TextField fx:id="txtPrecioVenta" layoutX="77.0" layoutY="152.0" promptText="Precio venta" styleClass="field" />
-      <TextField fx:id="txtCategoria" layoutX="78.0" layoutY="217.0" promptText="Categoría" styleClass="field" />
+      <ComboBox fx:id="cmbCategoria" layoutX="78.0" layoutY="217.0" prefWidth="220.0" promptText="Seleccione una categoría" styleClass="field" />
       <TextField fx:id="txtFechaVenc" layoutX="79.0" layoutY="301.0" promptText="YYYY-MM-DD" styleClass="field" />
       <TextField fx:id="txtStockActual" layoutX="79.0" layoutY="378.0" promptText="Stock actual" styleClass="field" />
       <TextField fx:id="txtStockMinimo" layoutX="80.0" layoutY="470.0" promptText="Stock mínimo" styleClass="field" />

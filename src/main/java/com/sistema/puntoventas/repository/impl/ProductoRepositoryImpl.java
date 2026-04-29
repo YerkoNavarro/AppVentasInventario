@@ -4,22 +4,25 @@ import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.TipoProducto;
 import com.sistema.puntoventas.modelo.UnidadMedida;
+import com.sistema.puntoventas.repository.ICategoriaRepository;
 import com.sistema.puntoventas.repository.IProductoRepository;
+import com.sistema.puntoventas.repository.IstockRepository;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.DriverManager;
 
-public class ProductoRepositoryImpl implements IProductoRepository {
+public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRepository, IstockRepository {
+
 
     private static final String SQL_INSERT =
-        "INSERT INTO producto (nombre, precioCompra, precioVenta, idcategoria, " +
-        "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida, tipoProducto) " +
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+            "INSERT INTO producto (nombre, precioCompra, precioVenta, idcategoria, " +
+                    "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida, tipoProducto) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
 
@@ -144,7 +147,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             System.out.println("producto actualizado correctamente");
 
 
-        return true;
+            return true;
         } catch (SQLException e) {
 
             System.err.println("Error al actualizar producto: " + e.getMessage());
@@ -191,7 +194,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     @Override
     public Producto obtenerProductoPorId(int id) {
-         Producto producto = new Producto();
+        Producto producto = null;
         String sql = "SELECT * FROM producto WHERE id = ?";
 
         try(Connection connect = DriverManager.getConnection(url);
@@ -256,11 +259,11 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                 productosStockCritico.add(producto);
             }
             if (productosStockCritico.isEmpty()) {
-                     System.out.println("No se encontraron productos en stock crítico.");
-                }else {
+                System.out.println("No se encontraron productos en stock crítico.");
+            }else {
                 System.out.println("hay "+ productosStockCritico.size()+" productos con stock critico");
 
-                }
+            }
 
         } catch (SQLException e) {
             System.err.println("Error al obtener productos en stock crítico: " + e.getMessage());
@@ -303,7 +306,7 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     @Override
     public boolean existeCategoria(String nombre) {
-        String sql = "SELECT 1 FROM categoria WHERE nombreCategoria = ? LIMIT 1";
+        String sql = "SELECT 1 FROM producto WHERE categoria = ? LIMIT 1";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -315,8 +318,40 @@ public class ProductoRepositoryImpl implements IProductoRepository {
             }
         } catch (SQLException e) {
             System.err.println("Error al verificar categoría: " + e.getMessage());
-                return false;
+            return false;
         }
+    }
+
+
+    @Override
+    public List<Categoria> obtenerCategorias() {
+        List<Categoria> categorias = new ArrayList<>();
+        String sql = "SELECT * FROM categoria ORDER BY nombreCategoria ASC";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                Categoria categoria = new Categoria();
+                categoria.setId(rs.getInt("id"));
+                categoria.setNombreCategoria(rs.getString("nombreCategoria"));
+                categoria.setDescripcion(rs.getString("descripcion"));
+                categoria.setActiva(rs.getBoolean("activa"));
+                categorias.add(categoria);
+            }
+            if (categorias.isEmpty()) {
+                System.out.println("No se encontraron categorías.");
+            }else {
+                System.out.println("hay "+ categorias.size()+" categorías");
+
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener categorías: " + e.getMessage());
+        }
+
+        return categorias;
     }
 
     @Override
@@ -404,11 +439,11 @@ public class ProductoRepositoryImpl implements IProductoRepository {
                 }
             }
             if (productosPorTipo.isEmpty()) {
-                     System.out.println("No se encontraron productos del tipo " + tipoProducto);
-                }else {
+                System.out.println("No se encontraron productos del tipo " + tipoProducto);
+            }else {
                 System.out.println("hay "+ productosPorTipo.size()+" productos del tipo " + tipoProducto);
 
-                }
+            }
 
         } catch (SQLException e) {
             System.err.println("Error al obtener productos por tipo: " + e.getMessage());
@@ -418,24 +453,24 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
     }
 
-        @Override
-        public boolean estaAsociadoVentaOPlatillo(int id) {
-            String sql = "SELECT COUNT(*) AS total FROM detalle_venta WHERE idProducto = ?";
+    @Override
+    public boolean estaAsociadoVentaOPlatillo(int id) {
+        String sql = "SELECT COUNT(*) AS total FROM detalle_venta WHERE idProducto = ?";
 
-            try (Connection conn = DriverManager.getConnection(url);
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-                pstmt.setInt(1, id);
-                ResultSet rs = pstmt.executeQuery();
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
 
-                if (rs.next()) {
-                    return rs.getInt("total") > 0; // Si hay más de 0, está asociado
-                }
-            } catch (SQLException e) {
-                System.err.println("Error al verificar dependencias del producto: " + e.getMessage());
+            if (rs.next()) {
+                return rs.getInt("total") > 0; // Si hay más de 0, está asociado
             }
-            return false;
+        } catch (SQLException e) {
+            System.err.println("Error al verificar dependencias del producto: " + e.getMessage());
         }
+        return false;
+    }
 
     @Override
     public int obtenerStockActual(int id) {
@@ -462,35 +497,32 @@ public class ProductoRepositoryImpl implements IProductoRepository {
 
 
     private String obtenerNombreCategoria(Producto producto) {
-                        return producto.getCategoria() != null ? producto.getCategoria().getNombreCategoria() : null;
-                    }
+        return producto.getCategoria() != null ? producto.getCategoria().getNombreCategoria() : null;
+    }
 
-                    private String obtenerUnidadMedida(Producto producto) {
-                        return producto.getUnidadMedida() != null ? producto.getUnidadMedida().name() : null;
-                    }
+    private String obtenerUnidadMedida(Producto producto) {
+        return producto.getUnidadMedida() != null ? producto.getUnidadMedida().name() : null;
+    }
 
-                    private Categoria mapCategoria(String nombreCategoria) {
-                        if (nombreCategoria == null || nombreCategoria.isBlank()) {
-                            return null;
-                        }
+    private Categoria mapCategoria(String nombreCategoria) {
+        if (nombreCategoria == null || nombreCategoria.isBlank()) {
+            return null;
+        }
 
-                        Categoria categoria = new Categoria();
-                        categoria.setNombreCategoria(nombreCategoria);
-                        return categoria;
-                    }
+        Categoria categoria = new Categoria();
+        categoria.setNombreCategoria(nombreCategoria);
+        return categoria;
+    }
 
-                    private UnidadMedida mapUnidadMedida(String valor) {
-                        if (valor == null || valor.isBlank()) {
-                            return null;
-                        }
+    private UnidadMedida mapUnidadMedida(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
 
-                        try {
-                            return UnidadMedida.valueOf(valor.trim().toUpperCase());
-                        } catch (IllegalArgumentException e) {
-                            return null;
-                        }
-                    }
-
-
+        try {
+            return UnidadMedida.valueOf(valor.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
 }
-
