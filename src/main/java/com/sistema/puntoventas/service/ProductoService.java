@@ -230,11 +230,15 @@ public class ProductoService {
     }
 
     public List<Categoria> obtenerCategorias() throws Exception {
+        List<Categoria> categorias = categoriaRepository.obtenerCategorias();
 
-        if(categoriaRepository == null){
-            throw new Exception("No hay categorias");
+
+        if(categorias == null){
+            System.out.println("No hay categorias");
+            return new ArrayList<>();
+
         }
-        return categoriaRepository.obtenerCategorias();
+        return categorias;
     }
 
     public boolean eliminarCategoria(int id) throws Exception {

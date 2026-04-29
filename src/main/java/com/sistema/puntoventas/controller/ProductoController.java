@@ -8,11 +8,7 @@ import com.sistema.puntoventas.service.ProductoService;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 
@@ -57,6 +53,15 @@ public class ProductoController {
 
         private ProductoService productoService;
 
+
+        private void mostrarMensaje(String titulo, String mensaje, Alert.AlertType tipo ) {
+            Alert alert = new Alert(tipo);
+            alert.setTitle(titulo);
+            alert.setHeaderText(null);
+            alert.setContentText(mensaje);
+            alert.showAndWait();
+        }
+
         @FXML
         public void initialize() throws Exception {
             productoService = new ProductoService();
@@ -66,7 +71,12 @@ public class ProductoController {
                     TipoProducto.DIRECTO,
                     TipoProducto.SOLO_INVENTARIO
             );
-            cmbCategoria.getItems().setAll(productoService.obtenerCategorias());
+
+            try {
+                cmbCategoria.getItems().setAll(productoService.obtenerCategorias());
+            }catch (Exception e){
+                mostrarMensaje("Aviso ","No hay categorias, se recomienda agregar una", Alert.AlertType.INFORMATION);
+            }
 
             cmbUnidadMedida.setConverter(new StringConverter<>() {
                 @Override

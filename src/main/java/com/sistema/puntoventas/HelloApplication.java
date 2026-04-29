@@ -18,6 +18,8 @@ public class HelloApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 1200, 720);
         stage.setTitle("Eluney");
         stage.setScene(scene);
+        stage.setResizable(true);
+        stage.setMaximized(true);
         stage.show();
 
         DbManager dbManager = new DbManager();
