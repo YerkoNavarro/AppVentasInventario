@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.AnchorPane?>
 
-
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.VentaController">
    <children>
-      <TableView editable="true" layoutX="60.0" layoutY="149.0" prefHeight="200.0" prefWidth="480.0">
+      <TableView id="idTableView" fx:id="idTablaVentas" editable="true" layoutX="70.0" layoutY="62.0" prefHeight="258.0" prefWidth="422.0" AnchorPane.bottomAnchor="78.0" AnchorPane.leftAnchor="70.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="62.0">
         <columns>
-          <TableColumn prefWidth="75.0" text="C1" />
-          <TableColumn prefWidth="75.0" text="C2" />
-            <TableColumn prefWidth="75.0" text="Column X" />
-            <TableColumn prefWidth="75.0" text="Column X" />
-            <TableColumn prefWidth="75.0" text="Column X" />
-            <TableColumn prefWidth="75.0" text="Column X" />
+          <TableColumn id="idColumnaFecha" maxWidth="1.7976931348623157E308" minWidth="70.0" prefWidth="-1.0" text="fecha" />
+          <TableColumn maxWidth="1.7976931348623157E308" minWidth="89.0" prefWidth="91.0" text="Productos" />
+            <TableColumn maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Tipo Pago" />
+            <TableColumn maxWidth="1.7976931348623157E308" minWidth="90.0" prefWidth="-1.0" text="Total" />
+            <TableColumn maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="-1.0" text="Descripción" />
         </columns>
-      </TableView>+
+      </TableView>
+      <Button fx:id="idBotonAgregar" layoutX="92.0" layoutY="358.0" mnemonicParsing="false" text="agregar" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="92.0" />
+      <Button fx:id="idBotonEliminar" layoutX="453.0" layoutY="358.0" mnemonicParsing="false" text="eliminar" AnchorPane.bottomAnchor="17.0" AnchorPane.rightAnchor="95.0" />
    </children>
-</Pane>
+</AnchorPane>
