@@ -39,7 +39,7 @@ public class PanelPrincipalVistaController {
             // (Asegúrate de que los nombres de los archivos .fxml coincidan con los tuyos)
             btnUsuarios.setOnAction(e -> cargarVistaMódulo("PanelUsuarios-vista.fxml", btnUsuarios));
             btnProductos.setOnAction(e -> cargarVistaMódulo("PanelRegistrarProductosvista.fxml", btnProductos));
-            btnVentas.setOnAction(e -> cargarVistaMódulo("PanelVentas-vista.fxml", btnVentas));
+            btnVentas.setOnAction(e -> cargarVistaMódulo("panelVentas.fxml", btnVentas));
             btnInventario.setOnAction(e -> cargarVistaMódulo("PanelInventario-vista.fxml", btnInventario));
         }
 
