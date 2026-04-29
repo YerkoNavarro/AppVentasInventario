@@ -1,11 +1,9 @@
 package com.sistema.puntoventas.service;
 import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.repository.IUsuarioRepository;
-import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
-import com.sistema.puntoventas.repository.impl.UsuarioRepositoryImpl;
-
+//import com.sistema.puntoventas.repository.impl.UsuarioRepositoryImpl;
 import java.util.List;
-
+/*
 public class UsuarioService {
     private IUsuarioRepository usuarioRepository;
     public UsuarioService(){
@@ -67,4 +65,4 @@ public class UsuarioService {
         return usuarioRepository.eliminarUsuario(rut);
     }
 }
-
+*/

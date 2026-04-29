@@ -38,7 +38,7 @@ public class PanelPrincipalVistaController {
             // Asignamos qué archivo FXML se abrirá al hacer clic en cada botón
             // (Asegúrate de que los nombres de los archivos .fxml coincidan con los tuyos)
             btnUsuarios.setOnAction(e -> cargarVistaMódulo("PanelUsuarios-vista.fxml", btnUsuarios));
-            btnProductos.setOnAction(e -> cargarVistaMódulo("PanelRegistrarProductosvista.fxml", btnProductos));
+            btnProductos.setOnAction(e -> cargarVistaMódulo("PanelProductos-vista.fxml", btnProductos));
             btnVentas.setOnAction(e -> cargarVistaMódulo("PanelVentas-vista.fxml", btnVentas));
             btnInventario.setOnAction(e -> cargarVistaMódulo("PanelInventario-vista.fxml", btnInventario));
         }
@@ -94,7 +94,7 @@ public class PanelPrincipalVistaController {
         public void handleNavegacion(MouseEvent event) {
         /* Aquí puedes detectar en qué tarjeta se hizo clic.
            Por ejemplo, si hacen clic en la tarjeta "Productos",
-           podrías llamar a cargarVistaMódulo("PanelRegistrarProductosvista.fxml", btnProductos);
+           podrías llamar a cargarVistaMódulo("PanelProductos-vista.fxml", btnProductos);
         */
             System.out.println("Clic detectado en una tarjeta del Dashboard!");
         }

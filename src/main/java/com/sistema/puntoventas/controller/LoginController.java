@@ -1,7 +1,5 @@
 package com.sistema.puntoventas.controller;
 
-import com.sistema.puntoventas.modelo.Usuario;
-import com.sistema.puntoventas.service.UsuarioService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -19,8 +17,6 @@ public class LoginController {
     @FXML
     private Button continuarButton;
 
-    private UsuarioService usuarioService = new UsuarioService();
-
     @FXML
     public void handleLogin() {
         String rut = rutTextField.getText().trim();
@@ -32,15 +28,8 @@ public class LoginController {
             return;
         }
 
-        Usuario usuario = usuarioService.iniciarSesion(rut, password);
-        if (usuario != null) {
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Login exitoso",
-                "Bienvenido, " + usuario.getNombre() + " " + usuario.getApellido());
-            // Aquí puedes cargar la siguiente vista, por ejemplo PanelProductos
-        } else {
-            mostrarAlerta(Alert.AlertType.ERROR, "Login fallido",
-                "RUT o contraseña incorrectos");
-        }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Login",
+            "RUT: " + rut);
         passwordField.clear();
     }
 
