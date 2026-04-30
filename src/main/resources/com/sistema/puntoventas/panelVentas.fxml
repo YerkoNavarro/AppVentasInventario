@@ -8,15 +8,15 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.VentaController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.VentaController">
    <children>
       <TableView id="idTableView" fx:id="idTablaVentas" editable="true" layoutX="70.0" layoutY="85.0" prefHeight="258.0" prefWidth="422.0" AnchorPane.bottomAnchor="55.00095407818253" AnchorPane.leftAnchor="70.0" AnchorPane.rightAnchor="70.00095407818253" AnchorPane.topAnchor="85.0">
         <columns>
-          <TableColumn id="idColumnaFecha" fx:id="ColFecha" maxWidth="1.7976931348623157E308" minWidth="70.0" prefWidth="-1.0" text="fecha" />
-          <TableColumn fx:id="ColProductos" maxWidth="1.7976931348623157E308" minWidth="89.0" prefWidth="91.0" text="Productos" />
-            <TableColumn fx:id="ColTipoPago" maxWidth="1.7976931348623157E308" minWidth="50.0" prefWidth="-1.0" text="Tipo Pago" />
-            <TableColumn fx:id="ColTotalVenta" maxWidth="1.7976931348623157E308" minWidth="90.0" prefWidth="-1.0" text="Total" />
-            <TableColumn fx:id="ColDescripcion" maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="-1.0" text="Descripción" />
+          <TableColumn fx:id="ColFecha" sortable="false" text="fecha" />
+          <TableColumn fx:id="ColProductos" sortable="false" text="Productos" />
+          <TableColumn fx:id="ColTipoPago" sortable="false" text="Tipo Pago" />
+          <TableColumn fx:id="ColTotalVenta" sortable="false" text="Total" />
+          <TableColumn fx:id="ColDescripcion" sortable="false" text="Descripción" />
         </columns>
       </TableView>
       <Button layoutX="92.0" layoutY="358.0" mnemonicParsing="false" onAction="#agregarVenta" text="agregar" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="92.0" />

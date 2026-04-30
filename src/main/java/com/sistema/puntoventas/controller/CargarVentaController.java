@@ -26,7 +26,7 @@ public class CargarVentaController {
     private String fechaSeleccionada;
 
     @FXML
-    void cargarFechas(ActionEvent event) {
+    void cargarFechas(ActionEvent event) { //metodo que se ejecuta al apretar el boton cargar
         fechaSeleccionada = idTableViewFechas.getSelectionModel().getSelectedItem();
         
         if (fechaSeleccionada != null) {

@@ -9,7 +9,7 @@
    <children>
       <TableView fx:id="idTableViewFechas" layoutX="125.0" layoutY="35.0" prefHeight="310.0" prefWidth="229.0" AnchorPane.bottomAnchor="54.99764887876444" AnchorPane.leftAnchor="124.99758073032282" AnchorPane.rightAnchor="125.83177159821307" AnchorPane.topAnchor="35.0">
          <columns>
-            <TableColumn fx:id="columnFecha" prefWidth="227.0" text="Fechas" />
+            <TableColumn fx:id="columnFecha" prefWidth="223.0" text="Fechas" />
          </columns>
       </TableView>
       <Button layoutX="215.0" layoutY="353.0" mnemonicParsing="false" onAction="#cargarFechas" text="cargar" AnchorPane.bottomAnchor="22.0" AnchorPane.rightAnchor="215.0" />

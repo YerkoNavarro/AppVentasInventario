@@ -2,6 +2,7 @@ package com.sistema.puntoventas.controller;
 
 import java.lang.annotation.Repeatable;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
@@ -42,7 +43,28 @@ public class VentaController {
     private TableView<ventaAplicacion> idTablaVentas;
 
     @FXML
-    void agregarVenta(ActionEvent event) {
+    void agregarVenta(ActionEvent event) { //metodo que se ejecuta al apretar el boton agregar 
+
+       
+        try {
+            FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/panelRegistrarVenta.fxml"));
+            Parent root = loader2.load();
+
+            PanelRegistrarVentaController  cargarController = loader2.getController();
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.getDialogPane().setContent(root);
+            dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+            dialog.setTitle("Registrar Venta");
+
+            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+            dialog.showAndWait();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            
+        }
+
+    
 
     }
 
@@ -50,11 +72,11 @@ public class VentaController {
     void cargarVentaAplicacion(ActionEvent event) {
         //lanzar el panel panelCargarVenta.fxml
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/panelCargarVenta.fxml"));
-            Parent root = loader.load();
+            FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/panelCargarVenta.fxml"));
+            Parent root = loader1.load();
             
             //  referencia al controlador del panel de carga
-            CargarVentaController cargarController = loader.getController();
+            CargarVentaController cargarController = loader1.getController();
 
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.getDialogPane().setContent(root);
@@ -110,7 +132,7 @@ public class VentaController {
 
     @FXML
     void cargarNuevaVenta(ActionEvent event) {
-
+        
     }
 
     @FXML
@@ -119,6 +141,17 @@ public class VentaController {
     }
 
 
+     
+    @FXML
+    public void initialize() {
+    // Sin CONSTRAINED_RESIZE_POLICY
     
+    ColFecha.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
+    ColProductos.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
+    ColTipoPago.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
+    ColTotalVenta.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
+    ColDescripcion.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
+}
+   
 
 }
