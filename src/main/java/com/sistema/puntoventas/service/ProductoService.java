@@ -3,7 +3,9 @@ package com.sistema.puntoventas.service;
 import com.sistema.puntoventas.modelo.Categoria;
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.TipoProducto;
+import com.sistema.puntoventas.repository.ICategoriaRepository;
 import com.sistema.puntoventas.repository.IProductoRepository;
+import com.sistema.puntoventas.repository.IstockRepository;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 
 import java.util.ArrayList;
@@ -13,9 +15,17 @@ import java.util.List;
 public class ProductoService {
 
     private IProductoRepository productoRepository;
+    private ICategoriaRepository categoriaRepository;
+    private IstockRepository stockRepository;
+
+
     public ProductoService() {
         this.productoRepository = new ProductoRepositoryImpl();
+        this.categoriaRepository = new ProductoRepositoryImpl();
+        this.stockRepository = new ProductoRepositoryImpl();
     }
+
+    //-----------------------------------------------------------------------------------------------------------------
 
     public void registrarProducto(Producto producto) throws Exception{
         if (producto == null){
@@ -70,9 +80,14 @@ public class ProductoService {
     }
 
 
+    //--------------------------------------------------------------------------------------------------------------------
+
+
     public List<Producto> obtenerProductos() {
         return productoRepository.obtenerProductos();
     }
+
+    //--------------------------------------------------------------------------------------------------------------------
 
     public List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto) throws Exception {
         if (tipoProducto == null) {
@@ -82,7 +97,9 @@ public class ProductoService {
         return productoRepository.buscarPorTipoProducto(tipoProducto);
     }
 
-    public boolean actualzarProducto(Producto producto) throws Exception{
+    //-----------------------------------------------------------------------------------------------------------------
+
+    public boolean actualizarProducto(Producto producto) throws Exception{
         if (producto == null){
             throw new Exception("El producto no puede ser nulo");
         }
@@ -101,6 +118,8 @@ public class ProductoService {
 
         return productoRepository.actualizarProducto(producto);
     }
+
+    //------------------------------------------------------------------------------------------------------------------
 
 
     public String  eliminarProducto(int id) throws Exception{
@@ -134,8 +153,11 @@ public class ProductoService {
     }
 
 
+    //------------------------------------------------------------------------------------------------------------------
+
+
     public List<Producto>obtenerStockCritico(){
-        List<Producto> stockCritico = productoRepository.obtenerStockCritico();
+        List<Producto> stockCritico = stockRepository.obtenerStockCritico();
 
         if(stockCritico == null){
             return new ArrayList<>();
@@ -146,20 +168,26 @@ public class ProductoService {
         return stockCritico;
     }
 
+
+    //------------------------------------------------------------------------------------------------------------------
+
     public int obtenerStockActual(int id) throws Exception {
         if (id <= 0) {
             throw new Exception("ID de producto no válido.");
         }
 
-        return productoRepository.obtenerStockActual(id);
+        return stockRepository.obtenerStockActual(id);
     }
+
+
+    //------------------------------------------------------------------------------------------------------------------
 
     public boolean existeCategoria(String nombreCategoria) throws Exception {
         if (nombreCategoria == null || nombreCategoria.trim().isEmpty()) {
             throw new Exception("No existe categoria");
         }
 
-        return productoRepository.existeCategoria(nombreCategoria.trim());
+        return categoriaRepository.existeCategoria(nombreCategoria.trim());
     }
 
     public void registrarCategoria(Categoria categoria) throws Exception {
@@ -177,22 +205,25 @@ public class ProductoService {
             categoria.setDescripcion(categoria.getDescripcion().trim());
         }
 
-        if (productoRepository.existeCategoria(categoria.getNombreCategoria())) {
+        if (categoriaRepository.existeCategoria(categoria.getNombreCategoria())) {
             throw new Exception("La categoría ya existe.");
         }
 
-        boolean registrada = productoRepository.registrarCategoria(categoria);
+        boolean registrada = categoriaRepository.registrarCategoria(categoria);
         if (!registrada) {
             throw new Exception("No se pudo registrar la categoría.");
         }
     }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
 
     public boolean actualizarCategoria(int id) throws Exception {
         if (id <= 0) {
             throw new Exception("ID de categoría no válido.");
         }
 
-        boolean actualizada = productoRepository.actualizarCategoria(id);
+        boolean actualizada = categoriaRepository.actualizarCategoria(id);
         if (!actualizada) {
             throw new Exception("No se pudo actualizar la categoría.");
         }
@@ -200,12 +231,24 @@ public class ProductoService {
         return true;
     }
 
+    public List<Categoria> obtenerCategorias() throws Exception {
+        List<Categoria> categorias = categoriaRepository.obtenerCategorias();
+
+
+        if(categorias == null){
+            System.out.println("No hay categorias");
+            return new ArrayList<>();
+
+        }
+        return categorias;
+    }
+
     public boolean eliminarCategoria(int id) throws Exception {
         if (id <= 0) {
             throw new Exception("ID de categoría no válido.");
         }
 
-        boolean eliminada = productoRepository.eliminarCategoria(id);
+        boolean eliminada = categoriaRepository.eliminarCategoria(id);
         if (!eliminada) {
             throw new Exception("No se pudo eliminar la categoría porque está asociada a un producto o platillo, no existe o hubo un error.");
         }
