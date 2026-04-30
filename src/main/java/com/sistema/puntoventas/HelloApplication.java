@@ -5,8 +5,11 @@ import com.sistema.puntoventas.modelo.Producto;
 
 import com.sistema.puntoventas.modelo.detalleVenta;
 import com.sistema.puntoventas.modelo.venta;
+import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.repository.impl.DetalleVentaImpl;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
+import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
+import com.sistema.puntoventas.service.VentaService;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -21,10 +24,9 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/sistema/puntoventas/panelPrincipalVista.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1920, 1080);
+        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
         stage.setTitle("Eluney");
         stage.setScene(scene);
-        stage.setResizable(true);
         stage.setMaximized(true);
         stage.show();
 
@@ -67,15 +69,26 @@ public class HelloApplication extends Application {
         */
 
         
-        DetalleVentaImpl detalleVentaImpl = new DetalleVentaImpl();
-        List<String> info = detalleVentaImpl.obtenerInfoVentaDetalle(1);
-        for (String linea : info) {
-            System.out.println(linea);
+       VentaService ventaService = new VentaService();
+
+
+
+      List<ventaAplicacion> ventas = ventaService.traerTodasLasVentas();
+
         
+
+        for (ventaAplicacion va : ventas) {
+    System.out.println("idVenta: " + va.getVenta().getIdVenta() + 
+                       " | fecha: " + va.getVenta().getFechaHora() + 
+                       " | total: " + va.getVenta().getTotalVenta());
+
+    for (Producto p : va.getDetalleVentas()) {
+        System.out.println("  -> " + p.getNombre() + " $" + p.getPrecioVenta());
     }
-
+    System.out.println("----------");
+}
     
-
+    
 
 
     }
