@@ -1,10 +1,14 @@
 package com.sistema.puntoventas.controller;
 
+import java.lang.annotation.Repeatable;
 import java.util.List;
 
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
-
+import com.sistema.puntoventas.service.VentaService;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,9 +28,9 @@ public class VentaController {
     @FXML
     private TableColumn<ventaAplicacion, String> ColFecha;
 
-
+    
     @FXML
-    private TableColumn<ventaAplicacion, List<Producto>> ColProductos;
+    private TableColumn<ventaAplicacion, String> ColProductos;
 
     @FXML
     private TableColumn<ventaAplicacion, String> ColTipoPago;
@@ -35,7 +39,7 @@ public class VentaController {
     private TableColumn<ventaAplicacion, Double> ColTotalVenta;
 
     @FXML
-    private TableView<?> idTablaVentas;
+    private TableView<ventaAplicacion> idTablaVentas;
 
     @FXML
     void agregarVenta(ActionEvent event) {
@@ -63,9 +67,10 @@ public class VentaController {
             // la fecha seleccionada desde el controlador del diálogo
             String fechaElegida = cargarController.getFechaSeleccionada();
             
-            if (fechaElegida != null) {
+            // Llamamos al método para cargar los datos si se eligió una fecha
+            if (fechaElegida != null && !fechaElegida.isEmpty()) {
                 System.out.println("Fecha recibida para filtrar: " + fechaElegida);
-                //poner metodo aqui
+                cargarVentasTableView(fechaElegida);
             }
             
         } catch (Exception e) {
@@ -73,6 +78,33 @@ public class VentaController {
         }
         
 
+    }
+
+
+    VentaService ventaService = new VentaService();
+
+
+    private void cargarVentasTableView(String fecha) {
+        List<ventaAplicacion> listaVentas = ventaService.obtenerVentasporFecha(fecha);
+         if (listaVentas != null) {
+            // Mapeo de datos para las columnas existentes
+            ColFecha.setCellValueFactory(cellData -> 
+                new SimpleStringProperty(cellData.getValue().getVenta().getFechaHora()));
+            
+            ColTotalVenta.setCellValueFactory(cellData -> 
+                new SimpleObjectProperty<>(cellData.getValue().getVenta().getTotalVenta()));
+            
+            ColProductos.setCellValueFactory(cellData -> 
+                new SimpleObjectProperty<>(cellData.getValue().getNombreProducto()));
+
+            // Columnas solicitadas vacías (temporalmente)
+            ColDescripcion.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+            ColTipoPago.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+
+            // Cargar la lista en el TableView
+            idTablaVentas.setItems(FXCollections.observableArrayList(listaVentas));
+        }
+        
     }
 
 

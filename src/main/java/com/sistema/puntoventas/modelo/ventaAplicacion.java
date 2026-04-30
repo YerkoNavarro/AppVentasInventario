@@ -27,6 +27,16 @@ public class ventaAplicacion {
         return detalleVentas;
     }
 
+    //get del nombre del producto
+    public String getNombreProducto(){
+        StringBuilder sb = new StringBuilder();
+        for (Producto producto : detalleVentas) {
+            sb.append(producto.getNombre()).append("- ");
+        }
+        return sb.toString();
+    }
+
+
     public void setDetalleVentas(List<Producto> detalleVentas) {
         this.detalleVentas = detalleVentas;
     }
