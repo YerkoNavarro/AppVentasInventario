@@ -10,11 +10,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.controlsfx.control.action.Action;
+
+import java.util.PropertyPermission;
 
 public class PanelPrincipalProductosController {
 
@@ -40,7 +44,30 @@ public class PanelPrincipalProductosController {
     private Button btnVerPlatillos;
 
     @FXML
-    private TableView<?> tableProductos;
+    private TableView<Producto> tableProductos;
+
+    @FXML
+    private TableColumn<Producto, Integer> colId;
+    @FXML
+    private TableColumn<Producto, String> colNombre;
+    @FXML
+    private TableColumn<Producto, Double> colPrecioCompra;
+    @FXML
+    private TableColumn<Producto, Double> colPrecioVenta;
+    @FXML
+    private TableColumn<Producto, String> colCategoria;
+    @FXML
+    private TableColumn<Producto, String> colFechaVenc;
+    @FXML
+    private TableColumn<Producto, Integer> colStockActual;
+    @FXML
+    private TableColumn<Producto, Integer> colStockMin;
+    @FXML
+    private TableColumn<Producto, String> colUnidadMedida;
+    @FXML
+    private TableColumn<Producto, String> colTipoProducto;
+
+
 
     private ProductoService productoService;
 
@@ -58,9 +85,19 @@ public class PanelPrincipalProductosController {
     
     
     public void initialize(){
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colPrecioCompra.setCellValueFactory(new PropertyValueFactory<>("precioCompra"));
+        colPrecioVenta.setCellValueFactory(new PropertyValueFactory<>("precioVenta"));
+        colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
+        colFechaVenc.setCellValueFactory(new PropertyValueFactory<>("fechaVenc"));
+        colStockActual.setCellValueFactory(new PropertyValueFactory<>("stockActual"));
+        colStockMin.setCellValueFactory(new PropertyValueFactory<>("stockMinimo"));
+        colUnidadMedida.setCellValueFactory(new PropertyValueFactory<>("unidadMedida"));
+        colTipoProducto.setCellValueFactory(new PropertyValueFactory<>("tipoProducto"));
 
         obtenerProductos();
-        // corregir el nombre del recurso FXML y asignar el manejador para abrir la ventana de registrar
+
         btnAgregarProducto.setOnAction(e -> cargarVistaAgregarProducto("PanelRegistrarProductosvista.fxml"));
     }
 

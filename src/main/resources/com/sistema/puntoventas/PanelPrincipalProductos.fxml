@@ -9,27 +9,27 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="608.0" prefWidth="925.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelPrincipalProductosController">
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelPrincipalProductosController">
    <children>
-      <Pane prefHeight="608.0" prefWidth="925.0">
+      <Pane id="panePrinc" fx:id="contenedorTabla" prefHeight="608.0" prefWidth="1675.0" styleClass="panel-root" stylesheets="@css/panel-productos.css">
          <children>
-            <TableView fx:id="tableProductos" layoutX="42.0" layoutY="284.0" prefHeight="316.0" prefWidth="852.0">
+            <TableView fx:id="tableProductos" layoutX="42.0" layoutY="284.0" prefHeight="316.0" prefWidth="1149.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="id" />
-                <TableColumn prefWidth="75.0" text="nombre " />
-                  <TableColumn prefWidth="90.39996337890625" text="precio compra" />
-                  <TableColumn prefWidth="94.4000244140625" text="precio venta" />
-                  <TableColumn prefWidth="87.199951171875" text="categoria" />
-                  <TableColumn prefWidth="80.80007934570312" text="fecha venc" />
-                  <TableColumn prefWidth="79.99996948242188" text="stock actual" />
-                  <TableColumn prefWidth="73.60003662109375" text="stock min" />
-                  <TableColumn prefWidth="97.5999755859375" text="unidad medida" />
-                  <TableColumn prefWidth="104.0" text="tipo producto" />
+                <TableColumn fx:id="colId" prefWidth="63.200016021728516" text="id" />
+                <TableColumn fx:id="colNombre" prefWidth="129.5999755859375" text="nombre " />
+                  <TableColumn fx:id="colPrecioCompra" prefWidth="108.79997253417969" text="precio compra" />
+                  <TableColumn fx:id="colPrecioVenta" prefWidth="112.79998779296875" text="precio venta" />
+                  <TableColumn fx:id="colCategoria" prefWidth="143.99993896484375" text="categoria" />
+                  <TableColumn fx:id="colFechaVenc" prefWidth="128.800048828125" text="fecha venc" />
+                  <TableColumn fx:id="colStockActual" prefWidth="104.0" text="stock actual" />
+                  <TableColumn fx:id="colStockMin" prefWidth="119.199951171875" text="stock min" />
+                  <TableColumn fx:id="colUnidadMedida" prefWidth="124.79998779296875" text="unidad medida" />
+                  <TableColumn fx:id="colTipoProducto" prefWidth="109.60009765625" text="tipo producto" />
               </columns>
             </TableView>
-            <HBox layoutX="162.0" layoutY="22.0" prefHeight="132.0" prefWidth="602.0">
+            <HBox layoutX="162.0" layoutY="22.0" prefHeight="132.0" prefWidth="689.0" spacing="40.0">
                <children>
-                  <Pane fx:id="CardProductos" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: grey;">
+                  <Pane fx:id="CardProductos" prefHeight="200.0" prefWidth="200.0" styleClass="card-kpi-blue" stylesheets="@css/PanelPrincipalVista.css">
                      <children>
                         <Label layoutX="40.0" layoutY="30.0" text="Productos activos">
                            <font>
@@ -38,7 +38,7 @@
                         </Label>
                      </children>
                   </Pane>
-                  <Pane fx:id="CardCategorias" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: grey;">
+                  <Pane fx:id="CardCategorias" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" styleClass="card-kpi-green" stylesheets="@css/PanelPrincipalVista.css">
                      <children>
                         <Label layoutX="47.0" layoutY="29.0" text="Categorias activas">
                            <font>
@@ -47,7 +47,7 @@
                         </Label>
                      </children>
                   </Pane>
-                  <Pane fx:id="CardActivos" layoutX="210.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: grey;">
+                  <Pane fx:id="CardActivos" layoutX="210.0" layoutY="10.0" prefHeight="132.0" prefWidth="206.0" styleClass="card-kpi-yellow" stylesheets="@css/PanelPrincipalVista.css">
                      <children>
                         <Label layoutX="47.0" layoutY="32.0" text="Platillos activos">
                            <font>
@@ -58,10 +58,10 @@
                   </Pane>
                </children>
             </HBox>
-            <Button fx:id="btnEditarProducto" layoutX="222.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" text="Editar Producto" />
-            <Button fx:id="btnEliminarProducto" layoutX="414.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" text="Eliminar Producto" />
-            <Button id="btnAgregarProducto" fx:id="btnAgregarProducto" layoutX="42.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" text="Agregar Producto" />
-            <Button fx:id="btnVerPlatillos" layoutX="597.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" text="Ver platillos" />
+            <Button fx:id="btnEditarProducto" layoutX="222.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Editar Producto" />
+            <Button fx:id="btnEliminarProducto" layoutX="414.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Eliminar Producto" />
+            <Button id="btnAgregarProducto" fx:id="btnAgregarProducto" layoutX="42.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Agregar Producto" />
+            <Button fx:id="btnVerPlatillos" layoutX="597.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Ver platillos" />
          </children>
       </Pane>
    </children>
