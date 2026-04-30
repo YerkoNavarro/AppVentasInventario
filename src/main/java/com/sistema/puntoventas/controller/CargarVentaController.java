@@ -41,8 +41,10 @@ public class CargarVentaController {
     }
 
     private void cargarFechasTableView() {
-    List<String> fechas = ventaService.obtenerFechasTableView();
-    
+        List<String> fechas = ventaService.obtenerFechasTableView();
+        //ordenar de menor a mayor
+        fechas.sort((a, b) -> b.compareTo(a));
+            
         columnFecha.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue())
         );
