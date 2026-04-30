@@ -49,6 +49,9 @@ public class VentaController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/panelCargarVenta.fxml"));
             Parent root = loader.load();
             
+            //  referencia al controlador del panel de carga
+            CargarVentaController cargarController = loader.getController();
+
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.getDialogPane().setContent(root);
             dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
@@ -56,6 +59,14 @@ public class VentaController {
             
             Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
             stage.showAndWait();
+
+            // la fecha seleccionada desde el controlador del diálogo
+            String fechaElegida = cargarController.getFechaSeleccionada();
+            
+            if (fechaElegida != null) {
+                System.out.println("Fecha recibida para filtrar: " + fechaElegida);
+                //poner metodo aqui
+            }
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,6 +87,6 @@ public class VentaController {
     }
 
 
-
+    
 
 }

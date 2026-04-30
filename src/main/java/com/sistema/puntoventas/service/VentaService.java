@@ -9,7 +9,11 @@ import com.sistema.puntoventas.repository.impl.DetalleVentaImpl;
 
 import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.util.List;
+import java.util.Observable;
 
 public class VentaService {
     
@@ -36,6 +40,19 @@ public class VentaService {
     }
     
         
+    public ObservableList<String> obtenerFechasTableView(){
+        try {
+            List<String> listaFechas = ventaRepositoryimpl.obtenerTodasLasFechas();
 
+            ObservableList<String> obsListFechas = FXCollections.observableArrayList(listaFechas);
+            return obsListFechas;
+            
+        } catch (Exception e) {
+            System.err.println("Error al obtener fechas: " + e.getMessage());
+            return null;
+        }
+        
+
+    }
 
 }
