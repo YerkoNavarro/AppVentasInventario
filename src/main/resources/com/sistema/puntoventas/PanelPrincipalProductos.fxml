@@ -36,15 +36,17 @@
                               <Font name="Arial Black" size="12.0" />
                            </font>
                         </Label>
+                        <Label fx:id="lblProductosActivos" layoutX="69.0" layoutY="66.0" styleClass="label-metrica" stylesheets="@css/panel-productos.css" />
                      </children>
                   </Pane>
                   <Pane fx:id="CardCategorias" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" styleClass="card-kpi-green" stylesheets="@css/PanelPrincipalVista.css">
                      <children>
-                        <Label layoutX="47.0" layoutY="29.0" text="Categorias activas">
+                        <Label layoutX="38.0" layoutY="29.0" text="Categorias activas">
                            <font>
                               <Font name="Arial Black" size="12.0" />
                            </font>
                         </Label>
+                        <Label fx:id="lblCategoriasActivas" layoutX="70.0" layoutY="66.0" styleClass="label-metrica" />
                      </children>
                   </Pane>
                   <Pane fx:id="CardActivos" layoutX="210.0" layoutY="10.0" prefHeight="132.0" prefWidth="206.0" styleClass="card-kpi-yellow" stylesheets="@css/PanelPrincipalVista.css">
@@ -54,6 +56,7 @@
                               <Font name="Arial Black" size="12.0" />
                            </font>
                         </Label>
+                        <Label fx:id="lblPlatillosActivos" layoutX="73.0" layoutY="66.0" styleClass="label-metrica" />
                      </children>
                   </Pane>
                </children>

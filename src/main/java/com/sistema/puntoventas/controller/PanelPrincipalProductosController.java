@@ -8,10 +8,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
@@ -21,6 +18,15 @@ import org.controlsfx.control.action.Action;
 import java.util.PropertyPermission;
 
 public class PanelPrincipalProductosController {
+
+    @FXML
+    private Label lblProductosActivos;
+
+    @FXML
+    private Label lblCategoriasActivas;
+
+    @FXML
+    private Label lblPlatillosActivos;
 
     @FXML
     private Pane CardActivos;
@@ -97,6 +103,7 @@ public class PanelPrincipalProductosController {
         colTipoProducto.setCellValueFactory(new PropertyValueFactory<>("tipoProducto"));
 
         obtenerProductos();
+        actualizarMetricas();
 
         btnAgregarProducto.setOnAction(e -> cargarVistaAgregarProducto("PanelRegistrarProductosvista.fxml"));
     }
@@ -156,6 +163,37 @@ public class PanelPrincipalProductosController {
         }
 
 
+    }
+
+
+    private void actualizarMetricas(){
+        try{
+            if(productoService == null){
+                productoService = new ProductoService();
+            }
+
+            java.util.List<Producto> lista = productoService.obtenerProductos();
+            int totalProductos = lista.size();
+            long totalPlatillos = lista.stream()
+                    .filter(p -> p.getTipoProducto() != null && p.getTipoProducto().name().equals("PLATILLO"))
+                    .count();
+
+            long totalCategorias = lista.stream()
+                    .filter(p -> p.getCategoria() != null)
+                    .map(p -> p.getCategoria().getNombreCategoria())
+                    .distinct()
+                    .count();
+
+            lblProductosActivos.setText(String.valueOf(totalProductos));
+            lblPlatillosActivos.setText(String.valueOf(totalPlatillos));
+            lblCategoriasActivas.setText(String.valueOf(totalCategorias));
+
+
+
+        } catch (Exception e) {
+            System.err.println("Error al actualizar metricas" +e.getMessage());
+            mostrarMensaje("Error","No se pudieron actualizar las métricas", Alert.AlertType.ERROR);
+        }
     }
 
 }

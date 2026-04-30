@@ -16,6 +16,9 @@ import java.util.List;
 
 public class ProductoController {
 
+
+
+
         @FXML
         private Button btnRegistrar;
 
@@ -183,6 +186,9 @@ public class ProductoController {
         cmbUnidadMedida.getSelectionModel().clearSelection();
         cmbTipoProducto.getSelectionModel().clearSelection();
     }
+
+
+
 
     private String formatearUnidadMedida(UnidadMedida unidadMedida) {
         if (unidadMedida == null) {
