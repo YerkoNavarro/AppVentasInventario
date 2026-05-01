@@ -147,7 +147,9 @@ public class ProductoService {
             if (!eliminado) {
                 throw new Exception("Error al intentar eliminar el producto permanentemente.");
             }
-            return "El producto no tenía asociaciones y fue ELIMINADO de la base de datos.";
+
+            System.out.println("El producto no tenía asociaciones y fue ELIMINADO de la base de datos.");
+            return "ELIMINADO";
         }
 
     }

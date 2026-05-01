@@ -87,6 +87,19 @@ public class PanelPrincipalProductosController {
         alert.showAndWait();
 
 
+
+
+    }
+
+    private boolean mostrarConfirmacion(String titulo, String mensaje, Alert.AlertType tipo){
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle(titulo);
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText(mensaje);
+        var resultado = confirmacion.showAndWait();
+
+
+        return resultado.isPresent() && resultado.get() == ButtonType.OK;
     }
     
     
@@ -107,6 +120,7 @@ public class PanelPrincipalProductosController {
 
         btnAgregarProducto.setOnAction(e -> cargarVistaAgregarProducto("PanelRegistrarProductosvista.fxml"));
         btnEditarProducto.setOnAction(e -> actualizarProductos());
+        btnEliminarProducto.setOnAction(this::eliminarProducto);
     }
 
     private void cargarVistaAgregarProducto(String fxml) {
@@ -196,7 +210,7 @@ public class PanelPrincipalProductosController {
     }
 
     @FXML
-    public void actualizarProductos(){
+    public void actualizarProductos (){
        Producto productoSeleccionado  =tableProductos.getSelectionModel().getSelectedItem();
 
        if (productoSeleccionado == null ){
@@ -206,6 +220,33 @@ public class PanelPrincipalProductosController {
        }
 
          cargarVistaActualizarProductos(productoSeleccionado);
+    }
+
+
+    @FXML
+    public void eliminarProducto(javafx.event.ActionEvent event){
+        Producto productoSeleccionado  =tableProductos.getSelectionModel().getSelectedItem();
+
+        if(productoSeleccionado == null){
+            mostrarMensaje("AVISO","Por favor seleccione un producto para eliminar", Alert.AlertType.WARNING);
+            return;
+        }
+
+        boolean respuesta = mostrarConfirmacion("Confirmación","¿Está seguro que desea eliminar el producto seleccionado?", Alert.AlertType.CONFIRMATION);
+        if(respuesta ){
+            try {
+                String eliminado = productoService.eliminarProducto(productoSeleccionado.getId());
+                if (eliminado.equalsIgnoreCase("ELIMINADO")) {
+                    mostrarMensaje("ÉXITO", "Producto eliminado correctamente", Alert.AlertType.INFORMATION);
+                    obtenerProductos();
+                } else {
+                    mostrarMensaje("AVISO", "Error al eliminar el producto", Alert.AlertType.ERROR);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
 
