@@ -13,6 +13,7 @@ public interface IProductoRepository {
     boolean actualizarProducto(Producto producto);
     boolean eliminarProducto(int id);
     boolean desactivarProducto(int id);
+    boolean existeNombre(String nombre, int id);
     Producto obtenerProductoPorId(int id);
     List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto);
     boolean estaAsociadoVentaOPlatillo(int id);

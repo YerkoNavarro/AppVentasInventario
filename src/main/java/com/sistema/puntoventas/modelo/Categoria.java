@@ -51,8 +51,6 @@ public class Categoria {
 
     @Override
     public String toString() {
-        return "Categoria{" +
-                "nombreCategoria='" + nombreCategoria + '\'' +
-                '}';
+        return this.nombreCategoria;
     }
 }

@@ -155,6 +155,9 @@ public class ProductoService {
 
     //------------------------------------------------------------------------------------------------------------------
 
+    public boolean existeNombre(String nombre, int id){
+        return productoRepository.existeNombre(nombre, id);
+    }
 
     public List<Producto>obtenerStockCritico(){
         List<Producto> stockCritico = stockRepository.obtenerStockCritico();

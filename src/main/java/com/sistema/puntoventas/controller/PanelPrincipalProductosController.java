@@ -106,6 +106,7 @@ public class PanelPrincipalProductosController {
         actualizarMetricas();
 
         btnAgregarProducto.setOnAction(e -> cargarVistaAgregarProducto("PanelRegistrarProductosvista.fxml"));
+        btnEditarProducto.setOnAction(e -> actualizarProductos());
     }
 
     private void cargarVistaAgregarProducto(String fxml) {
@@ -119,9 +120,38 @@ public class PanelPrincipalProductosController {
             stage.setTitle("Registrar producto");
             stage.setScene(new Scene(root,1200,768));
             stage.showAndWait();
+            obtenerProductos();
 
         } catch (Exception e) {
             mostrarMensaje("ERROR","No se pudo cargar la vista: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+
+    private void cargarVistaActualizarProductos(Producto productoSeleccionado){
+        try{
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/PanelRegistrarProductosvista.fxml"));
+            Parent root = loader.load();
+
+            ProductoController controller = loader.getController();
+
+
+            if (controller != null && productoSeleccionado != null) {
+                controller.ActualizarProducto(productoSeleccionado);
+            }
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Actualizar Producto");
+            stage.setScene(new Scene(root,1200,768));
+            stage.showAndWait();
+
+
+            obtenerProductos();
+
+        } catch (Exception e) {
+            mostrarMensaje("ERROR", "Error al abrir vista: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }
@@ -163,6 +193,19 @@ public class PanelPrincipalProductosController {
         }
 
 
+    }
+
+    @FXML
+    public void actualizarProductos(){
+       Producto productoSeleccionado  =tableProductos.getSelectionModel().getSelectedItem();
+
+       if (productoSeleccionado == null ){
+           System.out.println("Producto no seleccionado");
+           mostrarMensaje("AVISO","Seleccione un producto para editar", Alert.AlertType.WARNING);
+           return;
+       }
+
+         cargarVistaActualizarProductos(productoSeleccionado);
     }
 
 
