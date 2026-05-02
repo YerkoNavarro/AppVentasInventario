@@ -127,6 +127,13 @@ public class PanelPrincipalProductosController {
         btnAgregarProducto.setOnAction(e -> cargarVistaAgregarProducto("PanelRegistrarProductosvista.fxml"));
         btnEditarProducto.setOnAction(e -> actualizarProductos());
         btnEliminarProducto.setOnAction(this::eliminarProducto);
+
+        tableProductos.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection)->{
+            if(newSelection != null){
+                System.out.println("RECETA");
+             //   btnVerReceta.setDisable(!newSelection.getTipoProducto().name().equals("PLATILLO"));
+            }
+        });
     }
 
     private void cargarVistaAgregarProducto(String fxml) {

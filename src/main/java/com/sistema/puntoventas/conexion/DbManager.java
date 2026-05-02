@@ -129,6 +129,8 @@ public class DbManager {
         crearTablaDetalleVenta();
         crearTablaProductos();
         crearTablaHistorialInventario();
+        crearTablaPlatillo();
+        crearTablaDetallePlatillo();
         System.out.println("Inicialización de todas las tablas completada.");
     }
 
@@ -165,6 +167,45 @@ public class DbManager {
             System.out.println("Tabla 'categoria' verificada/creada.");
         } catch (SQLException e) {
             System.err.println("Error al crear tabla categoria: " + e.getMessage());
+        }
+    }
+
+    public void crearTablaPlatillo(){
+        String sql = "CREATE TABLE IF NOT EXISTS platillo ("
+            + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + " nombre TEXT UNIQUE NOT NULL,"
+            + " precio DOUBLE, "
+            + " idCategoria INTEGER, "    
+            + " estado boolean, "
+            + " costoProduccion double, "
+            + " stockActual INTEGER, "
+            + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+            + ");";
+        try(var conn = DriverManager.getConnection(url);
+            var stmt = conn.createStatement()){
+            stmt.execute(sql);
+            System.out.println("Tabla 'platillo ' verificada/creada.");
+
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla platillo: "+e.getMessage());
+        }
+    }
+
+    public void crearTablaDetallePlatillo() {
+        String sql = "CREATE TABLE IF NOT EXISTS detalle_platillo ("
+            + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + " idPlatillo INTEGER NOT NULL, "
+            + " idProducto INTEGER NOT NULL, " // idProducto asume que el ingrediente es un producto del inventario
+            + " cantidadIngrediente DOUBLE NOT NULL, "
+            + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id) ON DELETE CASCADE, "
+            + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
+            + ");";
+        try(var conn = DriverManager.getConnection(url);
+            var stmt = conn.createStatement()){
+            stmt.execute(sql);
+            System.out.println("Tabla 'detalle_platillo' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla detalle_platillo: " + e.getMessage());
         }
     }
 }
