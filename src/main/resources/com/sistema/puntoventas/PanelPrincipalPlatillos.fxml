@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="1920.0" prefWidth="1080.0" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelPrincipalPlatillosController">
+    <children>
+        <Label layoutX="42.0" layoutY="30.0" styleClass="title" text="Gestión de Platillos" />
+
+        <HBox alignment="CENTER_LEFT" layoutX="42.0" layoutY="90.0" spacing="20.0">
+            <children>
+                <VBox spacing="8.0" />
+
+                <VBox spacing="8.0" />
+            </children>
+        </HBox>
+
+        <TableView fx:id="tableProductos" layoutX="42.0" layoutY="461.0" prefHeight="456.0" prefWidth="456.0" AnchorPane.leftAnchor="42.0" AnchorPane.rightAnchor="583.6000000000001">
+            <columns>
+                <TableColumn fx:id="colId" prefWidth="60.0" text="id" />
+                <TableColumn fx:id="colNombre" prefWidth="150.0" text="nombre" />
+                <TableColumn fx:id="colTipoProducto" prefWidth="130.0" text="tipo producto" />
+            </columns>
+        </TableView>
+
+        <Label fx:id="lblEstado" layoutX="42.0" layoutY="928.0" prefHeight="38.0" prefWidth="400.0" styleClass="status" text="Listo para registrar" />
+           <ComboBox fx:id="cmbCIngredientes" layoutX="35.0" layoutY="396.0" prefWidth="250.0" promptText="Seleccione ingredientes" styleClass="field" />
+           <TextField fx:id="txtCantidad" layoutX="346.0" layoutY="400.0" prefWidth="150.0" promptText="Cantidad" styleClass="field" />
+           <Label layoutX="42.0" layoutY="365.0" styleClass="field-label" text="Ingrediente" />
+           <Label layoutX="359.0" layoutY="365.0" styleClass="field-label" text="Cantidad" />
+      <TextField fx:id="txtNombre" layoutX="33.0" layoutY="134.0" prefHeight="40.0" prefWidth="182.0" promptText="Nombre" styleClass="field" />
+      <TextField fx:id="txtPrecio" layoutX="33.0" layoutY="214.0" prefHeight="40.0" prefWidth="182.0" promptText="Precio" styleClass="field" />
+      <TextArea fx:id="txtdescripcion" layoutX="297.0" layoutY="134.0" prefHeight="119.0" prefWidth="200.0" promptText="Opcional" />
+      <Label fx:id="lblPrecioSugerido" layoutX="33.0" layoutY="272.0" prefHeight="38.0" prefWidth="182.0" styleClass="status" text="Precio sugerido: " />
+    </children>
+</AnchorPane>

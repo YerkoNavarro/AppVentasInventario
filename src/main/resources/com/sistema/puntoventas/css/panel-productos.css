@@ -108,3 +108,76 @@
     -fx-text-fill: white;
 }
 
+/* --- Estilos para la Tabla de Productos --- */
+
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #dce6f6;
+    -fx-border-radius: 12;
+    -fx-border-width: 1px;
+    -fx-background-radius: 12;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #f1f5fb;
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: #dce6f6;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: transparent;
+    -fx-size: 40px;
+    -fx-border-width: 0 1px 0 0;
+    -fx-border-color: #e5ebf5;
+    -fx-padding: 0 10;
+}
+
+.table-view .column-header .label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #3a4f73;
+    -fx-alignment: center-left;
+    -fx-padding: 0;
+}
+
+.table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: #f1f5fb;
+    -fx-text-background-color: #1f2a3a;
+    -fx-cell-size: 45px;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #fcfdff;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #f0f4fc;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #e6eefa;
+    -fx-text-background-color: #163a70;
+}
+
+.table-cell {
+    -fx-font-size: 13px;
+    -fx-alignment: center-left;
+    -fx-padding: 0 10;
+}
+
+.table-view .scroll-bar:horizontal,
+.table-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.table-view .scroll-bar .thumb {
+    -fx-background-color: #c7d6ef;
+    -fx-background-radius: 5;
+}
+
+.table-view .scroll-bar .thumb:hover {
+    -fx-background-color: #aebfdc;
+}

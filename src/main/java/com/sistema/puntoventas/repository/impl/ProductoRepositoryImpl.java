@@ -210,6 +210,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
             try(ResultSet rs =  ps.executeQuery()){
                 // Recorremos los resultados fila por fila
                 while (rs.next()) {
+                    producto  = new Producto();
 
 
                     // Extraemos la información de la base de datos y la metemos en el objeto

@@ -29,6 +29,9 @@ public class PanelPrincipalProductosController {
     private Label lblPlatillosActivos;
 
     @FXML
+    private Label lblBajoStock;
+
+    @FXML
     private Pane CardActivos;
 
     @FXML
@@ -36,6 +39,9 @@ public class PanelPrincipalProductosController {
 
     @FXML
     private Pane CardProductos;
+
+    @FXML
+    private Pane CardBajoStock;
 
     @FXML
     private Button btnAgregarProducto;
@@ -200,7 +206,7 @@ public class PanelPrincipalProductosController {
             }
 
             mostrarMensaje("ÉXITO","Productos cargados correctamente: " + productos.size(), Alert.AlertType.INFORMATION);
-
+            actualizarMetricas();
         }catch (Exception e){
             mostrarMensaje("ERROR","Error al obtener productos: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
@@ -223,6 +229,8 @@ public class PanelPrincipalProductosController {
     }
 
 
+
+
     @FXML
     public void eliminarProducto(javafx.event.ActionEvent event){
         Producto productoSeleccionado  =tableProductos.getSelectionModel().getSelectedItem();
@@ -235,15 +243,20 @@ public class PanelPrincipalProductosController {
         boolean respuesta = mostrarConfirmacion("Confirmación","¿Está seguro que desea eliminar el producto seleccionado?", Alert.AlertType.CONFIRMATION);
         if(respuesta ){
             try {
+                if (productoService == null) {
+                    productoService = new ProductoService();
+                }
                 String eliminado = productoService.eliminarProducto(productoSeleccionado.getId());
                 if (eliminado.equalsIgnoreCase("ELIMINADO")) {
                     mostrarMensaje("ÉXITO", "Producto eliminado correctamente", Alert.AlertType.INFORMATION);
                     obtenerProductos();
                 } else {
-                    mostrarMensaje("AVISO", "Error al eliminar el producto", Alert.AlertType.ERROR);
+                    mostrarMensaje("AVISO", "El producto tiene asociaciones, Solo se desactivara " + eliminado, Alert.AlertType.WARNING);
+                    obtenerProductos();
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                mostrarMensaje("ERROR", e.getMessage(), Alert.AlertType.ERROR);
+                System.err.println("Error al eliminar producto: " + e.getMessage());
             }
         }
 
@@ -268,9 +281,23 @@ public class PanelPrincipalProductosController {
                     .distinct()
                     .count();
 
+            long bajoStock = lista.stream()
+                    .filter(p -> p.getStockActual() <= p.getStockMinimo())
+                    .count();
+
+            long noBajoStock = lista.stream()
+                            .filter(p -> p.getStockActual() > p.getStockMinimo())
+                             .count();
+
             lblProductosActivos.setText(String.valueOf(totalProductos));
             lblPlatillosActivos.setText(String.valueOf(totalPlatillos));
             lblCategoriasActivas.setText(String.valueOf(totalCategorias));
+
+            if(bajoStock>0) {
+                lblBajoStock.setText(String.valueOf(bajoStock));
+            }else{
+                lblBajoStock.setText("No bajo stock");
+            }
 
 
 
