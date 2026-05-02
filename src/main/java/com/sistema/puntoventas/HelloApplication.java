@@ -1,7 +1,7 @@
 package com.sistema.puntoventas;
 
 import com.sistema.puntoventas.conexion.DbManager;
-import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 
 import com.sistema.puntoventas.modelo.detalleVenta;
 import com.sistema.puntoventas.modelo.venta;
@@ -82,10 +82,10 @@ public class HelloApplication extends Application {
                        " | fecha: " + va.getVenta().getFechaHora() + 
                        " | total: " + va.getVenta().getTotalVenta());
 
-    for (Producto p : va.getDetalleVentas()) {
+   /* for (Producto p : va.getDetalleVentas()) {
         System.out.println("  -> " + p.getNombre() + " $" + p.getPrecioVenta());
     }
-    System.out.println("----------");
+    System.out.println("----------");*/
 }
     
     

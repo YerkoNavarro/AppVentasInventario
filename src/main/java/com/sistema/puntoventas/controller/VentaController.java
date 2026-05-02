@@ -4,7 +4,7 @@ import java.lang.annotation.Repeatable;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.service.VentaService;
 import javafx.beans.property.SimpleObjectProperty;
