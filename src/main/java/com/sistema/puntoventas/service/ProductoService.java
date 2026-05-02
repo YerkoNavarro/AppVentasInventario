@@ -1,11 +1,11 @@
 package com.sistema.puntoventas.service;
 
-import com.sistema.puntoventas.modelo.Categoria;
-import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.modelo.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.repository.ICategoriaRepository;
-import com.sistema.puntoventas.repository.IProductoRepository;
-import com.sistema.puntoventas.repository.IstockRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IstockRepository;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 
 import java.util.ArrayList;

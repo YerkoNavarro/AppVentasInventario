@@ -1,9 +1,9 @@
-package com.sistema.puntoventas.controller;
+package com.sistema.puntoventas.controller.moduloProductos;
 
-import com.sistema.puntoventas.modelo.Categoria;
-import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.modelo.TipoProducto;
-import com.sistema.puntoventas.modelo.UnidadMedida;
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
 import com.sistema.puntoventas.service.ProductoService;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;

@@ -1,6 +1,6 @@
 package com.sistema.puntoventas.repository;
 
-import com.sistema.puntoventas.modelo.RankingProductosDTO;
+import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 
 import java.util.List;
 

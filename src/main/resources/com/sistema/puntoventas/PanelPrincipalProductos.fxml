@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelPrincipalProductosController">
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.moduloProductos.PanelPrincipalProductosController">
    <children>
       <Pane id="panePrinc" fx:id="contenedorTabla" prefHeight="827.0" prefWidth="1675.0" styleClass="panel-root" stylesheets="@css/panel-productos.css">
          <children>

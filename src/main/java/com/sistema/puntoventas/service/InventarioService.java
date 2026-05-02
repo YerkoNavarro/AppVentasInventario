@@ -4,8 +4,8 @@ import com.sistema.puntoventas.modelo.MovimientoInventario;
 import com.sistema.puntoventas.modelo.TipoMovimiento;
 import com.sistema.puntoventas.repository.IMovimientoRepository;
 // Asumiendo que tienes esta interfaz creada
-import com.sistema.puntoventas.repository.IProductoRepository;
-import com.sistema.puntoventas.repository.IstockRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IstockRepository;
 
 public class InventarioService {
 

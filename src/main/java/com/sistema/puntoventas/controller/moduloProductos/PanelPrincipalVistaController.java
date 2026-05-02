@@ -1,4 +1,4 @@
-package com.sistema.puntoventas.controller;
+package com.sistema.puntoventas.controller.moduloProductos;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

@@ -1,10 +1,9 @@
 package com.sistema.puntoventas;
 
-import com.sistema.puntoventas.conexion.DbManager;
-import com.sistema.puntoventas.modelo.Categoria;
-import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.modelo.TipoProducto;
-import com.sistema.puntoventas.modelo.UnidadMedida;
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
 import com.sistema.puntoventas.service.ProductoService;
 
 public class PruebaBackendProductos {

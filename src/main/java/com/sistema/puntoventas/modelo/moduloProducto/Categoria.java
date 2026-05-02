@@ -1,4 +1,4 @@
-package com.sistema.puntoventas.modelo;
+package com.sistema.puntoventas.modelo.moduloProducto;
 
 public class Categoria {
     private int id;

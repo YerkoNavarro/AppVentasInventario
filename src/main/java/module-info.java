@@ -33,4 +33,8 @@ module com.sistema.puntoventas {
     exports com.sistema.puntoventas.controller;
     exports com.sistema.puntoventas.service;
     exports com.sistema.puntoventas.modelo;
+    exports com.sistema.puntoventas.modelo.moduloProducto;
+    opens com.sistema.puntoventas.modelo.moduloProducto to javafx.base;
+    exports com.sistema.puntoventas.controller.moduloProductos;
+    opens com.sistema.puntoventas.controller.moduloProductos to javafx.fxml;
 }

@@ -1,8 +1,8 @@
-package com.sistema.puntoventas.controller;
+package com.sistema.puntoventas.controller.moduloProductos;
 
 
 
-import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.service.ProductoService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,9 +13,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.controlsfx.control.action.Action;
-
-import java.util.PropertyPermission;
 
 public class PanelPrincipalProductosController {
 

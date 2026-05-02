@@ -1,8 +1,7 @@
-package com.sistema.puntoventas.repository;
+package com.sistema.puntoventas.repository.moduloProductos;
 
-import com.sistema.puntoventas.modelo.Categoria;
-import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.modelo.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.sistema.puntoventas.repository;
 
-import com.sistema.puntoventas.modelo.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
 
 import java.util.List;
 

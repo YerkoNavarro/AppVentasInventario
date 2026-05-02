@@ -1,8 +1,6 @@
 package com.sistema.puntoventas;
 
 import com.sistema.puntoventas.conexion.DbManager;
-import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
