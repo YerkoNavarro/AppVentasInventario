@@ -4,6 +4,9 @@ package com.sistema.puntoventas.repository.impl;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.repository.IventaRepository;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 public class VentaRepositoryimpl implements IventaRepository {
 
@@ -152,4 +156,24 @@ public class VentaRepositoryimpl implements IventaRepository {
             System.err.println("Error al anular venta: " + e.getMessage());
         }
     }
+
+    @Override
+    public List<String> obtenerTodasLasFechas() { 
+        List<String> listaFechas = new ArrayList<>();
+        String sql = "SELECT fechaHora FROM venta";
+
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+                try (var rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        listaFechas.add(rs.getString("fechaHora"));
+                    }
+                }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener todas las fechas: " + e.getMessage());
+        }
+        return listaFechas;
+    }
+
+
 }

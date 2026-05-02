@@ -12,4 +12,6 @@ public interface IDetalleVenta {
     public List<String> obtenerInfoVentaDetalle(int id); //idDetalleVenta
 
     public List<ventaAplicacion> obtenerTodasLasVentas();
+    public List<ventaAplicacion> obtenerTodasLasVentasporFecha(String fecha);
+
 }
