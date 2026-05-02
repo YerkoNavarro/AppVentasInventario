@@ -176,9 +176,9 @@ public class DbManager {
             + " nombre TEXT UNIQUE NOT NULL,"
             + " precio DOUBLE, "
             + " idCategoria INTEGER, "    
-            + " estado boolean, "
-            + " costoProduccion double, "
-            + " stockActual INTEGER, "
+            + " estado boolean DEFAULT 1, "
+            + " costoProduccion double DEFAULT 0.0, "
+            + " stockActual INTEGER DEFAULT 0, "
             + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
             + ");";
         try(var conn = DriverManager.getConnection(url);

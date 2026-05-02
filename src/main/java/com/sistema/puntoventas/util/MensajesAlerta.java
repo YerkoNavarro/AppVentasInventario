@@ -15,7 +15,7 @@ public class MensajesAlerta {
         alert.showAndWait();
     }
 
-    public static boolean mostrarConfirmacion(String titulo, String mensaje) {
+    public static boolean mostrarConfirmacion(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle(titulo);
         confirmacion.setHeaderText(null);

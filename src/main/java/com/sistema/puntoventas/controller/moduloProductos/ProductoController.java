@@ -5,6 +5,7 @@ import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
 import com.sistema.puntoventas.service.ProductoService;
+import com.sistema.puntoventas.util.MensajesAlerta;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 
@@ -13,6 +14,8 @@ import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 
 import java.util.List;
+
+import static com.sistema.puntoventas.util.MensajesAlerta.mostrarMensaje;
 
 public class ProductoController {
 
@@ -63,13 +66,7 @@ public class ProductoController {
 
 
 
-        private void mostrarMensaje(String titulo, String mensaje, Alert.AlertType tipo ) {
-            Alert alert = new Alert(tipo);
-            alert.setTitle(titulo);
-            alert.setHeaderText(null);
-            alert.setContentText(mensaje);
-            alert.showAndWait();
-        }
+
 
         @FXML
         public void initialize() throws Exception {
@@ -85,7 +82,7 @@ public class ProductoController {
                 List<Categoria>categorias = productoService.obtenerCategorias();
                 cmbCategoria.getItems().setAll(categorias);
             }catch (Exception e){
-                mostrarMensaje("Aviso ","No hay categorias, se recomienda agregar una", Alert.AlertType.INFORMATION);
+                MensajesAlerta.mostrarMensaje("Aviso ","No hay categorias, se recomienda agregar una", Alert.AlertType.INFORMATION);
             }
 
             cmbUnidadMedida.setConverter(new StringConverter<>() {

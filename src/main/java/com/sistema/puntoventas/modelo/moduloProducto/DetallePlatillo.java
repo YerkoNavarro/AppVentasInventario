@@ -4,12 +4,13 @@ public class DetallePlatillo {
     private int id;
     private int idPlatillo;
     private Platillo platillo;
+    private Producto producto;
     private double cantidadIngrediente;
 
     public DetallePlatillo() {
     }
 
-    public DetallePlatillo(int id, double cantidadIngrediente, Platillo platillo, int idPlatillo) {
+    public DetallePlatillo(int id, double cantidadIngrediente, Platillo platillo,Producto producto, int idPlatillo) {
         this.id = id;
         this.cantidadIngrediente = cantidadIngrediente;
         this.platillo = platillo;
@@ -46,5 +47,13 @@ public class DetallePlatillo {
 
     public void setCantidadIngrediente(double cantidadIngrediente) {
         this.cantidadIngrediente = cantidadIngrediente;
+    }
+
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public void setProducto(Producto producto) {
+        this.producto = producto;
     }
 }

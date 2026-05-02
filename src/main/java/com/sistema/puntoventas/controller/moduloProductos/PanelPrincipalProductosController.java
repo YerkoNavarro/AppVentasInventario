@@ -4,6 +4,7 @@ package com.sistema.puntoventas.controller.moduloProductos;
 
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.service.ProductoService;
+import com.sistema.puntoventas.util.MensajesAlerta;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,6 +14,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import static com.sistema.puntoventas.util.MensajesAlerta.mostrarConfirmacion;
+import static com.sistema.puntoventas.util.MensajesAlerta.mostrarMensaje;
 
 public class PanelPrincipalProductosController {
 
@@ -80,30 +84,6 @@ public class PanelPrincipalProductosController {
 
     private ProductoService productoService;
 
-
-    private void mostrarMensaje(String titulo, String mensaje, Alert.AlertType tipo){
-
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
-
-
-
-
-    }
-
-    private boolean mostrarConfirmacion(String titulo, String mensaje, Alert.AlertType tipo){
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle(titulo);
-        confirmacion.setHeaderText(null);
-        confirmacion.setContentText(mensaje);
-        var resultado = confirmacion.showAndWait();
-
-
-        return resultado.isPresent() && resultado.get() == ButtonType.OK;
-    }
     
     
     public void initialize(){
@@ -147,7 +127,7 @@ public class PanelPrincipalProductosController {
             obtenerProductos();
 
         } catch (Exception e) {
-            mostrarMensaje("ERROR","No se pudo cargar la vista: " + e.getMessage(), Alert.AlertType.ERROR);
+            MensajesAlerta.mostrarMensaje("ERROR","No se pudo cargar la vista: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }
@@ -175,7 +155,7 @@ public class PanelPrincipalProductosController {
             obtenerProductos();
 
         } catch (Exception e) {
-            mostrarMensaje("ERROR", "Error al abrir vista: " + e.getMessage(), Alert.AlertType.ERROR);
+            MensajesAlerta.mostrarMensaje("ERROR", "Error al abrir vista: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }
@@ -197,7 +177,7 @@ public class PanelPrincipalProductosController {
                 if (tableProductos != null) {
                     tableProductos.getItems().clear();
                 }
-                mostrarMensaje("AVISO","No hay productos para mostrar", Alert.AlertType.INFORMATION);
+                MensajesAlerta.mostrarMensaje("AVISO","No hay productos para mostrar", Alert.AlertType.INFORMATION);
                 return;
             }
 
@@ -209,10 +189,10 @@ public class PanelPrincipalProductosController {
                 items.setAll(productos);
             }
 
-            mostrarMensaje("ÉXITO","Productos cargados correctamente: " + productos.size(), Alert.AlertType.INFORMATION);
+            MensajesAlerta.mostrarMensaje("ÉXITO","Productos cargados correctamente: " + productos.size(), Alert.AlertType.INFORMATION);
             actualizarMetricas();
         }catch (Exception e){
-            mostrarMensaje("ERROR","Error al obtener productos: " + e.getMessage(), Alert.AlertType.ERROR);
+            MensajesAlerta.mostrarMensaje("ERROR","Error al obtener productos: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         }
 
@@ -225,7 +205,7 @@ public class PanelPrincipalProductosController {
 
        if (productoSeleccionado == null ){
            System.out.println("Producto no seleccionado");
-           mostrarMensaje("AVISO","Seleccione un producto para editar", Alert.AlertType.WARNING);
+           MensajesAlerta.mostrarMensaje("AVISO","Seleccione un producto para editar", Alert.AlertType.WARNING);
            return;
        }
 
@@ -244,7 +224,7 @@ public class PanelPrincipalProductosController {
             return;
         }
 
-        boolean respuesta = mostrarConfirmacion("Confirmación","¿Está seguro que desea eliminar el producto seleccionado?", Alert.AlertType.CONFIRMATION);
+        boolean respuesta = MensajesAlerta.mostrarConfirmacion("Confirmación","¿Está seguro que desea eliminar el producto seleccionado?", Alert.AlertType.CONFIRMATION);
         if(respuesta ){
             try {
                 if (productoService == null) {
@@ -259,7 +239,7 @@ public class PanelPrincipalProductosController {
                     obtenerProductos();
                 }
             } catch (Exception e) {
-                mostrarMensaje("ERROR", e.getMessage(), Alert.AlertType.ERROR);
+                MensajesAlerta.mostrarMensaje("ERROR", e.getMessage(), Alert.AlertType.ERROR);
                 System.err.println("Error al eliminar producto: " + e.getMessage());
             }
         }
@@ -307,7 +287,7 @@ public class PanelPrincipalProductosController {
 
         } catch (Exception e) {
             System.err.println("Error al actualizar metricas" +e.getMessage());
-            mostrarMensaje("Error","No se pudieron actualizar las métricas", Alert.AlertType.ERROR);
+            MensajesAlerta.mostrarMensaje("Error","No se pudieron actualizar las métricas", Alert.AlertType.ERROR);
         }
     }
 
