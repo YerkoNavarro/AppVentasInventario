@@ -1,4 +1,4 @@
-package com.sistema.puntoventas.repository;
+package com.sistema.puntoventas.repository.moduloProductos;
 
 import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
 

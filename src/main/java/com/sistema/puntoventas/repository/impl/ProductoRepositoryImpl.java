@@ -4,7 +4,7 @@ import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
-import com.sistema.puntoventas.repository.ICategoriaRepository;
+import com.sistema.puntoventas.repository.moduloProductos.ICategoriaRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IstockRepository;
 
