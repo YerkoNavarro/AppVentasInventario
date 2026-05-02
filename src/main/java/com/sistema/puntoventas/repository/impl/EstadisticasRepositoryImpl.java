@@ -1,6 +1,6 @@
 package com.sistema.puntoventas.repository.impl;
 
-import com.sistema.puntoventas.modelo.RankingProductosDTO;
+import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
 
 import java.io.FileWriter;

@@ -1,11 +1,11 @@
 package com.sistema.puntoventas.service;
 
-import com.sistema.puntoventas.modelo.Categoria;
-import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.modelo.TipoProducto;
-import com.sistema.puntoventas.repository.ICategoriaRepository;
-import com.sistema.puntoventas.repository.IProductoRepository;
-import com.sistema.puntoventas.repository.IstockRepository;
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.repository.moduloProductos.ICategoriaRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IstockRepository;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 
 import java.util.ArrayList;
@@ -147,7 +147,9 @@ public class ProductoService {
             if (!eliminado) {
                 throw new Exception("Error al intentar eliminar el producto permanentemente.");
             }
-            return "El producto no tenía asociaciones y fue ELIMINADO de la base de datos.";
+
+            System.out.println("El producto no tenía asociaciones y fue ELIMINADO de la base de datos.");
+            return "ELIMINADO";
         }
 
     }
@@ -155,6 +157,9 @@ public class ProductoService {
 
     //------------------------------------------------------------------------------------------------------------------
 
+    public boolean existeNombre(String nombre, int id){
+        return productoRepository.existeNombre(nombre, id);
+    }
 
     public List<Producto>obtenerStockCritico(){
         List<Producto> stockCritico = stockRepository.obtenerStockCritico();

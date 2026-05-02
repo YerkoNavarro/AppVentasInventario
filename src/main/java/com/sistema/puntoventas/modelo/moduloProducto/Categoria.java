@@ -1,4 +1,4 @@
-package com.sistema.puntoventas.modelo;
+package com.sistema.puntoventas.modelo.moduloProducto;
 
 public class Categoria {
     private int id;
@@ -51,8 +51,6 @@ public class Categoria {
 
     @Override
     public String toString() {
-        return "Categoria{" +
-                "nombreCategoria='" + nombreCategoria + '\'' +
-                '}';
+        return this.nombreCategoria;
     }
 }

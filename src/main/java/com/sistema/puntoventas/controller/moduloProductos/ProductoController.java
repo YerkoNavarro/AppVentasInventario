@@ -1,10 +1,11 @@
-package com.sistema.puntoventas.controller;
+package com.sistema.puntoventas.controller.moduloProductos;
 
-import com.sistema.puntoventas.modelo.Categoria;
-import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.modelo.TipoProducto;
-import com.sistema.puntoventas.modelo.UnidadMedida;
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
 import com.sistema.puntoventas.service.ProductoService;
+import com.sistema.puntoventas.util.MensajesAlerta;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 
@@ -14,7 +15,12 @@ import javafx.util.StringConverter;
 
 import java.util.List;
 
+import static com.sistema.puntoventas.util.MensajesAlerta.mostrarMensaje;
+
 public class ProductoController {
+
+
+
 
         @FXML
         private Button btnRegistrar;
@@ -54,15 +60,13 @@ public class ProductoController {
 
 
         private ProductoService productoService;
+        private Producto productoAEditar = null;
 
 
-        private void mostrarMensaje(String titulo, String mensaje, Alert.AlertType tipo ) {
-            Alert alert = new Alert(tipo);
-            alert.setTitle(titulo);
-            alert.setHeaderText(null);
-            alert.setContentText(mensaje);
-            alert.showAndWait();
-        }
+
+
+
+
 
         @FXML
         public void initialize() throws Exception {
@@ -78,7 +82,7 @@ public class ProductoController {
                 List<Categoria>categorias = productoService.obtenerCategorias();
                 cmbCategoria.getItems().setAll(categorias);
             }catch (Exception e){
-                mostrarMensaje("Aviso ","No hay categorias, se recomienda agregar una", Alert.AlertType.INFORMATION);
+                MensajesAlerta.mostrarMensaje("Aviso ","No hay categorias, se recomienda agregar una", Alert.AlertType.INFORMATION);
             }
 
             cmbUnidadMedida.setConverter(new StringConverter<>() {
@@ -130,35 +134,66 @@ public class ProductoController {
                         return null;
                     }
                 });
+
+
+
         }
 
         @FXML
        public  void registrarProducto(ActionEvent event) {
             try{
+
+                String nombreIngresado = txtNombre.getText();
+
+                // Si estamos editando, ignoramos su propio ID. Si es nuevo, pasamos 0.
+                int idAExcluir = (productoAEditar != null) ? productoAEditar.getId() : 0;
+
+                if (productoService.existeNombre(nombreIngresado, idAExcluir)) {
+                    lblEstado.setText("Error: Ya existe otro producto con ese nombre.");
+                    lblEstado.setTextFill(Color.RED);
+                    return;
+                }
                 double precioCompra = Double.parseDouble(txtPrecioCompra.getText());
                 double precioVenta = Double.parseDouble(txtPrecioVenta.getText());
                 int stockActual = Integer.parseInt(txtStockActual.getText());
                 int stockMinimo = Integer.parseInt(txtStockMinimo.getText());
 
-                Producto nuevoProducto = new Producto();
-                nuevoProducto.setNombre(txtNombre.getText());
-                nuevoProducto.setPrecioCompra(precioCompra);
-                nuevoProducto.setPrecioVenta(precioVenta);
-                nuevoProducto.setStockActual(stockActual);
-                nuevoProducto.setStockMinimo(stockMinimo);
-                nuevoProducto.setCategoria(cmbCategoria.getValue());
-                nuevoProducto.setFechaVenc(txtFechaVenc.getText());
-                nuevoProducto.setImagen(txtImagen.getText());
-                nuevoProducto.setUnidadMedida(cmbUnidadMedida.getValue());
-                nuevoProducto.setTipoProducto(cmbTipoProducto.getValue());
+                if(productoAEditar == null) {
+
+                    Producto nuevoProducto = new Producto();
+                    nuevoProducto.setNombre(txtNombre.getText());
+                    nuevoProducto.setPrecioCompra(precioCompra);
+                    nuevoProducto.setPrecioVenta(precioVenta);
+                    nuevoProducto.setStockActual(stockActual);
+                    nuevoProducto.setStockMinimo(stockMinimo);
+                    nuevoProducto.setCategoria(cmbCategoria.getValue());
+                    nuevoProducto.setFechaVenc(txtFechaVenc.getText());
+                    nuevoProducto.setImagen(txtImagen.getText());
+                    nuevoProducto.setUnidadMedida(cmbUnidadMedida.getValue());
+                    nuevoProducto.setTipoProducto(cmbTipoProducto.getValue());
 
 
+                    //lo enviamos al service para hacer validaciones necesarias
+                    productoService.registrarProducto(nuevoProducto);
+                    lblEstado.setText("¡Producto registrado con éxito!");
+                    lblEstado.setTextFill(Color.GREEN); // Pintamos el texto de verde
+                    limpiarFormulario();
+                }else {
+                    productoAEditar.setNombre(nombreIngresado);
+                    productoAEditar.setPrecioCompra(precioCompra);
+                    productoAEditar.setPrecioVenta(precioVenta);
+                    productoAEditar.setStockActual(stockActual);
+                    productoAEditar.setStockMinimo(stockMinimo);
+                    productoAEditar.setCategoria(cmbCategoria.getValue());
+                    productoAEditar.setFechaVenc(txtFechaVenc.getText());
+                    productoAEditar.setImagen(txtImagen.getText());
+                    productoAEditar.setUnidadMedida(cmbUnidadMedida.getValue());
+                    productoAEditar.setTipoProducto(cmbTipoProducto.getValue());
 
-                //lo enviamos al service para hacer validaciones necesarias
-                productoService.registrarProducto(nuevoProducto);
-                lblEstado.setText("¡Producto registrado con éxito!");
-                lblEstado.setTextFill(Color.GREEN); // Pintamos el texto de verde
-                limpiarFormulario();
+                    productoService.actualizarProducto(productoAEditar); // Llama al UPDATE
+                    lblEstado.setText("¡Producto actualizado con éxito!");
+                    lblEstado.setTextFill(Color.GREEN);
+                }
 
             } catch (NumberFormatException e) {
                 lblEstado.setText("Error: Los precios y el stock deben ser números válidos.");
@@ -170,6 +205,28 @@ public class ProductoController {
             }
 
         }
+
+
+    public void ActualizarProducto(Producto producto) {
+        this.productoAEditar = producto;
+
+
+        txtNombre.setText(producto.getNombre());
+        txtPrecioCompra.setText(String.valueOf(producto.getPrecioCompra()));
+        txtPrecioVenta.setText(String.valueOf(producto.getPrecioVenta()));
+        txtStockActual.setText(String.valueOf(producto.getStockActual()));
+        txtStockMinimo.setText(String.valueOf(producto.getStockMinimo()));
+        txtFechaVenc.setText(producto.getFechaVenc());
+        txtImagen.setText(producto.getImagen());
+
+
+        cmbCategoria.setValue(producto.getCategoria());
+        cmbUnidadMedida.setValue(producto.getUnidadMedida());
+        cmbTipoProducto.setValue(producto.getTipoProducto());
+
+        // Cambiamos el texto del botón para que diga "Actualizar" en lugar de "Registrar"
+        btnRegistrar.setText("Actualizar Producto");
+    }
 
     private void limpiarFormulario() {
         txtNombre.clear();
@@ -183,6 +240,9 @@ public class ProductoController {
         cmbUnidadMedida.getSelectionModel().clearSelection();
         cmbTipoProducto.getSelectionModel().clearSelection();
     }
+
+
+
 
     private String formatearUnidadMedida(UnidadMedida unidadMedida) {
         if (unidadMedida == null) {

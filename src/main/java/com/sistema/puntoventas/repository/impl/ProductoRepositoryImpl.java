@@ -1,12 +1,12 @@
 package com.sistema.puntoventas.repository.impl;
 
-import com.sistema.puntoventas.modelo.Categoria;
-import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.modelo.TipoProducto;
-import com.sistema.puntoventas.modelo.UnidadMedida;
-import com.sistema.puntoventas.repository.ICategoriaRepository;
-import com.sistema.puntoventas.repository.IProductoRepository;
-import com.sistema.puntoventas.repository.IstockRepository;
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
+import com.sistema.puntoventas.repository.moduloProductos.ICategoriaRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IstockRepository;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -55,7 +55,10 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     public List<Producto> obtenerProductos( ) {
         List<Producto> listaProductos = new ArrayList<>();
 
-        String sql = "SELECT * FROM producto ORDER BY nombre ASC";
+        String sql = "SELECT p.*,c.nombreCategoria " +
+                     "FROM producto p " +
+                     "INNER JOIN categoria c ON p.idCategoria = c.id " +
+                     "ORDER BY nombre ASC";
         try(Connection conn = DriverManager.getConnection(url);
             var stmt = conn.createStatement();
             var rs = stmt.executeQuery(sql)){
@@ -68,7 +71,10 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                 producto.setNombre(rs.getString(2));
                 producto.setPrecioCompra(rs.getDouble(3));
                 producto.setPrecioVenta(rs.getDouble(4));
-                producto.setCategoria(mapCategoria(rs.getString(5)));
+                Categoria categoria = new Categoria();
+                categoria.setId(rs.getInt("idCategoria"));
+                categoria.setNombreCategoria(rs.getString("nombreCategoria"));
+                producto.setCategoria(categoria);
                 producto.setFechaVenc(rs.getString(6));
                 producto.setStockActual(rs.getInt(7));
                 producto.setStockMinimo(rs.getInt(8));
@@ -141,8 +147,8 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
             pstmt.setInt(7, producto.getStockMinimo());
             pstmt.setString(8, producto.getImagen());
             pstmt.setString(9, obtenerUnidadMedida(producto));
-            pstmt.setInt(10, producto.getId());
-            pstmt.setString(11, producto.getTipoProducto().name());
+            pstmt.setString(10, producto.getTipoProducto().name());
+            pstmt.setInt(11, producto.getId());
             pstmt.executeUpdate();
             System.out.println("producto actualizado correctamente");
 
@@ -204,6 +210,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
             try(ResultSet rs =  ps.executeQuery()){
                 // Recorremos los resultados fila por fila
                 while (rs.next()) {
+                    producto  = new Producto();
 
 
                     // Extraemos la información de la base de datos y la metemos en el objeto
@@ -232,6 +239,28 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
         }
         return producto;
 
+    }
+
+    @Override
+    public boolean existeNombre(String nombre, int id) {
+
+        String sql = "SELECT COUNT(*) FROM producto WHERE nombre = ? AND id != ?";
+
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, nombre);
+            pstmt.setInt(2, id);
+
+            var rs = pstmt.executeQuery();
+            if (rs.next()) {
+                // Si el conteo es mayor a 0, significa que sí existe un duplicado
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al validar el nombre: " + e.getMessage());
+        }
+        return false;
     }
 
     @Override
