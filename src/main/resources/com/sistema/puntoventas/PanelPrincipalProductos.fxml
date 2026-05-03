@@ -13,7 +13,7 @@
    <children>
       <Pane id="panePrinc" fx:id="contenedorTabla" prefHeight="827.0" prefWidth="1675.0" styleClass="panel-root" stylesheets="@css/panel-productos.css">
          <children>
-            <TableView fx:id="tableProductos" layoutX="42.0" layoutY="284.0" prefHeight="456.0" prefWidth="1181.0">
+            <TableView fx:id="tableProductos" layoutX="42.0" layoutY="284.0" prefHeight="456.0" prefWidth="1243.0">
               <columns>
                 <TableColumn fx:id="colId" prefWidth="63.200016021728516" text="id" />
                 <TableColumn fx:id="colNombre" prefWidth="129.5999755859375" text="nombre " />
@@ -24,7 +24,9 @@
                   <TableColumn fx:id="colStockActual" prefWidth="104.0" text="stock actual" />
                   <TableColumn fx:id="colStockMin" prefWidth="119.199951171875" text="stock min" />
                   <TableColumn fx:id="colUnidadMedida" prefWidth="124.79998779296875" text="unidad medida" />
-                  <TableColumn fx:id="colTipoProducto" prefWidth="140.0" text="tipo producto" />
+                  <TableColumn fx:id="colCantidad" prefWidth="81.599853515625" text="cantidad" />
+                  <TableColumn fx:id="colTipoProducto" prefWidth="120.7999267578125" text="tipo producto" />
+
               </columns>
             </TableView>
             <HBox layoutX="42.0" layoutY="24.0" prefHeight="132.0" prefWidth="936.0" spacing="40.0">

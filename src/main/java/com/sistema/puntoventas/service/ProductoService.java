@@ -64,6 +64,10 @@ public class ProductoService {
             // Aquí en el futuro llamarías a PlatilloService para calcular el costo de los ingredientes
         }
 
+        if(producto.getTipoProducto() == TipoProducto.SOLO_INVENTARIO){
+            producto.setPrecioVenta(0.0) ; // Forzamos a que el precio de venta sea 0 para productos que solo son de inventario
+        }
+
 
         if (producto.getUnidadMedida() == null) {
             throw new Exception("Debe asignar una Unidad de Medida al producto.");

@@ -56,6 +56,9 @@ public class ProductoController {
         private ComboBox<UnidadMedida> cmbUnidadMedida;
 
         @FXML
+        private TextField txtCantidad;
+
+        @FXML
         private ComboBox<TipoProducto> cmbTipoProducto;
 
 
@@ -123,6 +126,21 @@ public class ProductoController {
                     }
                 });
 
+                cmbTipoProducto.getSelectionModel().selectedItemProperty().addListener((observable, valorViejo, valorNuevo) ->{
+                    if(valorNuevo != null){
+                       if( valorNuevo == TipoProducto.DIRECTO) {
+                           txtCantidad.setText("1");
+                           txtCantidad.setDisable(true);//bloqueamos el campo para el usuario
+                       } else if (valorNuevo == TipoProducto.SOLO_INVENTARIO) {
+                           txtCantidad.clear();
+                           txtCantidad.setDisable(false);
+                           txtPrecioVenta.setText("0");
+                           txtPrecioVenta.setDisable(false);
+                       }
+                        
+                    }
+                });
+
                 cmbCategoria.setConverter(new StringConverter<Categoria>() {
                     @Override
                     public String toString(Categoria categoria) {
@@ -170,6 +188,7 @@ public class ProductoController {
                     nuevoProducto.setFechaVenc(txtFechaVenc.getText());
                     nuevoProducto.setImagen(txtImagen.getText());
                     nuevoProducto.setUnidadMedida(cmbUnidadMedida.getValue());
+                    nuevoProducto.setCantidad(Double.parseDouble(txtCantidad.getText()));
                     nuevoProducto.setTipoProducto(cmbTipoProducto.getValue());
 
 
@@ -188,6 +207,7 @@ public class ProductoController {
                     productoAEditar.setFechaVenc(txtFechaVenc.getText());
                     productoAEditar.setImagen(txtImagen.getText());
                     productoAEditar.setUnidadMedida(cmbUnidadMedida.getValue());
+                    productoAEditar.setCantidad(Double.parseDouble(txtCantidad.getText()));
                     productoAEditar.setTipoProducto(cmbTipoProducto.getValue());
 
                     productoService.actualizarProducto(productoAEditar); // Llama al UPDATE

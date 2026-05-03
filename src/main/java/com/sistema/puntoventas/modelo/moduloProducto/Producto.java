@@ -11,9 +11,10 @@ public class Producto {
     private int stockMinimo;
     private String imagen;
     private UnidadMedida unidadMedida;
+    private  double cantidad;
     private TipoProducto tipoProducto;
 
-    public Producto(int id, String nombre, double precioCompra, double precioVenta, Categoria categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, UnidadMedida unidadMedida, TipoProducto tipoProducto) {
+    public Producto(int id, String nombre, double precioCompra, double precioVenta, Categoria categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, UnidadMedida unidadMedida,double cantidad, TipoProducto tipoProducto) {
         this.id = id;
         this.nombre = nombre;
         this.precioCompra = precioCompra;
@@ -24,6 +25,7 @@ public class Producto {
         this.stockMinimo = stockMinimo;
         this.imagen = imagen;
         this.unidadMedida = unidadMedida;
+        this.cantidad = cantidad;
         this.tipoProducto = tipoProducto;
     }
 
@@ -118,6 +120,14 @@ public class Producto {
 
     public void setTipoProducto(TipoProducto tipoProducto) {
         this.tipoProducto = tipoProducto;
+    }
+
+    public double getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(double cantidad) {
+        this.cantidad = cantidad;
     }
 
     @Override

@@ -77,6 +77,9 @@ public class PanelPrincipalProductosController {
     private TableColumn<Producto, Integer> colStockMin;
     @FXML
     private TableColumn<Producto, String> colUnidadMedida;
+
+    @FXML
+    private TableColumn<Producto, Double> colCantidad;
     @FXML
     private TableColumn<Producto, String> colTipoProducto;
 
@@ -96,6 +99,7 @@ public class PanelPrincipalProductosController {
         colStockActual.setCellValueFactory(new PropertyValueFactory<>("stockActual"));
         colStockMin.setCellValueFactory(new PropertyValueFactory<>("stockMinimo"));
         colUnidadMedida.setCellValueFactory(new PropertyValueFactory<>("unidadMedida"));
+        colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
         colTipoProducto.setCellValueFactory(new PropertyValueFactory<>("tipoProducto"));
 
         obtenerProductos();

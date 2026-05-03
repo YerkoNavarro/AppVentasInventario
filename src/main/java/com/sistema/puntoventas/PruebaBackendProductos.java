@@ -23,7 +23,7 @@ public class PruebaBackendProductos {
         Categoria categoria6 = new Categoria(6, true, "Productos envasados y snacks", "Snacks");
         Categoria categoria7 = new Categoria(7, true, "Insumos y materias primas", "Insumos");
 
-        Producto producto1 = new Producto(1, "pie de limon", 1000, 1500, categoria2, "2026-10-01", 100, 1, "cafe_americano.jpg", UnidadMedida.UNIDAD, TipoProducto.PLATILLO);
+        /*Producto producto1 = new Producto(1, "pie de limon", 1000, 1500, categoria2, "2026-10-01", 100, 1, "cafe_americano.jpg", UnidadMedida.UNIDAD, TipoProducto.PLATILLO);
         Producto producto2 = new Producto(2, "coca cola", 1000, 1500, categoria2, "2026-10-01", 100, 1, "coca-cola.jpg", UnidadMedida.UNIDAD, TipoProducto.DIRECTO);
         Producto producto3 = new Producto(3, "Café Americano", 800, 1500, categoria1, "2026-12-31", 50, 10, "cafe_americano.jpg", UnidadMedida.UNIDAD, TipoProducto.PLATILLO);
         Producto producto4 = new Producto(4, "Coca Cola 500ml", 700, 1200, categoria1, "2026-10-01", 120, 20, "coca_cola.jpg", UnidadMedida.UNIDAD, TipoProducto.DIRECTO);
@@ -41,7 +41,7 @@ public class PruebaBackendProductos {
 
            /* productoService.eliminarProducto(1);
             productoService.eliminarCategoria(1);
-            productoService.eliminarCategoria(2);*/
+            productoService.eliminarCategoria(2);
 
             // Primero guardamos las categorías, porque los productos dependen de ellas
            productoService.registrarCategoria(categoria1);
@@ -93,6 +93,6 @@ public class PruebaBackendProductos {
             System.err.println(" ERROR: " + e.getMessage());
         }
 
-        System.out.println("--- FIN DE LA PRUEBA ---");
+        System.out.println("--- FIN DE LA PRUEBA ---");*/
     }
 }

@@ -49,7 +49,8 @@ public class DbManager {
                 + " stockActual INTEGER,"
                 + " stockMinimo INTEGER,"
                 + " imagen TEXT,"
-                + " unidadMedida TEXT,"
+                + " unidadMedida TEXT, "
+                + " cantidad DOUBLE, "
                 + " tipoProducto TEXT,"
                 + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
                 + ");";
