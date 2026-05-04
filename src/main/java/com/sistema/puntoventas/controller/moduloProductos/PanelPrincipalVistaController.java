@@ -24,6 +24,7 @@ public class PanelPrincipalVistaController {
         @FXML private Button btnProductos;
         @FXML private Button btnVentas;
         @FXML private Button btnInventario;
+        @FXML private Button btnPlatillos;
 
         @FXML private StackPane contentArea;
 
@@ -41,6 +42,7 @@ public class PanelPrincipalVistaController {
             btnProductos.setOnAction(e -> cargarVistaModulo("PanelPrincipalProductos.fxml", btnProductos));
             btnVentas.setOnAction(e -> cargarVistaModulo("PanelVentas-vista.fxml", btnVentas));
             btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario-vista.fxml", btnInventario));
+            btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelRegistroPlatillos.fxml", btnPlatillos));
         }
 
         // 3. SISTEMA DE NAVEGACIÓN DINÁMICA

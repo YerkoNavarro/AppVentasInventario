@@ -2,6 +2,7 @@ package com.sistema.puntoventas.repository.impl;
 
 import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
 import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.repository.moduloProductos.IPlatilloRepository;
 
 import java.sql.*;
@@ -14,7 +15,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean registrarPlatillo(Platillo platillo) {
-        String sqlPlatillo = "INSERT INTO platillo (nombre, precio, idCategoria, estado, costoProduccion, stockActual) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlPlatillo = "INSERT INTO platillo (nombre, precio, idCategoria, estado, costoProduccion, stockActual,tipoPlatillo) VALUES (?, ?, ?, ?, ?, ?,?)";
         String sqlDetalle = "INSERT INTO detallePlatillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
         try(var conn = DriverManager.getConnection(url);
             var stmt = conn.prepareStatement(sqlPlatillo)) {
@@ -27,6 +28,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 stmtPlatillo.setBoolean(4, platillo.isEstado());
                 stmtPlatillo.setDouble(5, platillo.getCostoProduccion());
                 stmtPlatillo.setInt(6, platillo.getStockActual());
+                stmtPlatillo.setString(7, "PLATILLO");
 
                 int affectedRows = stmtPlatillo.executeUpdate();
 
@@ -84,7 +86,10 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 platillo.setId(rs.getInt("id"));
                 platillo.setNombre(rs.getString("nombre"));
                 platillo.setPrecio(rs.getDouble("precio"));
-                // Aquí podrías cargar la categoría y los ingredientes si lo deseas
+                platillo.setTipoProducto(TipoProducto.PLATILLO);
+                platillo.setCategoria(null);
+                platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
+                platillo.setStockActual(rs.getInt("stockActual"));
                 listaPlatillos.add(platillo);
                 System.out.println("Platillo encontrados: " + listaPlatillos);
             }
@@ -132,31 +137,161 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean actualizarPlatillo(Platillo platillo) {
-        return false;
+        String sqlUpdatePlatillo = "UPDATE platillo SET nombre = ?, precio = ?, idCategoria = ?, estado = ?, costoProduccion = ?, stockActual = ?, tipoPlatillo = ? WHERE id = ?";
+        String sqlDeleteDetalle = "DELETE FROM detallePlatillo WHERE idPlatillo = ?";
+        String sqlInsertDetalle = "INSERT INTO detallePlatillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(url)) {
+            conn.setAutoCommit(false); // Iniciar transacción
+
+            try (PreparedStatement stmtPlatillo = conn.prepareStatement(sqlUpdatePlatillo)) {
+                stmtPlatillo.setString(1, platillo.getNombre());
+                stmtPlatillo.setDouble(2, platillo.getPrecio());
+                stmtPlatillo.setInt(3, platillo.getCategoria().getId());
+                stmtPlatillo.setBoolean(4, platillo.isEstado());
+                stmtPlatillo.setDouble(5, platillo.getCostoProduccion());
+                stmtPlatillo.setInt(6, platillo.getStockActual());
+                stmtPlatillo.setString(7, "PLATILLO");
+                stmtPlatillo.setInt(8, platillo.getId());
+
+                int affectedRows = stmtPlatillo.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new SQLException("No se pudo actualizar el platillo, ID no encontrado.");
+                }
+            }
+
+            try (PreparedStatement stmtDelete = conn.prepareStatement(sqlDeleteDetalle)) {
+                stmtDelete.setInt(1, platillo.getId());
+                stmtDelete.executeUpdate();
+            }
+
+            if (platillo.getIngrediente() != null && !platillo.getIngrediente().isEmpty()) {
+                try (PreparedStatement stmtDetalle = conn.prepareStatement(sqlInsertDetalle)) {
+                    for (DetallePlatillo item : platillo.getIngrediente()) {
+                        stmtDetalle.setInt(1, platillo.getId());
+                        stmtDetalle.setInt(2, item.getProducto().getId());
+                        stmtDetalle.setDouble(3, item.getCantidadIngrediente());
+                        stmtDetalle.addBatch();
+                    }
+                    stmtDetalle.executeBatch();
+                }
+            }
+
+            conn.commit();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar platillo: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public boolean eliminarPlatillo(int id) {
-        return false;
+        String sqlDeleteDetalle = "DELETE FROM detallePlatillo WHERE idPlatillo = ?";
+        String sqlDeletePlatillo = "DELETE FROM platillo WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(url)) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement stmtDetalle = conn.prepareStatement(sqlDeleteDetalle)) {
+                stmtDetalle.setInt(1, id);
+                stmtDetalle.executeUpdate();
+            }
+
+            try (PreparedStatement stmtPlatillo = conn.prepareStatement(sqlDeletePlatillo)) {
+                stmtPlatillo.setInt(1, id);
+                int affectedRows = stmtPlatillo.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new SQLException("No se pudo eliminar el platillo, ID no encontrado.");
+                }
+            }
+
+            conn.commit();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar platillo: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public boolean desactivarPlatillo(int id) {
-        return false;
+        String sql = "UPDATE platillo SET estado = 0 WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al desactivar platillo: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public boolean existeNombre(String nombre, int id) {
+        String sql = "SELECT COUNT(*) FROM platillo WHERE nombre = ? AND id != ?";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nombre);
+            stmt.setInt(2, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // Si el conteo es mayor a 0, el nombre ya existe
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar existencia de nombre: " + e.getMessage());
+        }
         return false;
     }
 
     @Override
     public Platillo obtenerPlatilloPorId(int id) {
+        String sql = "SELECT * FROM platillo WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Platillo platillo = new Platillo();
+                    platillo.setId(rs.getInt("id"));
+                    platillo.setNombre(rs.getString("nombre"));
+                    platillo.setPrecio(rs.getDouble("precio"));
+                    // Aquí podrías cargar la categoría y los ingredientes si lo deseas
+                    return platillo;
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener platillo por ID: " + e.getMessage());
+        }
         return null;
     }
 
     @Override
     public boolean estaAsociadoVenta(int id) {
+        String sql = "SELECT COUNT(*) FROM detalleVenta WHERE idPlatillo = ?";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // Si el conteo es mayor a 0, el platillo está asociado a una venta
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar asociación con ventas: " + e.getMessage());
+        }
         return false;
     }
 }

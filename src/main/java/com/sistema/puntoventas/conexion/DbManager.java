@@ -180,6 +180,7 @@ public class DbManager {
             + " estado boolean DEFAULT 1, "
             + " costoProduccion double DEFAULT 0.0, "
             + " stockActual INTEGER DEFAULT 0, "
+            + " tipoPlatillo TEXT DEFAULT 'PLATILLO', "
             + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
             + ");";
         try(var conn = DriverManager.getConnection(url);
