@@ -48,7 +48,7 @@ public class DbManager {
                 + " fechaVenc TEXT,"
                 + " stockActual INTEGER,"
                 + " stockMinimo INTEGER,"
-                + " imagen TEXT,"
+                + " imagen TEXT DEFAULT 'IMG',"
                 + " unidadMedida TEXT, "
                 + " cantidad DOUBLE, "
                 + " tipoProducto TEXT,"

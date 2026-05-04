@@ -50,11 +50,6 @@ public class ProductoService {
         }
 
 
-        // Validación de margen (Ejemplo: Mínimo 10% de ganancia)
-        double precioMinimoVenta = producto.getPrecioCompra() * 1.10;
-        if (producto.getPrecioVenta() < precioMinimoVenta) {
-            throw new Exception("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
-        }
 
         if (producto.getTipoProducto() == TipoProducto.PLATILLO) {
             // Para platillos, el costo viene de los ingredientes. Se valida que se venda a un precio válido.
@@ -64,9 +59,17 @@ public class ProductoService {
             // Aquí en el futuro llamarías a PlatilloService para calcular el costo de los ingredientes
         }
 
+        // Validación de margen (Ejemplo: Mínimo 10% de ganancia)
+        double precioMinimoVenta = producto.getPrecioCompra() * 1.10;
+
         if(producto.getTipoProducto() == TipoProducto.SOLO_INVENTARIO){
             producto.setPrecioVenta(0.0) ; // Forzamos a que el precio de venta sea 0 para productos que solo son de inventario
+        } else if (producto.getPrecioVenta() < precioMinimoVenta) {
+            throw new Exception("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
+
         }
+
+
 
 
         if (producto.getUnidadMedida() == null) {
