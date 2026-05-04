@@ -271,7 +271,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     @Override
     public List<Producto> obtenerStockCritico() {
         List<Producto> productosStockCritico = new ArrayList<>();
-        String sql = "SELECT * FROM producto WHERE stockActual <= stockMinimo";
+        String sql = "SELECT p.*, c.nombreCategoria FROM producto p INNER JOIN categoria c ON p.idCategoria = c.id WHERE p.stockActual <= p.stockMinimo";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -283,7 +283,12 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                 producto.setNombre(rs.getString("nombre"));
                 producto.setPrecioCompra(rs.getDouble("precioCompra"));
                 producto.setPrecioVenta(rs.getDouble("precioVenta"));
-                producto.setCategoria(mapCategoria(rs.getString("categoria")));
+                
+                Categoria categoria = new Categoria();
+                categoria.setId(rs.getInt("idCategoria"));
+                categoria.setNombreCategoria(rs.getString("nombreCategoria"));
+                producto.setCategoria(categoria);
+                
                 producto.setFechaVenc(rs.getString("fechaVenc"));
                 producto.setStockActual(rs.getInt("stockActual"));
                 producto.setStockMinimo(rs.getInt("stockMinimo"));
@@ -449,7 +454,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     @Override
     public List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto) {
         List<Producto> productosPorTipo = new ArrayList<>();
-        String sql = "SELECT * FROM producto WHERE tipoProducto = ?";
+        String sql = "SELECT p.*, c.nombreCategoria FROM producto p INNER JOIN categoria c ON p.idCategoria = c.id WHERE p.tipoProducto = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -463,7 +468,12 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                     producto.setNombre(rs.getString("nombre"));
                     producto.setPrecioCompra(rs.getDouble("precioCompra"));
                     producto.setPrecioVenta(rs.getDouble("precioVenta"));
-                    producto.setCategoria(mapCategoria(rs.getString("categoria")));
+                    
+                    Categoria categoria = new Categoria();
+                    categoria.setId(rs.getInt("idCategoria"));
+                    categoria.setNombreCategoria(rs.getString("nombreCategoria"));
+                    producto.setCategoria(categoria);
+                    
                     producto.setFechaVenc(rs.getString("fechaVenc"));
                     producto.setStockActual(rs.getInt("stockActual"));
                     producto.setStockMinimo(rs.getInt("stockMinimo"));

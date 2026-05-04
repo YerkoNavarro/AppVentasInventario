@@ -1,4 +1,4 @@
-package com.sistema.puntoventas.controller.moduloProductos;
+package com.sistema.puntoventas.controller;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -42,7 +42,7 @@ public class PanelPrincipalVistaController {
             btnProductos.setOnAction(e -> cargarVistaModulo("PanelPrincipalProductos.fxml", btnProductos));
             btnVentas.setOnAction(e -> cargarVistaModulo("PanelVentas-vista.fxml", btnVentas));
             btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario-vista.fxml", btnInventario));
-            btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelRegistroPlatillos.fxml", btnPlatillos));
+            btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelPrincipalPlatillosVista.fxml", btnPlatillos));
         }
 
         // 3. SISTEMA DE NAVEGACIÓN DINÁMICA

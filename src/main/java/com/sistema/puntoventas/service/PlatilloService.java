@@ -1,17 +1,26 @@
 package com.sistema.puntoventas.service;
 
+import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
 import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.repository.impl.PlatilloRepositoryImpl;
+import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 import com.sistema.puntoventas.repository.moduloProductos.IPlatilloRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
+
+import java.util.List;
 
 public class PlatilloService {
 
     private IPlatilloRepository platilloRepository;
+    private IProductoRepository productoRepository;
 
     public PlatilloService(){
         this.platilloRepository = new PlatilloRepositoryImpl();
+        this.productoRepository = new ProductoRepositoryImpl();
     }
+
 
 
     public void registrarPlatillo(Platillo platillo) throws Exception {
@@ -41,5 +50,29 @@ public class PlatilloService {
            throw new Exception("El tipo de producto debe ser PLATILLO para registrar un platillo.");
        }
 
+    }
+
+
+    public List<Producto> obtenerIngredientes() throws Exception{
+        return productoRepository.buscarPorTipoProducto(TipoProducto.SOLO_INVENTARIO);
+    }
+    
+
+    public void calcularCostoProduccion(Platillo platillo){
+        double costoTotal = 0.0;
+        
+        if(platillo.getIngrediente() != null){
+            for (DetallePlatillo detalle : platillo.getIngrediente()){
+                if(detalle.getProducto() != null){
+                    double costoIngrediente = detalle.getProducto().getPrecioCompra();
+                    double cantidadUtilizada = detalle.getCantidadIngrediente();
+                    costoTotal += costoIngrediente * cantidadUtilizada;
+                    System.out.println(costoTotal);
+
+                }
+            }
+            
+            platillo.setCostoProduccion(costoTotal);
+        }
     }
 }

@@ -43,7 +43,10 @@ public class PanelRegistroPlatillosController {
     private TableColumn<DetallePlatillo, Double> colTipoProducto;
 
     @FXML
-    private TableColumn<DetallePlatillo, Double> colTipoProducto1;
+    private TableColumn<DetallePlatillo, Double> colCostoProduccion;
+
+    @FXML
+    private TableColumn<DetallePlatillo, String> colUnidadMedida;
 
     @FXML
     private Label lblEstado;
@@ -76,8 +79,7 @@ public class PanelRegistroPlatillosController {
             cmbCategoria.getItems().setAll(categorias);
             
             // Cargar productos para el ComboBox de ingredientes
-            List<Producto> productos = productoService.obtenerProductos();
-            cmbIngredientes.getItems().setAll(productos);
+            cmbIngredientes.getItems().setAll(platilloService.obtenerIngredientes());
 
             // Configurar el ComboBox para que muestre solo el nombre del ingrediente
             cmbIngredientes.setConverter(new javafx.util.StringConverter<Producto>() {
@@ -96,6 +98,19 @@ public class PanelRegistroPlatillosController {
             colNombre.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getProducto().getNombre()));
             colTipoProducto.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getCantidadIngrediente()).asObject());
             colTipoProducto.setText("Cantidad"); // Para reflejar el uso real
+            
+            colUnidadMedida.setCellValueFactory(cellData -> {
+                var unidad = cellData.getValue().getProducto().getUnidadMedida();
+                return new SimpleStringProperty(unidad != null ? unidad.name() : "");
+            });
+            colUnidadMedida.setText("Unidad Medida");
+            
+            colCostoProduccion.setCellValueFactory(cellData -> {
+                double costoUnitario = cellData.getValue().getProducto().getPrecioCompra();
+                double cantidad = cellData.getValue().getCantidadIngrediente();
+                return new SimpleDoubleProperty(costoUnitario * cantidad).asObject();
+            });
+            colCostoProduccion.setText("Costo Total");
             
             tableProductos.setItems(listaIngredientesTemporal);
 
@@ -125,6 +140,19 @@ public class PanelRegistroPlatillosController {
                 lblEstado.setText("Error: La cantidad debe ser mayor a 0.");
                 lblEstado.setTextFill(Color.RED);
                 return;
+            }
+            
+            // Si la unidad es GRAMOS o MILILITROS, asumimos que el precio y stock base están en Kilos o Litros.
+            // Entonces convertimos lo ingresado (ej. 200 gramos) a su equivalente base (0.2)
+            if (prodSeleccionado.getUnidadMedida() != null) {
+                switch (prodSeleccionado.getUnidadMedida()) {
+                    case GRAMOS:
+                    case MILILITROS:
+                        cantidad = cantidad / 1000.0;
+                        break;
+                    default:
+                        break;
+                }
             }
             
             DetallePlatillo detalle = new DetallePlatillo();
@@ -180,6 +208,9 @@ public class PanelRegistroPlatillosController {
             }
             nuevoPlatillo.setIngrediente(new ArrayList<>(listaIngredientesTemporal));
 
+            // Calcular y asignar el costo total de producción en el servicio antes de registrar
+            platilloService.calcularCostoProduccion(nuevoPlatillo);
+
             // 4. Enviar al Service (Asumiendo que hiciste un PlatilloService)
             platilloService.registrarPlatillo(nuevoPlatillo);
 
@@ -202,8 +233,6 @@ public class PanelRegistroPlatillosController {
         txtPrecio.clear();
         txtdescripcion.clear();
         cmbCategoria.getSelectionModel().clearSelection();
-
-        // Limpiamos también la parte de los ingredientes
         cmbIngredientes.getSelectionModel().clearSelection();
         txtCantidad.clear();
         listaIngredientesTemporal.clear();
