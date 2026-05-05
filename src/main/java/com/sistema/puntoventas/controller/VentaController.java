@@ -207,6 +207,12 @@ public class VentaController {
         }
     }
 
+
+     @FXML
+    void guardarEnBD(ActionEvent event) {
+
+    }
+
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
