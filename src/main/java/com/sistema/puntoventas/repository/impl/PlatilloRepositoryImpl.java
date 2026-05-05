@@ -1,5 +1,6 @@
 package com.sistema.puntoventas.repository.impl;
 
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
 import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
 import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
@@ -76,7 +77,9 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
     @Override
     public List<Platillo> obtenerPlatillos() {
         List<Platillo> listaPlatillos = new ArrayList<>();
-        String sql = "SELECT * FROM platillo WHERE estado = 1 ORDER BY id ASC"; // Solo platillos activos
+        String sql = "SELECT p.*, c.id as catId, c.nombreCategoria FROM platillo p " +
+                     "LEFT JOIN categoria c ON p.idCategoria = c.id " +
+                     "WHERE p.estado = 1 ORDER BY p.id ASC";
         try(Connection conn = DriverManager.getConnection(url);
             var stmt = conn.createStatement();
             var rs = stmt.executeQuery(sql)) {
@@ -87,7 +90,18 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 platillo.setNombre(rs.getString("nombre"));
                 platillo.setPrecio(rs.getDouble("precio"));
                 platillo.setTipoProducto(TipoProducto.PLATILLO);
-                platillo.setCategoria(null);
+                
+                // Cargar la categoría si existe
+                int catId = rs.getInt("catId");
+                if (catId > 0) {
+                    Categoria categoria = new Categoria();
+                    categoria.setId(catId);
+                    categoria.setNombreCategoria(rs.getString("nombreCategoria"));
+                    platillo.setCategoria(categoria);
+                } else {
+                    platillo.setCategoria(null);
+                }
+                
                 platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
                 platillo.setStockActual(rs.getInt("stockActual"));
                 listaPlatillos.add(platillo);

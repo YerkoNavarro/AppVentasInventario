@@ -52,6 +52,9 @@ public class PanelRegistroPlatillosController {
     private Label lblEstado;
 
     @FXML
+    private Label lblCostoTotal;
+
+    @FXML
     private TableView<DetallePlatillo> tableProductos;
 
     @FXML
@@ -153,6 +156,7 @@ public class PanelRegistroPlatillosController {
             detalle.setCantidadIngrediente(cantidadConvertida);
             
             listaIngredientesTemporal.add(detalle);
+            actualizarCostoTotalEnPantalla();
             
             cmbIngredientes.getSelectionModel().clearSelection();
             txtCantidad.clear();
@@ -218,6 +222,28 @@ public class PanelRegistroPlatillosController {
         } catch (Exception e) {
             lblEstado.setText("Error: " + e.getMessage());
             lblEstado.setTextFill(Color.RED);
+        }
+    }
+
+
+    private void actualizarCostoTotalEnPantalla() {
+        double costoTotal = 0.0;
+
+        // Recorremos la lista que está llenando la tabla en pantalla
+        for (DetallePlatillo detalle : listaIngredientesTemporal) {
+            if (detalle.getProducto() != null) {
+                double costoIngrediente = detalle.getProducto().getPrecioCompra();
+                double cantidadUtilizada = detalle.getCantidadIngrediente();
+
+                // Sumamos al total general
+                costoTotal += (costoIngrediente * cantidadUtilizada);
+            }
+        }
+
+        // Mostramos el total acumulado en el Label de la pantalla
+        if (lblCostoTotal != null) {
+            lblCostoTotal.setText(String.format("Costo Producción: $%.2f", costoTotal));
+            System.out.println("Costo total actualizado en pantalla: " + costoTotal);
         }
     }
 

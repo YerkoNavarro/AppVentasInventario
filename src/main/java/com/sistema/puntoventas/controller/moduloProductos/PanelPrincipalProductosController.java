@@ -2,6 +2,7 @@ package com.sistema.puntoventas.controller.moduloProductos;
 
 
 
+import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.service.ProductoService;
 import com.sistema.puntoventas.util.MensajesAlerta;
@@ -294,5 +295,8 @@ public class PanelPrincipalProductosController {
             MensajesAlerta.mostrarMensaje("Error","No se pudieron actualizar las métricas", Alert.AlertType.ERROR);
         }
     }
+
+
+
 
 }

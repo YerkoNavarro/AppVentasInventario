@@ -91,36 +91,7 @@ public class PanelPrincipalPlatillosController {
     }
 
     public void initialize() {
-
-        // Configurar columnas
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-        colCategoria.setCellValueFactory(cellData -> {
-            var categoria = cellData.getValue().getCategoria();
-            return new javafx.beans.property.SimpleStringProperty(
-                    categoria != null ? categoria.getNombreCategoria() : ""
-            );
-        });
-        colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
-        colCostoProduccion.setCellValueFactory(new PropertyValueFactory<>("costoProduccion"));
-        colEstado.setCellValueFactory(cellData -> {
-            boolean estado = cellData.getValue().isEstado();
-            return new javafx.beans.property.SimpleBooleanProperty(estado);
-        });
-
-        // Configurar convertidores para mostrar texto en lugar de true/false
-        colEstado.setCellFactory(column -> new TableCell<Platillo, Boolean>() {
-            @Override
-            protected void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item ? "Activo" : "Inactivo");
-                }
-            }
-        });
-
+        configurarTabla();
         cargarPlatillos();
         System.out.println("Platillos cargados: " + listaPlatillos.size());
 
@@ -153,6 +124,24 @@ public class PanelPrincipalPlatillosController {
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
         colCostoProduccion.setCellValueFactory(new PropertyValueFactory<>("costoProduccion"));
         colStockActual.setCellValueFactory(new PropertyValueFactory<>("stockActual"));
+
+        colEstado.setCellValueFactory(cellData -> {
+            boolean estado = cellData.getValue().isEstado();
+            return new javafx.beans.property.SimpleBooleanProperty(estado);
+        });
+
+        // Configurar convertidores para mostrar texto en lugar de true/false
+        colEstado.setCellFactory(column -> new TableCell<Platillo, Boolean>() {
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item ? "Activo" : "Inactivo");
+                }
+            }
+        });
 
         // Opcional: Formatear celdas de dinero (Style extra)
         colPrecio.setCellFactory(tc -> new TableCell<Platillo, Double>() {
@@ -187,8 +176,7 @@ public class PanelPrincipalPlatillosController {
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
-
-            //cargarPlatillos();
+            cargarPlatillos();
         } catch (Exception e) {
             mostrarMensaje("Error", "Error al abrir formulario: " + e.getMessage(), Alert.AlertType.ERROR);
         }
