@@ -88,6 +88,8 @@ public class VentaController {
                 venta nuevaVenta = new venta();
                 nuevaVenta.setTotalVenta(Double.parseDouble(textfieldTotal.getText()));
                 nuevaVenta.setFechaHora(textfieldFecha.getText());
+                nuevaVenta.setTipoPago(textfieldTipoPago.getText());
+                nuevaVenta.setDescripcion(textfieldDescripcion.getText());
 
                 ventaAplicacion nuevaVentaAplicacion = new ventaAplicacion();
                 nuevaVentaAplicacion.setVenta(nuevaVenta);
@@ -166,9 +168,11 @@ public class VentaController {
             ColProductos.setCellValueFactory(cellData -> 
                 new SimpleObjectProperty<>(cellData.getValue().getNombreProducto()));
 
-            // Columnas solicitadas vacías (temporalmente)
-            ColDescripcion.setCellValueFactory(cellData -> new SimpleStringProperty(""));
-            ColTipoPago.setCellValueFactory(cellData -> new SimpleStringProperty(""));
+            ColDescripcion.setCellValueFactory(cellData -> 
+                new SimpleStringProperty(cellData.getValue().getVenta().getDescripcion()));
+            
+            ColTipoPago.setCellValueFactory(cellData -> 
+                new SimpleStringProperty(cellData.getValue().getVenta().getTipoPago()));
 
             // Cargar la lista en el TableView
             idTablaVentas.setItems(FXCollections.observableArrayList(listaVentas));

@@ -75,6 +75,8 @@ public class DbManager {
                 + " fechaHora TEXT NOT NULL,"
                 + " idUsuario INTEGER,"
                 + " totalVenta REAL,"
+                + " tipoPago TEXT,"
+                + " descripcion TEXT,"
                 + " estado INTEGER,"
                 + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
                 + ");";
