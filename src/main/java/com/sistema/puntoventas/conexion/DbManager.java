@@ -18,7 +18,7 @@ public class DbManager {
     }
 
 
-
+/* 
     public void crearTablaProductos(){
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS producto ("
@@ -43,7 +43,7 @@ public class DbManager {
             System.out.println(e.getMessage());
         }
     }
-
+*/
     public void crearTablaUsuario(){
 
         // SQL statement for creating a new table

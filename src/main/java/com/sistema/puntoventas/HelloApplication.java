@@ -1,7 +1,7 @@
 package com.sistema.puntoventas;
 
 import com.sistema.puntoventas.conexion.DbManager;
-import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 
 import com.sistema.puntoventas.modelo.detalleVenta;
 import com.sistema.puntoventas.modelo.venta;

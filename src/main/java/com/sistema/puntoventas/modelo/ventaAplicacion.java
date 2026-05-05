@@ -2,6 +2,8 @@ package com.sistema.puntoventas.modelo;
 
 import java.util.List;
 
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+
 public class ventaAplicacion {
      
     private venta venta;

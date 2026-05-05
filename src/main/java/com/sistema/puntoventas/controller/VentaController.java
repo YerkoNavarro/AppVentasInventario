@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import com.sistema.puntoventas.modelo.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.service.ProductoService;
@@ -109,6 +109,8 @@ public class VentaController {
 
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Venta registrada", "La venta se ha registrado correctamente.");
                 limpiarCamposVenta();
+                
+               
             } catch (NumberFormatException e) {
                 mostrarAlerta(Alert.AlertType.ERROR, "Error de formato", "El total debe ser un número válido.");
             }
@@ -120,40 +122,63 @@ public class VentaController {
 
     private void configurarAutoComplete() {
 
-        textFieldProducto.textProperty().addListener((obs, oldVal, newVal) -> {
+    textFieldProducto.textProperty().addListener((obs, oldVal, newVal) -> {
 
-            if (newVal == null || newVal.isBlank()) {
+        if (newVal == null || newVal.isBlank()) {
+            contextMenu.hide();
+            return;
+        }
+
+        // Obtiene solo el último fragmento después de la última "," o " "
+        String[] partes = newVal.split("[,\\s]+");
+        String ultimaParte = partes[partes.length - 1].trim();
+
+        // Si el último fragmento está vacío (ej: el usuario escribió "Pan, ")
+        // no busca sugerencias
+        if (ultimaParte.isBlank()) {
+            contextMenu.hide();
+            return;
+        }
+
+        List<String> filtrados = productosSujerencia.stream()
+            .filter(p -> p.toLowerCase().contains(ultimaParte.toLowerCase()))
+            .collect(Collectors.toList());
+
+        if (filtrados.isEmpty()) {
+            contextMenu.hide();
+            return;
+        }
+
+        contextMenu.getItems().clear();
+        for (String sugerencia : filtrados) {
+            MenuItem item = new MenuItem(sugerencia);
+            item.setOnAction(e -> {
+
+                // Reemplaza solo la última parte, conserva lo anterior
+                String textoActual = textFieldProducto.getText();
+                int ultimaSeparador = Math.max(
+                    textoActual.lastIndexOf(","),
+                    textoActual.lastIndexOf(" ")
+                );
+
+                String prefijo = ultimaSeparador >= 0
+                    ? textoActual.substring(0, ultimaSeparador + 1) + " "
+                    : "";
+
+                textFieldProducto.setText(prefijo + sugerencia);
+                textFieldProducto.positionCaret(textFieldProducto.getText().length());
                 contextMenu.hide();
-                return;
-            }
+            });
+            contextMenu.getItems().add(item);
+        }
 
-            List<String> filtrados = productosSujerencia.stream()
-                .filter(p -> p.toLowerCase().contains(newVal.toLowerCase()))
-                .collect(Collectors.toList());
+        contextMenu.show(textFieldProducto, Side.BOTTOM, 0, 0);
+    });
 
-            if (filtrados.isEmpty()) {
-                contextMenu.hide();
-                return;
-            }
-
-            contextMenu.getItems().clear();
-            for (String sugerencia : filtrados) {
-                MenuItem item = new MenuItem(sugerencia);
-                item.setOnAction(e -> {
-                    textFieldProducto.setText(sugerencia);
-                    textFieldProducto.positionCaret(sugerencia.length());
-                    contextMenu.hide();
-                });
-                contextMenu.getItems().add(item);
-            }
-
-            contextMenu.show(textFieldProducto, Side.BOTTOM, 0, 0);
-        });
-
-        textFieldProducto.focusedProperty().addListener((obs, oldVal, isFocused) -> {
-            if (!isFocused) contextMenu.hide();
-        });
-    }
+    textFieldProducto.focusedProperty().addListener((obs, oldVal, isFocused) -> {
+        if (!isFocused) contextMenu.hide();
+    });
+}
    
 
 
@@ -202,22 +227,7 @@ public class VentaController {
     private void cargarVentasTableView(String fecha) {
         List<ventaAplicacion> listaVentas = ventaService.obtenerVentasporFecha(fecha);
          if (listaVentas != null) {
-            // Mapeo de datos para las columnas existentes
-            ColFecha.setCellValueFactory(cellData -> 
-                new SimpleStringProperty(cellData.getValue().getVenta().getFechaHora()));
-            
-            ColTotalVenta.setCellValueFactory(cellData -> 
-                new SimpleObjectProperty<>(cellData.getValue().getVenta().getTotalVenta()));
-            
-            ColProductos.setCellValueFactory(cellData -> 
-                new SimpleObjectProperty<>(cellData.getValue().getNombreProducto()));
-
-            ColDescripcion.setCellValueFactory(cellData -> 
-                new SimpleStringProperty(cellData.getValue().getVenta().getDescripcion()));
-            
-            ColTipoPago.setCellValueFactory(cellData -> 
-                new SimpleStringProperty(cellData.getValue().getVenta().getTipoPago()));
-
+           
             // Cargar la lista en el TableView
             idTablaVentas.setItems(FXCollections.observableArrayList(listaVentas));
             tablaEstaVacia = false;
@@ -282,6 +292,24 @@ public class VentaController {
     ColTotalVenta.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
     ColDescripcion.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
 
+
+
+     // Mapeo de datos para las columnas existentes
+            ColFecha.setCellValueFactory(cellData -> 
+                new SimpleStringProperty(cellData.getValue().getVenta().getFechaHora()));
+            
+            ColTotalVenta.setCellValueFactory(cellData -> 
+                new SimpleObjectProperty<>(cellData.getValue().getVenta().getTotalVenta()));
+            
+            ColProductos.setCellValueFactory(cellData -> 
+                new SimpleObjectProperty<>(cellData.getValue().getNombreProducto()));
+
+            ColDescripcion.setCellValueFactory(cellData -> 
+                new SimpleStringProperty(cellData.getValue().getVenta().getDescripcion()));
+            
+            ColTipoPago.setCellValueFactory(cellData -> 
+                new SimpleStringProperty(cellData.getValue().getVenta().getTipoPago()));
+
     // Inicializar con la fecha y hora actual formateada
     LocalDateTime ahora = LocalDateTime.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -289,8 +317,8 @@ public class VentaController {
 
 
     ProductoService productoService = new ProductoService();
-    List<Producto> productosServiceList = productoService.obtenerProductos();
-    productosSujerencia.addAll(productosServiceList.stream().map(Producto::getNombre).toList());
+    List<com.sistema.puntoventas.modelo.moduloProducto.Producto> productosServiceList = productoService.obtenerProductos();
+    productosSujerencia.addAll(productosServiceList.stream().map(p -> p.getNombre()).toList());
     configurarAutoComplete();
     
     System.out.println("el estado es: "+tablaEstaVacia);
