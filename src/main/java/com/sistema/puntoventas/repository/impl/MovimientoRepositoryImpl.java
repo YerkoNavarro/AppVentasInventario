@@ -4,6 +4,10 @@ import com.sistema.puntoventas.modelo.MovimientoInventario;
 import com.sistema.puntoventas.modelo.TipoMovimiento;
 import com.sistema.puntoventas.repository.IMovimientoRepository;
 
+// 1. LOS IMPORTS QUE FALTABAN PARA LA FECHA
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -144,9 +148,18 @@ public class MovimientoRepositoryImpl implements IMovimientoRepository {
         mov.setMotivo(rs.getString("motivo"));
         mov.setIdUsuario(rs.getInt("idUsuario"));
 
-        // Dependiendo de cómo definiste 'fecha' en la clase modelo (String o LocalDateTime),
-        // aquí lo asignas. Asumiendo que es String por la compatibilidad simple con SQLite:
-        // mov.setFecha(rs.getString("fecha"));
+        // 2. EL BLOQUE QUE FALTA PARA LEER Y CONVERTIR LA FECHA A LOCALDATETIME
+        String fechaTexto = rs.getString("fecha");
+        if (fechaTexto != null && !fechaTexto.isEmpty()) {
+            try {
+                // Formato estándar de SQLite
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                mov.setFecha(LocalDateTime.parse(fechaTexto, formatter));
+            } catch (Exception e) {
+                // Por si acaso SQLite lo guardó con formato ISO (con la letra 'T')
+                mov.setFecha(LocalDateTime.parse(fechaTexto));
+            }
+        }
 
         return mov;
     }
