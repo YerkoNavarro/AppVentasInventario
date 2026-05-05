@@ -26,13 +26,16 @@ public class CargarVentaController {
     private String fechaSeleccionada;
 
     @FXML
-    void cargarFechas(ActionEvent event) { //metodo que se ejecuta al apretar el boton cargar
+    Boolean cargarFechas(ActionEvent event) { //metodo que se ejecuta al apretar el boton cargar
         fechaSeleccionada = idTableViewFechas.getSelectionModel().getSelectedItem();
         
         if (fechaSeleccionada != null) {
             // Cerramos la ventana (Stage) del diálogo actual para volver a la principal
             Stage stage = (Stage) idTableViewFechas.getScene().getWindow();
             stage.close();
+            return true;
+        } else {
+            return false;
         }
     }
 

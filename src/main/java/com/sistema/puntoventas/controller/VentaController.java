@@ -1,7 +1,8 @@
 package com.sistema.puntoventas.controller;
 
 import java.lang.annotation.Repeatable;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -17,6 +18,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -27,6 +29,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class VentaController {
+    Boolean tablaEstaVacia = true;
 
     @FXML
     private TableColumn<ventaAplicacion, String> ColDescripcion;
@@ -69,6 +72,8 @@ public class VentaController {
     @FXML
     private TextField textfieldTotal;
 
+    
+
    @FXML
     void agregarVenta(ActionEvent event) {
     // Mostrar alerta si ALGÚN campo está vacío
@@ -76,36 +81,31 @@ public class VentaController {
             textfieldTipoPago.getText().isEmpty() ||
             textFieldProducto.getText().isEmpty()) {
 
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);
-            alert.setTitle("Campos incompletos");
-            alert.setHeaderText(null);
-            alert.setContentText("Por favor, complete los campos para registrar la venta.");
-            alert.showAndWait();
+            mostrarAlerta(Alert.AlertType.WARNING, "Campos incompletos", "Por favor, complete los campos para registrar la venta.");
 
         } else {
-            // Guardar la venta solo cuando  los campos tienen datos
-            ventaAplicacion nuevaVentaAplicacion = new ventaAplicacion();
-            venta nuevaVenta = new venta();
-              //obtiene de el dispositivo
-            nuevaVenta.setTotalVenta(Double.parseDouble(textfieldTotal.getText()));
-            // nuevaVenta.setDescripcion(textfieldDescripcion.getText());
-            // nuevaVenta.setTipoPago(textfieldTipoPago.getText());
-            
-            //mapea a la tabla fecha de la venta
-        
-            nuevaVentaAplicacion.setVenta(nuevaVenta);
-            idTablaVentas.setItems(null);
-            
+            try {
+                venta nuevaVenta = new venta();
+                nuevaVenta.setTotalVenta(Double.parseDouble(textfieldTotal.getText()));
+                nuevaVenta.setFechaHora(textfieldFecha.getText());
+
+                ventaAplicacion nuevaVentaAplicacion = new ventaAplicacion();
+                nuevaVentaAplicacion.setVenta(nuevaVenta);
+                List<Producto> listaProductos = new ArrayList<>();
+                Producto productoTemporal = new Producto();
+                productoTemporal.setNombre(textFieldProducto.getText());
+                listaProductos.add(productoTemporal);
+                nuevaVentaAplicacion.setDetalleVentas(listaProductos);
 
 
-            System.out.println(nuevaVenta.toString());
+                idTablaVentas.getItems().add(nuevaVentaAplicacion);
+                tablaEstaVacia = false;
 
-
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);
-            alert.setTitle("venta registrada");
-            alert.setHeaderText(null);
-            alert.setContentText("La venta se ha registrado correctamente.");
-            alert.showAndWait();
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Venta registrada", "La venta se ha registrado correctamente.");
+                limpiarCamposVenta();
+            } catch (NumberFormatException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de formato", "El total debe ser un número válido.");
+            }
         }
 }
    
@@ -113,7 +113,7 @@ public class VentaController {
 
 
     
-
+    
     @FXML
     void cargarVentaAplicacion(ActionEvent event) {
         //lanzar el panel panelCargarVenta.fxml
@@ -139,6 +139,7 @@ public class VentaController {
             if (fechaElegida != null && !fechaElegida.isEmpty()) {
                 System.out.println("Fecha recibida para filtrar: " + fechaElegida);
                 cargarVentasTableView(fechaElegida);
+                System.out.println("el estado es: "+tablaEstaVacia);
             }
             
         } catch (Exception e) {
@@ -171,6 +172,7 @@ public class VentaController {
 
             // Cargar la lista en el TableView
             idTablaVentas.setItems(FXCollections.observableArrayList(listaVentas));
+            tablaEstaVacia = false;
         }
         
     }
@@ -190,11 +192,32 @@ public class VentaController {
 
     @FXML
     void eliminarVenta(ActionEvent event) {
-
+        ventaAplicacion seleccionada = idTablaVentas.getSelectionModel().getSelectedItem();
+        if (seleccionada != null) {
+            idTablaVentas.getItems().remove(seleccionada);
+            if (idTablaVentas.getItems().isEmpty()) {
+                tablaEstaVacia = true;
+            }
+        } else {
+            mostrarAlerta(Alert.AlertType.WARNING, "Selección requerida", "Por favor, seleccione una venta de la tabla para eliminar.");
+        }
     }
 
+    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
 
-     
+    private void limpiarCamposVenta() {
+        textFieldProducto.clear();
+        textfieldDescripcion.clear();
+        textfieldTipoPago.clear();
+        textfieldTotal.clear();
+    }
+
     @FXML
     public void initialize() {
     // Sin CONSTRAINED_RESIZE_POLICY
@@ -205,14 +228,14 @@ public class VentaController {
     ColTotalVenta.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
     ColDescripcion.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
 
-    LocalTime horaActual = LocalTime.now();
-
-    var hora = String.format("%02d", horaActual.getHour());
-    var minuto = String.format("%02d", horaActual.getMinute());
+    // Inicializar con la fecha y hora actual formateada
+    LocalDateTime ahora = LocalDateTime.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    textfieldFecha.setText(ahora.format(formatter));
     
- 
-    textfieldFecha.setText(java.time.LocalDate.now().toString()+ " "+ hora + ":" + minuto);
-
+    System.out.println("el estado es: "+tablaEstaVacia);
+    
+    
 
 }
    
