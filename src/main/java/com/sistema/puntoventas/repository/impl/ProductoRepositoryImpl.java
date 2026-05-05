@@ -346,7 +346,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
 
     @Override
     public boolean existeCategoria(String nombre) {
-        String sql = "SELECT 1 FROM producto WHERE categoria = ? LIMIT 1";
+        String sql = "SELECT 1 FROM categoria WHERE nombreCategoria = ? LIMIT 1";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -419,7 +419,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
         }
 
         String sqlBuscarNombre = "SELECT nombreCategoria FROM categoria WHERE id = ?";
-        String sqlAsociada = "SELECT COUNT(*) AS total FROM producto WHERE lower(trim(categoria)) = lower(trim(?))";
+        String sqlAsociada = "SELECT COUNT(*) AS total FROM producto WHERE id = ?";
         String sqlEliminar = "DELETE FROM categoria WHERE id = ?";
 
         try (Connection conn = DriverManager.getConnection(url);

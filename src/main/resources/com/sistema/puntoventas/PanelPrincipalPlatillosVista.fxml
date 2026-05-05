@@ -21,6 +21,7 @@
                         <TableColumn fx:id="colPrecio" prefWidth="120.0" text="precio venta" />
                         <TableColumn fx:id="colCostoProduccion" prefWidth="140.0" text="costo producción" />
                         <TableColumn fx:id="colEstado" prefWidth="100.0" text="estado" />
+                        <TableColumn fx:id="colStockActual" prefWidth="100.0" text="stock actual" />
                     </columns>
                 </TableView>
                 <HBox layoutX="42.0" layoutY="24.0" prefHeight="132.0" prefWidth="936.0" spacing="40.0">

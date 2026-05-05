@@ -37,7 +37,7 @@ public class PlatilloService {
         }
 
         // Validar que el nombre del platillo sea único
-        if (!platilloRepository.existeNombre(platillo.getNombre().trim(), 0)) {
+        if (platilloRepository.existeNombre(platillo.getNombre().trim(), 0)) {
             throw new Exception("Ya existe un platillo con el nombre '" + platillo.getNombre() + "'.");
         }
 
@@ -50,6 +50,11 @@ public class PlatilloService {
            throw new Exception("El tipo de producto debe ser PLATILLO para registrar un platillo.");
        }
 
+    }
+
+    public List<Platillo> obtenerPlatillos() throws Exception {
+
+        return platilloRepository.obtenerPlatillos();
     }
 
 
@@ -74,5 +79,23 @@ public class PlatilloService {
             
             platillo.setCostoProduccion(costoTotal);
         }
+
+
     }
+
+    public double convertirCantidad(Producto producto, double cantidadIngresada){
+        if(producto.getUnidadMedida() != null){
+            switch (producto.getUnidadMedida()){
+                case GRAMOS:
+                case MILILITROS:
+                    return cantidadIngresada / 1000.0;
+                default:
+                    return cantidadIngresada;
+            }
+        }
+
+        return cantidadIngresada;
+    }
+
+
 }

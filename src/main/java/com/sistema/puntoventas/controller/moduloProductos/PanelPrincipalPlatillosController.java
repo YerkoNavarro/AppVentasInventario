@@ -3,6 +3,9 @@ package com.sistema.puntoventas.controller.moduloProductos;
 import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
 import com.sistema.puntoventas.service.PlatilloService;
 import com.sistema.puntoventas.util.MensajesAlerta;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,7 +16,8 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import static com.sistema.puntoventas.util.MensajesAlerta.mostrarConfirmacion;
+import java.util.List;
+
 import static com.sistema.puntoventas.util.MensajesAlerta.mostrarMensaje;
 
 public class PanelPrincipalPlatillosController {
@@ -75,10 +79,18 @@ public class PanelPrincipalPlatillosController {
     @FXML
     private TableColumn<Platillo, Boolean> colEstado;
 
+    @FXML
+    private TableColumn<Platillo, Integer> colStockActual;
+
     private PlatilloService platilloService;
+    private ObservableList<Platillo> listaPlatillos;
+
+
+    public PanelPrincipalPlatillosController() {
+        this.platilloService = new PlatilloService();
+    }
 
     public void initialize() {
-        platilloService = new PlatilloService();
 
         // Configurar columnas
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -109,7 +121,8 @@ public class PanelPrincipalPlatillosController {
             }
         });
 
-        //cargarPlatillos();
+        cargarPlatillos();
+        System.out.println("Platillos cargados: " + listaPlatillos.size());
 
         // Configurar botones
         if (btnAgregarPlatillo != null) {
@@ -126,21 +139,43 @@ public class PanelPrincipalPlatillosController {
         }*/
     }
 
-    /*private void cargarPlatillos() {
-        try {
-            var platillos = platilloService.obtenerPlatillos();
-            tablePlatillos.getItems().setAll(platillos);
+    private void configurarTabla() {
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
 
-            // Actualizar métricas
-            int platillosActivos = (int) platillos.stream().filter(Platillo::isEstado).count();
-            lblPlatillosActivos.setText(String.valueOf(platillosActivos));
-            lblProductosActivos.setText(String.valueOf(platillos.size()));
-            lblCategoriasActivas.setText(String.valueOf(platillos.stream().map(p -> p.getCategoria().getId()).distinct().count()));
-            
+        // Mismo estilo que productos para extraer el nombre de la categoría del objeto Categoria
+        colCategoria.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getCategoria() != null
+                        ? cellData.getValue().getCategoria().getNombreCategoria()
+                        : "Sin Categoría")
+        );
+
+        colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
+        colCostoProduccion.setCellValueFactory(new PropertyValueFactory<>("costoProduccion"));
+        colStockActual.setCellValueFactory(new PropertyValueFactory<>("stockActual"));
+
+        // Opcional: Formatear celdas de dinero (Style extra)
+        colPrecio.setCellFactory(tc -> new TableCell<Platillo, Double>() {
+            @Override
+            protected void updateItem(Double price, boolean empty) {
+                super.updateItem(price, empty);
+                setText(empty ? null : String.format("$%.2f", price));
+            }
+        });
+    }
+
+    private void cargarPlatillos() {
+        try {
+
+            List<Platillo> platillos = platilloService.obtenerPlatillos();
+            listaPlatillos = FXCollections.observableArrayList(platillos);
+            tablePlatillos.setItems(listaPlatillos);
+            MensajesAlerta.mostrarMensaje("Éxito", "Platillos cargados correctamente", Alert.AlertType.INFORMATION);
         } catch (Exception e) {
-            mostrarMensaje("Error", "Error al cargar platillos: " + e.getMessage(), Alert.AlertType.ERROR);
+            System.err.println("Error al cargar platillos: " + e.getMessage());
+            MensajesAlerta.mostrarMensaje("Error", "No se pudieron cargar los platillos", Alert.AlertType.ERROR);
         }
-    }*/
+    }
 
     private void abrirFormularioAgregarPlatillo() {
         try {

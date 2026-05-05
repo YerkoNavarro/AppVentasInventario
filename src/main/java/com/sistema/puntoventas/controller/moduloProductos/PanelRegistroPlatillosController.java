@@ -121,6 +121,10 @@ public class PanelRegistroPlatillosController {
         if (btnAgregarIngrediente != null) {
             btnAgregarIngrediente.setOnAction(this::agregarIngrediente);
         }
+
+        if(btnRegistrarPlatillo != null){
+            btnRegistrarPlatillo.setOnAction(this::registrarPlatillo);
+        }
     }
 
     @FXML
@@ -142,22 +146,11 @@ public class PanelRegistroPlatillosController {
                 return;
             }
             
-            // Si la unidad es GRAMOS o MILILITROS, asumimos que el precio y stock base están en Kilos o Litros.
-            // Entonces convertimos lo ingresado (ej. 200 gramos) a su equivalente base (0.2)
-            if (prodSeleccionado.getUnidadMedida() != null) {
-                switch (prodSeleccionado.getUnidadMedida()) {
-                    case GRAMOS:
-                    case MILILITROS:
-                        cantidad = cantidad / 1000.0;
-                        break;
-                    default:
-                        break;
-                }
-            }
+            double cantidadConvertida = platilloService.convertirCantidad(prodSeleccionado, cantidad);
             
             DetallePlatillo detalle = new DetallePlatillo();
             detalle.setProducto(prodSeleccionado);
-            detalle.setCantidadIngrediente(cantidad);
+            detalle.setCantidadIngrediente(cantidadConvertida);
             
             listaIngredientesTemporal.add(detalle);
             

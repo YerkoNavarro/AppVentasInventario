@@ -114,6 +114,28 @@ public class ProductoController {
                 }
             });
 
+            cmbUnidadMedida.getSelectionModel().selectedItemProperty().addListener((observable, valorViejo, valorNuevo) -> {
+                if (valorNuevo != null) {
+
+                    switch (valorNuevo) {
+
+                        case UNIDAD:
+                            txtCantidad.setText("1");
+                            txtCantidad.setDisable(true); // Bloqueamos el campo para el usuario
+                            break;
+
+
+                        case GRAMOS:
+                        case MILILITROS:
+                            txtCantidad.clear();
+                            txtCantidad.setDisable(false); // Habilitamos el campo
+                            break;
+
+                        // Si tienes más opciones, agrégalas aquí...
+                    }
+                }
+            });
+
                 cmbTipoProducto.setConverter(new StringConverter<>() {
                     @Override
                     public String toString(TipoProducto tipoProducto) {
@@ -128,20 +150,20 @@ public class ProductoController {
 
                 cmbTipoProducto.getSelectionModel().selectedItemProperty().addListener((observable, valorViejo, valorNuevo) ->{
                     if(valorNuevo != null){
-                       if( valorNuevo == TipoProducto.DIRECTO) {
-                           txtCantidad.setText("1");
-                           txtCantidad.setDisable(true);//bloqueamos el campo para el usuario
+                        switch (valorNuevo){
+                            case SOLO_INVENTARIO:
+                                txtPrecioVenta.setText("0");
+                                txtPrecioVenta.setDisable(true);
+                                System.out.println("Campo precio venta bloqueado");
+                                break;
 
-                           txtPrecioVenta.setDisable(false);
-                           if(txtPrecioVenta.equals("0")){
-                               txtPrecioVenta.clear();
-                           }
-                       } else if (valorNuevo == TipoProducto.SOLO_INVENTARIO) {
-                           txtCantidad.clear();
-                           txtCantidad.setDisable(false);
-                           txtPrecioVenta.setText("0");
-                           txtPrecioVenta.setDisable(true);
-                       }
+                            case PLATILLO:
+                            case DIRECTO:
+                                txtPrecioVenta.clear();
+                                txtPrecioVenta.setDisable(false);
+                                System.out.println("Campo precio venta desbloqueado");
+                                break;
+                        }
                         
                     }
                 });
@@ -176,8 +198,9 @@ public class ProductoController {
                     lblEstado.setTextFill(Color.RED);
                     return;
                 }
+                
                 double precioCompra = Double.parseDouble(txtPrecioCompra.getText());
-                double precioVenta = Double.parseDouble(txtPrecioVenta.getText());
+                double precioVenta = Double.parseDouble(txtPrecioVenta.getText().isEmpty() ? "0" : txtPrecioVenta.getText());
                 int stockActual = Integer.parseInt(txtStockActual.getText());
                 int stockMinimo = Integer.parseInt(txtStockMinimo.getText());
 

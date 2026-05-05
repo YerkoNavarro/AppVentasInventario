@@ -76,7 +76,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
     @Override
     public List<Platillo> obtenerPlatillos() {
         List<Platillo> listaPlatillos = new ArrayList<>();
-        String sql = "SELECT * FROM platillo WHERE estado = 1 ORDER BY ASC"; // Solo platillos activos
+        String sql = "SELECT * FROM platillo WHERE estado = 1 ORDER BY id ASC"; // Solo platillos activos
         try(Connection conn = DriverManager.getConnection(url);
             var stmt = conn.createStatement();
             var rs = stmt.executeQuery(sql)) {
