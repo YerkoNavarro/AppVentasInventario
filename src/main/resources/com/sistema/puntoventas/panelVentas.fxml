@@ -4,32 +4,66 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.VentaController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="586.0" prefWidth="897.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.VentaController">
    <children>
-      <TableView id="idTableView" fx:id="idTablaVentas" editable="true" layoutX="70.0" layoutY="85.0" prefHeight="258.0" prefWidth="422.0" AnchorPane.bottomAnchor="55.00095407818253" AnchorPane.leftAnchor="70.0" AnchorPane.rightAnchor="70.00095407818253" AnchorPane.topAnchor="85.0">
-        <columns>
-          <TableColumn fx:id="ColFecha" sortable="false" text="fecha" />
-          <TableColumn fx:id="ColProductos" sortable="false" text="Productos" />
-          <TableColumn fx:id="ColTipoPago" sortable="false" text="Tipo Pago" />
-          <TableColumn fx:id="ColTotalVenta" sortable="false" text="Total" />
-          <TableColumn fx:id="ColDescripcion" sortable="false" text="Descripción" />
-        </columns>
-      </TableView>
-      <Button layoutX="92.0" layoutY="358.0" mnemonicParsing="false" onAction="#agregarVenta" text="agregar" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="92.0" />
-      <Button layoutX="405.0" layoutY="355.0" mnemonicParsing="false" onAction="#eliminarVenta" text="eliminar" AnchorPane.bottomAnchor="16.669199517079846" AnchorPane.rightAnchor="89.17003433548956" />
-      <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#cargarNuevaVenta" text="Nueva Venta" />
-              <MenuItem mnemonicParsing="false" onAction="#cargarVentaAplicacion" text="Cargar Lista de Venta" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
+      <TabPane layoutX="-4.0" layoutY="-4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="547.0" prefWidth="745.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.9949229410999578" AnchorPane.topAnchor="-4.0">
+        <tabs>
+          <Tab text="tabla ventas">
+            <content>
+              <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="643.0" prefWidth="897.0">
+                     <children>
+                        <TableView id="idTableView" fx:id="idTablaVentas" editable="true" layoutX="43.0" layoutY="103.33403753389665" prefHeight="403.0" prefWidth="809.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="103.0">
+                          <columns>
+                            <TableColumn fx:id="ColFecha" sortable="false" text="fecha" />
+                            <TableColumn fx:id="ColProductos" sortable="false" text="Productos" />
+                            <TableColumn fx:id="ColTipoPago" sortable="false" text="Tipo Pago" />
+                            <TableColumn fx:id="ColTotalVenta" sortable="false" text="Total" />
+                            <TableColumn fx:id="ColDescripcion" sortable="false" text="Descripción" />
+                          </columns>
+                        </TableView>
+                        <MenuBar layoutY="-1.0" prefHeight="28.0" prefWidth="563.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-1.0">
+                          <menus>
+                            <Menu mnemonicParsing="false" text="File">
+                              <items>
+                                    <MenuItem fx:id="BotonNuevaVenta" mnemonicParsing="false" onAction="#cargarNuevaVenta" text="Nueva Venta" />
+                                <MenuItem mnemonicParsing="false" onAction="#cargarVentaAplicacion" text="Cargar Lista de Venta" />
+                              </items>
+                            </Menu>
+                          </menus>
+                        </MenuBar>
+                        <Button layoutX="766.0" layoutY="66.0" mnemonicParsing="false" onAction="#eliminarVenta" text="eliminar" AnchorPane.bottomAnchor="424.0033392736389" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="agregar venta">
+            <content>
+              <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                     <children>
+                        <Text layoutX="97.0" layoutY="143.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Fecha" AnchorPane.leftAnchor="97.0" />
+                        <Text layoutX="83.0" layoutY="202.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Productos" wrappingWidth="62.15299606323242" AnchorPane.leftAnchor="83.0" />
+                        <Text layoutX="84.0" layoutY="262.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tipo Pago" AnchorPane.leftAnchor="84.0" />
+                        <Text layoutX="91.0" layoutY="321.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total" AnchorPane.leftAnchor="91.0" />
+                        <Text layoutX="78.0" layoutY="377.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Descripcion" AnchorPane.leftAnchor="78.0" />
+                        <Button layoutX="340.0" layoutY="452.0" mnemonicParsing="false" onAction="#agregarVenta" text="agregar" AnchorPane.bottomAnchor="38.003339273638915" />
+                        <TextField fx:id="textfieldFecha" layoutX="259.0" layoutY="125.0" AnchorPane.leftAnchor="259.0" />
+                        <TextField fx:id="textFieldProducto" layoutX="259.0" layoutY="184.0" AnchorPane.leftAnchor="259.0" />
+                        <TextField fx:id="textfieldTipoPago" layoutX="259.0" layoutY="244.0" AnchorPane.leftAnchor="259.0" />
+                        <TextField fx:id="textfieldTotal" layoutX="259.0" layoutY="303.0" AnchorPane.leftAnchor="259.0" />
+                        <TextField fx:id="textfieldDescripcion" layoutX="259.0" layoutY="359.0" AnchorPane.leftAnchor="259.0" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
    </children>
 </AnchorPane>
