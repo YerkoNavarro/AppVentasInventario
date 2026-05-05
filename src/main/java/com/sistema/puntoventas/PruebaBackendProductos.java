@@ -1,10 +1,9 @@
 package com.sistema.puntoventas;
 
-import com.sistema.puntoventas.conexion.DbManager;
-import com.sistema.puntoventas.modelo.Categoria;
-import com.sistema.puntoventas.modelo.Producto;
-import com.sistema.puntoventas.modelo.TipoProducto;
-import com.sistema.puntoventas.modelo.UnidadMedida;
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
 import com.sistema.puntoventas.service.ProductoService;
 
 public class PruebaBackendProductos {
@@ -24,18 +23,18 @@ public class PruebaBackendProductos {
         Categoria categoria6 = new Categoria(6, true, "Productos envasados y snacks", "Snacks");
         Categoria categoria7 = new Categoria(7, true, "Insumos y materias primas", "Insumos");
 
-        Producto producto1 = new Producto(1, "pie de limon", 1000, 1500, categoria2, "2026-10-01", 100, 1, "cafe_americano.jpg", UnidadMedida.UNIDAD, TipoProducto.PLATILLO);
-        Producto producto2 = new Producto(2, "coca cola", 1000, 1500, categoria2, "2026-10-01", 100, 1, "coca-cola.jpg", UnidadMedida.UNIDAD, TipoProducto.DIRECTO);
-        Producto producto3 = new Producto(3, "Café Americano", 800, 1500, categoria1, "2026-12-31", 50, 10, "cafe_americano.jpg", UnidadMedida.UNIDAD, TipoProducto.PLATILLO);
-        Producto producto4 = new Producto(4, "Coca Cola 500ml", 700, 1200, categoria1, "2026-10-01", 120, 20, "coca_cola.jpg", UnidadMedida.UNIDAD, TipoProducto.DIRECTO);
-        Producto producto5 = new Producto(5, "Jugo de Naranja Natural", 500, 1800, categoria1, "2026-04-25", 30, 5, "jugo_naranja.jpg", UnidadMedida.UNIDAD, TipoProducto.PLATILLO);
-        Producto producto6 = new Producto(6, "Agua Mineral sin gas", 400, 900, categoria1, "2027-01-15", 80, 15, "agua_mineral.jpg", UnidadMedida.UNIDAD, TipoProducto.DIRECTO);
-        Producto producto7 = new Producto(7, "Porción Torta Tres Leches", 1200, 2800, categoria2, "2026-04-27", 10, 2, "torta_tres_leches.jpg", UnidadMedida.UNIDAD, TipoProducto.PLATILLO);
-        Producto producto8 = new Producto(8, "Medialuna", 300, 700, categoria2, "2026-04-26", 40, 10, "medialuna.jpg", UnidadMedida.UNIDAD, TipoProducto.DIRECTO);
-        Producto producto9 = new Producto(9, "Sándwich Ave Palta", 1500, 3500, categoria3, "2026-04-25", 20, 5, "ave_palta.jpg", UnidadMedida.UNIDAD, TipoProducto.PLATILLO);
-        Producto producto10 = new Producto(10, "Empanada de Queso", 600, 1500, categoria3, "2026-04-26", 35, 10, "empanada_queso.jpg", UnidadMedida.UNIDAD, TipoProducto.PLATILLO);
-        Producto producto11 = new Producto(11, "Papas Fritas Lays 100g", 600, 1100, categoria4, "2026-08-20", 50, 10, "lays.jpg", UnidadMedida.UNIDAD, TipoProducto.DIRECTO);
-        Producto producto12 = new Producto(12, "Galletas Tritón", 450, 800, categoria4, "2026-09-10", 60, 15, "triton.jpg", UnidadMedida.UNIDAD, TipoProducto.DIRECTO);
+        Producto producto1 = new Producto(1, "pie de limon", 1000, 1500, categoria2, "2026-10-01", 100, 1, "cafe_americano.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.PLATILLO);
+        Producto producto2 = new Producto(2, "coca cola", 1000, 1500, categoria2, "2026-10-01", 100, 1, "coca-cola.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.DIRECTO);
+        Producto producto3 = new Producto(3, "Café Americano", 800, 1500, categoria1, "2026-12-31", 50, 10, "cafe_americano.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.PLATILLO);
+        Producto producto4 = new Producto(4, "Coca Cola 500ml", 700, 1200, categoria1, "2026-10-01", 120, 20, "coca_cola.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.DIRECTO);
+        Producto producto5 = new Producto(5, "Jugo de Naranja Natural", 500, 1800, categoria1, "2026-04-25", 30, 5, "jugo_naranja.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.PLATILLO);
+        Producto producto6 = new Producto(6, "Agua Mineral sin gas", 400, 900, categoria1, "2027-01-15", 80, 15, "agua_mineral.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.DIRECTO);
+        Producto producto7 = new Producto(7, "Porción Torta Tres Leches", 1200, 2800, categoria2, "2026-04-27", 10, 2, "torta_tres_leches.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.PLATILLO);
+        Producto producto8 = new Producto(8, "Medialuna", 300, 700, categoria2, "2026-04-26", 40, 10, "medialuna.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.DIRECTO);
+        Producto producto9 = new Producto(9, "Sándwich Ave Palta", 1500, 3500, categoria3, "2026-04-25", 20, 5, "ave_palta.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.PLATILLO);
+        Producto producto10 = new Producto(10, "Empanada de Queso", 600, 1500, categoria3, "2026-04-26", 35, 10, "empanada_queso.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.PLATILLO);
+        Producto producto11 = new Producto(11, "Papas Fritas Lays 100g", 600, 1100, categoria4, "2026-08-20", 50, 10, "lays.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.DIRECTO);
+        Producto producto12 = new Producto(12, "Galletas Tritón", 450, 800, categoria4, "2026-09-10", 60, 15, "triton.jpg", UnidadMedida.UNIDAD, 1.0, TipoProducto.DIRECTO);
         // 3. Intentamos guardarlo usando el Service
         try {
             System.out.println("Enviando producto al servicio...");

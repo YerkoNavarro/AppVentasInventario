@@ -67,7 +67,31 @@ public class DbManager {
         }
     }
 
+    public void crearTablaProductos() {
+        String sql = "CREATE TABLE IF NOT EXISTS producto ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " nombre TEXT NOT NULL,"
+                + " precioCompra REAL,"
+                + " precioVenta REAL,"
+                + " idCategoria INTEGER NOT NULL,"
+                + " fechaVenc TEXT,"
+                + " stockActual INTEGER,"
+                + " stockMinimo INTEGER,"
+                + " imagen TEXT DEFAULT 'IMG',"
+                + " unidadMedida TEXT, "
+                + " cantidad DOUBLE, "
+                + " tipoProducto TEXT,"
+                + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+                + ");";
 
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'producto' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla productos: " + e.getMessage());
+        }
+    }
 
     public void creartablaVentas() {
         String sql = "CREATE TABLE IF NOT EXISTS venta ("
@@ -135,6 +159,8 @@ public class DbManager {
         crearTablaDetalleVenta();
         crearTablaProductos();
         crearTablaHistorialInventario();
+        crearTablaPlatillo();
+        crearTablaDetallePlatillo();
         System.out.println("Inicialización de todas las tablas completada.");
     }
 
@@ -171,6 +197,46 @@ public class DbManager {
             System.out.println("Tabla 'categoria' verificada/creada.");
         } catch (SQLException e) {
             System.err.println("Error al crear tabla categoria: " + e.getMessage());
+        }
+    }
+
+    public void crearTablaPlatillo(){
+        String sql = "CREATE TABLE IF NOT EXISTS platillo ("
+            + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + " nombre TEXT UNIQUE NOT NULL,"
+            + " precio DOUBLE, "
+            + " idCategoria INTEGER, "    
+            + " estado boolean DEFAULT 1, "
+            + " costoProduccion double DEFAULT 0.0, "
+            + " stockActual INTEGER DEFAULT 0, "
+            + " tipoPlatillo TEXT DEFAULT 'PLATILLO', "
+            + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+            + ");";
+        try(var conn = DriverManager.getConnection(url);
+            var stmt = conn.createStatement()){
+            stmt.execute(sql);
+            System.out.println("Tabla 'platillo ' verificada/creada.");
+
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla platillo: "+e.getMessage());
+        }
+    }
+
+    public void crearTablaDetallePlatillo() {
+        String sql = "CREATE TABLE IF NOT EXISTS detalle_platillo ("
+            + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + " idPlatillo INTEGER NOT NULL, "
+            + " idProducto INTEGER NOT NULL, " // idProducto asume que el ingrediente es un producto del inventario
+            + " cantidadIngrediente DOUBLE NOT NULL, "
+            + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id) ON DELETE CASCADE, "
+            + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
+            + ");";
+        try(var conn = DriverManager.getConnection(url);
+            var stmt = conn.createStatement()){
+            stmt.execute(sql);
+            System.out.println("Tabla 'detalle_platillo' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla detalle_platillo: " + e.getMessage());
         }
     }
 }
