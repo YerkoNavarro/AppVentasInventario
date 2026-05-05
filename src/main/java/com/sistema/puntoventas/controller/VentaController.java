@@ -6,10 +6,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import com.sistema.puntoventas.modelo.Producto;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
+import com.sistema.puntoventas.service.ProductoService;
 import com.sistema.puntoventas.service.VentaService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,10 +19,12 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Side;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -109,7 +113,47 @@ public class VentaController {
                 mostrarAlerta(Alert.AlertType.ERROR, "Error de formato", "El total debe ser un número válido.");
             }
         }
-}
+    }
+
+    private final ContextMenu contextMenu = new ContextMenu();
+    private final List<String> productosSujerencia = new ArrayList<>();
+
+    private void configurarAutoComplete() {
+
+        textFieldProducto.textProperty().addListener((obs, oldVal, newVal) -> {
+
+            if (newVal == null || newVal.isBlank()) {
+                contextMenu.hide();
+                return;
+            }
+
+            List<String> filtrados = productosSujerencia.stream()
+                .filter(p -> p.toLowerCase().contains(newVal.toLowerCase()))
+                .collect(Collectors.toList());
+
+            if (filtrados.isEmpty()) {
+                contextMenu.hide();
+                return;
+            }
+
+            contextMenu.getItems().clear();
+            for (String sugerencia : filtrados) {
+                MenuItem item = new MenuItem(sugerencia);
+                item.setOnAction(e -> {
+                    textFieldProducto.setText(sugerencia);
+                    textFieldProducto.positionCaret(sugerencia.length());
+                    contextMenu.hide();
+                });
+                contextMenu.getItems().add(item);
+            }
+
+            contextMenu.show(textFieldProducto, Side.BOTTOM, 0, 0);
+        });
+
+        textFieldProducto.focusedProperty().addListener((obs, oldVal, isFocused) -> {
+            if (!isFocused) contextMenu.hide();
+        });
+    }
    
 
 
@@ -242,8 +286,17 @@ public class VentaController {
     LocalDateTime ahora = LocalDateTime.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     textfieldFecha.setText(ahora.format(formatter));
+
+
+    ProductoService productoService = new ProductoService();
+    List<Producto> productosServiceList = productoService.obtenerProductos();
+    productosSujerencia.addAll(productosServiceList.stream().map(Producto::getNombre).toList());
+    configurarAutoComplete();
     
     System.out.println("el estado es: "+tablaEstaVacia);
+    for (int i = 0; i < productosSujerencia.size(); i++) {
+        System.out.println(productosSujerencia.get(i));
+    }
     
     
 
