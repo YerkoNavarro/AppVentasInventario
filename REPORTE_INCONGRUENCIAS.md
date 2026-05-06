@@ -392,21 +392,187 @@ Este archivo resume los problemas más relevantes encontrados en el proyecto `pu
 
 ---
 
-## 8) Conclusión
+## 9) REPORTE ESPECÍFICO: MÓDULO DE PRODUCTOS Y PLATILLOS (Mayo 5, 2026)
 
-El proyecto tiene una base funcional, pero hay varias incongruencias importantes entre:
-- UI y controladores,
-- controladores y servicios,
-- servicios y repositorios,
-- repositorios y esquema de base de datos,
-- Java y Python.
+### 9.1 INCONGRUENCIAS CRÍTICAS
 
-Los problemas más delicados están en:
-- el mapeo de productos/categorías,
-- la actualización de productos,
-- la validación de existencia,
-- la navegación hacia vistas inexistentes,
-- y la integración del script predictivo.
+#### 9.1.1 Error SQL en obtenerPlatilloPorNombre()
+**Problema:** Query con JOIN incorrecto
+- **Archivo:** `PlatilloRepositoryImpl.java` línea 123
+- **SQL Actual:**
+  ```sql
+  SELECT p.*,c.nombreCategoria FROM platillo p 
+  INNER JOIN categoria c ON p.idCategoria = p.id
+  WHERE nombre LIKE ? AND estado = 1 ORDER BY ASC
+  ```
+- **Error:** `ON p.idCategoria = p.id` debería ser `ON p.idCategoria = c.id`
+- **Impacto:** CRÍTICA - Esta consulta NUNCA retorna resultados. Fallaría toda búsqueda de platillos por nombre.
+- **Urgencia:** Debe corregirse inmediatamente
 
-Este reporte puede servir como hoja de ruta para corregir el sistema por etapas sin romper más partes del proyecto.
+#### 9.1.2 Filtro WHERE que oculta datos
+**Problema:** `PlatilloRepositoryImpl.obtenerPlatillos()` filtra con `WHERE p.estado = 1`
+- **Línea:** Línea 82
+- **Consecuencia:** Solo trae platillos ACTIVOS, pero luego `calcularMetricas()` intenta contar nuevamente los activos como si la lista completa se hubiera traído
+- **Impacto:** Métricas de platillos mostrarán datos incorrectos
+- **Recomendación:** Remover el filtro y dejar que el servicio maneje la lógica
 
+#### 9.1.3 Campo estado no cargado en algunos métodos
+**Problema:** En `obtenerPlatilloPorNombre()` no se carga `estado` del platillo
+- **Línea:** `PlatilloRepositoryImpl.java:128`
+- **Falta:** `platillo.setEstado(rs.getBoolean("estado"))`
+- **Consecuencia:** Objeto Platillo incompleto, estado siempre null/false
+
+---
+
+### 9.2 INCONGRUENCIAS IMPORTANTES
+
+#### 9.2.1 Método calcularMetricas() faltante en PlatilloService
+**Problema:** Se llama desde controller pero no existe
+- **Archivo:** `PlatilloService.java`
+- **Referencia:** `PanelPrincipalPlatillosController.java:232`
+- **Impacto:** Panel de platillos NO puede mostrar métricas
+- **Necesario:** Implementar método que retorne MetricasDTO
+
+#### 9.2.2 Métodos CRUD incompletos en PlatilloService
+**Métodos faltantes:**
+- `actualizarPlatillo()` - No existe
+- `eliminarPlatillo()` - No existe  
+- `obtenerPlatilloPorId()` - No existe
+- `desactivarPlatillo()` - No existe
+
+**Impacto:** Los controllers no pueden actualizar ni eliminar platillos correctamente
+
+#### 9.2.3 Responsabilidades duplicadas en ProductoRepositoryImpl
+**Problema:** Implementa 3 interfaces simultáneamente
+- **Interfaces:**
+  - `IProductoRepository`
+  - `ICategoriaRepository` 
+  - `IstockRepository`
+- **Violación:** Principio de Responsabilidad Única (SRP)
+- **Impacto:** Difícil de mantener y probar
+
+#### 9.2.4 Inicialización incorrecta de servicios en ProductoService
+**Problema:** Línea 24-26
+```java
+this.productoRepository = new ProductoRepositoryImpl();
+this.categoriaRepository = new ProductoRepositoryImpl();  // ❌ Debería ser CategoriaRepositoryImpl
+this.stockRepository = new ProductoRepositoryImpl();      // ❌ Debería ser StockRepositoryImpl
+```
+**Impacto:** Todas las operaciones usan la misma clase de repositorio (funciona por accidente)
+
+---
+
+### 9.3 PROBLEMAS DE DISEÑO Y LÓGICA
+
+#### 9.3.1 Mezcla de entidades: Producto vs Platillo
+**Problema:** Ambas tablas tienen `tipoProducto` / `tipoPlatillo`
+- Tabla `producto` tiene columna `tipoProducto` (DIRECTO, PLATILLO, SOLO_INVENTARIO)
+- Tabla `platillo` tiene columna `tipoPlatillo` (siempre "PLATILLO")
+- `ProductoController` puede crear un producto tipo PLATILLO
+- `PanelRegistroPlatillosController` también crea platillos
+- **Confusión:** ¿Platillo hereda de Producto o son independientes?
+
+#### 9.3.2 Falta de validación de ingredientes
+**Problema:** En `PlatilloService.registrarPlatillo()` no valida ingredientes
+- No hay check si `getIngrediente()` es null o vacío
+- **Consecuencia:** Se pueden registrar platillos sin ingredientes
+- **Costo de producción será:** 0.0 (incorrecto)
+
+#### 9.3.3 Conversión de unidades incompleta
+**Problema:** `convertirCantidad()` solo convierte GRAMOS y MILILITROS
+- No hay soporte para KG, Litros, Piezas, etc.
+- **Impacto:** Stock de ingredientes puede calcularse incorrectamente
+- **Ejemplo:** 1 KG se trata como 1 KG sin conversión a gramos
+
+#### 9.3.4 Stock de platillos no se actualiza automáticamente
+**Problema:** `stockActual` en platillos se guarda manualmente
+- Ideal sería calcular como `MIN(stock_ingredientes_usados)`
+- **Consecuencia:** Stock puede no reflejar la realidad
+
+#### 9.3.5 Cálculo de costo sin persistencia
+**Problema:** `calcularCostoProduccion()` calcula pero no guarda
+```java
+public void calcularCostoProduccion(Platillo platillo){
+    // ... calcula costoTotal ...
+    platillo.setCostoProduccion(costoTotal);  // ❌ En memoria, no en BD
+}
+```
+- **Impacto:** Costo se pierde si no se guarda explícitamente después
+
+#### 9.3.6 Validación de stock confusa
+**Problema:** `validarStockIngredientes()` compara cantidades sin considerar unidades
+- Convierte a KG pero compara con stock que puede estar en gramos
+- **Impacto:** Validación incorrecta de disponibilidad
+
+---
+
+### 9.4 INCONSISTENCIAS EN QUERIES
+
+#### 9.4.1 ProductoRepositoryImpl no filtra por estado
+**Problema:** `obtenerProductos()` trae TODOS los productos (activos e inactivos)
+- **Diferencia:** Platillo filtra solo activos, Producto no
+- **Inconsistencia:** Lógica diferente para entidades similares
+
+#### 9.4.2 Falta de transacciones en operaciones críticas
+**Problema:** `ProductoRepositoryImpl.registrarProducto()` no usa transacciones
+- Si falla a mitad, datos inconsistentes
+- **Contraste:** `PlatilloRepositoryImpl` usa try-catch con rollback (mejor práctica)
+
+---
+
+### 9.5 PROBLEMAS DE ARQUITECTURA
+
+#### 9.5.1 Interfaz IProductoRepository mal organizada
+**Métodos que no pertenecen:**
+- `obtenerCategorias()`
+- `obtenerStockCritico()`
+- `existeCategoria()`
+
+**Sugerencia:** Crear interfaces separadas:
+- `IProductoRepository` - Solo productos
+- `ICategoriaRepository` - Solo categorías
+- `IstockRepository` - Solo stock
+
+#### 9.5.2 Falta de logging
+**Problema:** Múltiples `System.out.println()` en código productivo
+- Ubicaciones: `PlatilloRepositoryImpl.java:112,126` y más
+- **Sugerencia:** Usar logger (SLF4J, Log4j)
+
+---
+
+### 9.6 RESUMEN DE SEVERIDAD - MÓDULO PRODUCTOS/PLATILLOS
+
+| Severidad | Cantidad | Detalles |
+|-----------|----------|----------|
+| 🔴 CRÍTICA | 3 | JOIN SQL incorrecto, Filtro WHERE, Método faltante |
+| 🟡 IMPORTANTE | 5 | CRUD incompleto, Duplicación, Inicialización |
+| 🟠 ANOMALÍA | 6 | Lógica de stock, Unidades, Validación |
+| 🟢 ADVERTENCIA | 3 | Arquitectura, Logging, Transacciones |
+
+**Total de nuevas incongruencias:** 17
+
+---
+
+### 9.7 PLAN DE ACCIÓN
+
+#### INMEDIATO (Esta semana)
+1. ✅ Corregir JOIN SQL: `p.idCategoria = c.id` (línea 123 PlatilloRepositoryImpl)
+2. ✅ Remover filtro `WHERE estado = 1` de `obtenerPlatillos()`
+3. ✅ Agregar `setEstado()` en `obtenerPlatilloPorNombre()`
+4. ✅ Implementar `calcularMetricas()` en PlatilloService
+
+#### CORTO PLAZO (2 semanas)
+5. Implementar métodos CRUD faltantes en PlatilloService
+6. Agregar validación de ingredientes en `registrarPlatillo()`
+7. Implementar transacciones en ProductoRepositoryImpl
+8. Definir claramente relación Producto-Platillo
+
+#### MEDIANO PLAZO (1 mes)
+9. Separar repositorios por entidad
+10. Mejorar conversión de unidades
+11. Automatizar cálculo de stock de platillos
+12. Reemplazar System.out con logger
+
+---
+
+**Fin del reporte específico del módulo Productos y Platillos**

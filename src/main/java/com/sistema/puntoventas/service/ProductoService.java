@@ -1,6 +1,7 @@
 package com.sistema.puntoventas.service;
 
 import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.repository.moduloProductos.ICategoriaRepository;
@@ -266,5 +267,21 @@ public class ProductoService {
         }
 
         return true;
+    }
+
+
+    public MetricasDTO calcularMetricas() throws Exception {
+        List<Producto> lista = obtenerProductos();
+
+        return new MetricasDTO(
+                lista.size(),
+                lista.stream().filter(p -> p.getStockActual() <= p.getStockMinimo()).count(),
+                lista.stream().filter(p -> p.getTipoProducto() != null && (
+                        p.getTipoProducto() == TipoProducto.DIRECTO ||
+                                p.getTipoProducto() == TipoProducto.PLATILLO ||
+                                p.getTipoProducto() == TipoProducto.SOLO_INVENTARIO
+                )).count(),
+                lista.stream().filter(p -> p.getCategoria() != null).map(p -> p.getCategoria().getId()).distinct().count()
+        );
     }
 }

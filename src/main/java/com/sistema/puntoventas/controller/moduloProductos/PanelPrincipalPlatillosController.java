@@ -1,7 +1,9 @@
 package com.sistema.puntoventas.controller.moduloProductos;
 
+import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
 import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
 import com.sistema.puntoventas.service.PlatilloService;
+import com.sistema.puntoventas.service.ProductoService;
 import com.sistema.puntoventas.util.MensajesAlerta;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -83,16 +85,19 @@ public class PanelPrincipalPlatillosController {
     private TableColumn<Platillo, Integer> colStockActual;
 
     private PlatilloService platilloService;
+    private ProductoService productoService;
     private ObservableList<Platillo> listaPlatillos;
 
 
     public PanelPrincipalPlatillosController() {
         this.platilloService = new PlatilloService();
+        this.productoService = new ProductoService();
     }
 
     public void initialize() {
         configurarTabla();
         cargarPlatillos();
+        actualizarMetricas();
         System.out.println("Platillos cargados: " + listaPlatillos.size());
 
         // Configurar botones
@@ -177,6 +182,7 @@ public class PanelPrincipalPlatillosController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
             cargarPlatillos();
+            actualizarMetricas();
         } catch (Exception e) {
             mostrarMensaje("Error", "Error al abrir formulario: " + e.getMessage(), Alert.AlertType.ERROR);
         }
@@ -200,6 +206,7 @@ public class PanelPrincipalPlatillosController {
             stage.showAndWait();
 
             cargarPlatillos();
+            actualizarMetricas();
         } catch (Exception e) {
             mostrarMensaje("Error", "Error al abrir formulario: " + e.getMessage(), Alert.AlertType.ERROR);
         }
@@ -212,16 +219,35 @@ public class PanelPrincipalPlatillosController {
             return;
         }
 
-        boolean confirmar = mostrarConfirmacion("Confirmación", "¿Estás seguro de que deseas eliminar este platillo?", Alert.AlertType.CONFIRMATION);
+        boolean confirmar = MensajesAlerta.mostrarConfirmacion("Confirmación", "¿Estás seguro de que deseas eliminar este platillo?", Alert.AlertType.CONFIRMATION);
         if (confirmar) {
             try {
                 platilloService.eliminarPlatillo(seleccionado.getId());
                 mostrarMensaje("Éxito", "Platillo eliminado correctamente", Alert.AlertType.INFORMATION);
                 cargarPlatillos();
+                actualizarMetricas();
             } catch (Exception e) {
                 mostrarMensaje("Error", "Error al eliminar platillo: " + e.getMessage(), Alert.AlertType.ERROR);
             }
         }
     }*/
+
+
+    private void actualizarMetricas() {
+        try {
+            MetricasDTO metricas = productoService.calcularMetricas();
+
+
+            lblPlatillosActivos.setText(String.valueOf(metricas.getTotalPlatillos()));
+            lblCategoriasActivas.setText(String.valueOf(metricas.getCategoriasActivas()));
+            lblProductosActivos.setText(String.valueOf(metricas.getPlatillosActivos()));
+
+            // Reutilizamos tu misma validación visual para el stock
+            lblBajoStock.setText(metricas.getBajoStock() > 0 ? String.valueOf(metricas.getBajoStock()) : "No hay");
+
+        } catch (Exception e) {
+            System.err.println("Error al actualizar métricas: " + e.getMessage());
+        }
+    }
 }
 

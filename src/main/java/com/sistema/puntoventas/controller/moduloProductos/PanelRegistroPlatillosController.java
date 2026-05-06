@@ -150,6 +150,7 @@ public class PanelRegistroPlatillosController {
             }
             
             double cantidadConvertida = platilloService.convertirCantidad(prodSeleccionado, cantidad);
+            platilloService.validarStockIngredientes(prodSeleccionado, cantidadConvertida, listaIngredientesTemporal);
             
             DetallePlatillo detalle = new DetallePlatillo();
             detalle.setProducto(prodSeleccionado);
@@ -166,6 +167,10 @@ public class PanelRegistroPlatillosController {
         } catch (NumberFormatException e) {
             lblEstado.setText("Error: Cantidad inválida.");
             lblEstado.setTextFill(Color.RED);
+        } catch (Exception e) {
+            lblEstado.setText("Error: " + e.getMessage());
+            lblEstado.setTextFill(Color.RED);
+            System.err.println("Error al agregar ingrediente: " + e.getMessage());
         }
     }
 

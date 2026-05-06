@@ -89,6 +89,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 platillo.setId(rs.getInt("id"));
                 platillo.setNombre(rs.getString("nombre"));
                 platillo.setPrecio(rs.getDouble("precio"));
+                platillo.setEstado(rs.getBoolean("estado"));
                 platillo.setTipoProducto(TipoProducto.PLATILLO);
                 
                 // Cargar la categoría si existe
@@ -121,7 +122,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
     public List<Platillo> obtenerPlatilloPorNombre(String nombre) {
         List<Platillo> listaPlatillos = new ArrayList<>();
         String sql = "SELECT p.*,c.nombreCategoria FROM platillo p " +
-                     "INNER JOIN categoria c ON p.idCategoria = p.id" +
+                     "INNER JOIN categoria c ON p.idCategoria = c.id" +
                      " WHERE nombre LIKE ? AND estado = 1 ORDER BY ASC"; // Solo platillos activos
         try(Connection conn = DriverManager.getConnection(url);
             var stmt = conn.prepareStatement(sql)) {
@@ -134,6 +135,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                     platillo.setNombre(rs.getString("nombre"));
                     platillo.setPrecio(rs.getDouble("precio"));
                     platillo.setCategoria(null);
+                    platillo.setEstado(rs.getBoolean("estado"));
                     platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
                     platillo.setStockActual(rs.getInt("stockActual"));
                     listaPlatillos.add(platillo);

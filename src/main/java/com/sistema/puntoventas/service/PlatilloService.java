@@ -1,13 +1,11 @@
 package com.sistema.puntoventas.service;
 
-import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
-import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
-import com.sistema.puntoventas.modelo.moduloProducto.Producto;
-import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.*;
 import com.sistema.puntoventas.repository.impl.PlatilloRepositoryImpl;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 import com.sistema.puntoventas.repository.moduloProductos.IPlatilloRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
+import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
 
 import java.util.List;
 
@@ -84,6 +82,35 @@ public class PlatilloService {
     }
 
 
+    public void validarStockIngredientes(Producto ingrediente, double cantidadNueva, List<DetallePlatillo> ingredientesActuales) throws Exception{
+        if(ingrediente == null){
+            throw new Exception("Debes seleccionar un ingrediente");
+        }
+
+        if(cantidadNueva <= 0){
+            throw new Exception("La cantidad del ingrediente debe ser mayor a cero");
+        }
+
+        double cantidadAcumulada = 0.0;
+        if(ingredientesActuales != null){
+            for (DetallePlatillo detalle : ingredientesActuales){
+                if(detalle.getProducto() != null && detalle.getProducto().getId() == ingrediente.getId()){
+                    cantidadAcumulada += detalle.getCantidadIngrediente();
+                }
+            }
+        }
+
+        double totalRequerido = cantidadAcumulada + cantidadNueva;
+
+        if(totalRequerido > ingrediente.getStockActual()){
+            throw new Exception("No hay suficiente stock del ingrediente '"
+                    + ingrediente.getNombre() + "'. Stock actual: "
+                    + ingrediente.getStockActual() + ", cantidad requerida: " + totalRequerido);
+        }
+
+    }
+
+
 
 
     public double convertirCantidad(Producto producto, double cantidadIngresada){
@@ -99,6 +126,9 @@ public class PlatilloService {
 
         return cantidadIngresada;
     }
+
+
+
 
 
 }
