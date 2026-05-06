@@ -17,7 +17,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
     @Override
     public boolean registrarPlatillo(Platillo platillo) {
         String sqlPlatillo = "INSERT INTO platillo (nombre, precio, idCategoria, estado, costoProduccion, stockActual,tipoPlatillo) VALUES (?, ?, ?, ?, ?, ?,?)";
-        String sqlDetalle = "INSERT INTO detallePlatillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
+        String sqlDetalle = "INSERT INTO detalle_platillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
         try(var conn = DriverManager.getConnection(url);
             var stmt = conn.prepareStatement(sqlPlatillo)) {
 
@@ -105,6 +105,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 
                 platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
                 platillo.setStockActual(rs.getInt("stockActual"));
+                platillo.setIngrediente(obtenerIngredientesPorPlatillo(conn, platillo.getId()));
                 listaPlatillos.add(platillo);
                 System.out.println("Platillo encontrados: " + listaPlatillos);
             }
@@ -116,6 +117,38 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
         return listaPlatillos;
 
+    }
+
+    private List<DetallePlatillo> obtenerIngredientesPorPlatillo(Connection conn, int idPlatillo) {
+        List<DetallePlatillo> ingredientes = new ArrayList<>();
+        String sql = "SELECT d.id, d.idPlatillo, d.idProducto, d.cantidadIngrediente, p.nombre, p.stockActual " +
+                "FROM detalle_platillo d " +
+                "INNER JOIN producto p ON d.idProducto = p.id " +
+                "WHERE d.idPlatillo = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idPlatillo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    DetallePlatillo detalle = new DetallePlatillo();
+                    detalle.setId(rs.getInt("id"));
+                    detalle.setIdPlatillo(rs.getInt("idPlatillo"));
+                    detalle.setCantidadIngrediente(rs.getDouble("cantidadIngrediente"));
+
+                    com.sistema.puntoventas.modelo.moduloProducto.Producto producto = new com.sistema.puntoventas.modelo.moduloProducto.Producto();
+                    producto.setId(rs.getInt("idProducto"));
+                    producto.setNombre(rs.getString("nombre"));
+                    producto.setStockActual(rs.getInt("stockActual"));
+
+                    detalle.setProducto(producto);
+                    ingredientes.add(detalle);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al cargar ingredientes del platillo: " + e.getMessage());
+        }
+
+        return ingredientes;
     }
 
     @Override
@@ -154,8 +187,8 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
     @Override
     public boolean actualizarPlatillo(Platillo platillo) {
         String sqlUpdatePlatillo = "UPDATE platillo SET nombre = ?, precio = ?, idCategoria = ?, estado = ?, costoProduccion = ?, stockActual = ?, tipoPlatillo = ? WHERE id = ?";
-        String sqlDeleteDetalle = "DELETE FROM detallePlatillo WHERE idPlatillo = ?";
-        String sqlInsertDetalle = "INSERT INTO detallePlatillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
+        String sqlDeleteDetalle = "DELETE FROM detalle_platillo WHERE idPlatillo = ?";
+        String sqlInsertDetalle = "INSERT INTO detalle_platillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(url)) {
             conn.setAutoCommit(false); // Iniciar transacción
@@ -204,7 +237,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean eliminarPlatillo(int id) {
-        String sqlDeleteDetalle = "DELETE FROM detallePlatillo WHERE idPlatillo = ?";
+        String sqlDeleteDetalle = "DELETE FROM detalle_platillo WHERE idPlatillo = ?";
         String sqlDeletePlatillo = "DELETE FROM platillo WHERE id = ?";
 
         try (Connection conn = DriverManager.getConnection(url)) {
@@ -294,7 +327,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean estaAsociadoVenta(int id) {
-        String sql = "SELECT COUNT(*) FROM detalleVenta WHERE idPlatillo = ?";
+        String sql = "SELECT COUNT(*) FROM detalle_venta WHERE idPlatillo = ?";
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 

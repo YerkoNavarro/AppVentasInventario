@@ -104,15 +104,15 @@ public class PanelPrincipalPlatillosController {
         if (btnAgregarPlatillo != null) {
             btnAgregarPlatillo.setOnAction(event -> abrirFormularioAgregarPlatillo());
         }
-        /*if (btnEditarPlatillo != null) {
-            btnEditarPlatillo.setOnAction(event -> editarPlatillo());
+        if (btnEditarPlatillo != null) {
+            btnEditarPlatillo.setOnAction(this::editarPlatillo);
         }
         if (btnEliminarPlatillo != null) {
             btnEliminarPlatillo.setOnAction(event -> eliminarPlatillo());
         }
         if (btnVerPlatillos != null) {
             btnVerPlatillos.setOnAction(event -> cargarPlatillos());
-        }*/
+        }
     }
 
     private void configurarTabla() {
@@ -128,7 +128,15 @@ public class PanelPrincipalPlatillosController {
 
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
         colCostoProduccion.setCellValueFactory(new PropertyValueFactory<>("costoProduccion"));
-        colStockActual.setCellValueFactory(new PropertyValueFactory<>("stockActual"));
+        colStockActual.setCellValueFactory(cellData -> {
+            try {
+                int stockCalculado = platilloService.calcularStockDisponibleTiempoReal(cellData.getValue());
+                return new javafx.beans.property.SimpleIntegerProperty(stockCalculado).asObject();
+            } catch (Exception e) {
+                System.err.println("Error al calcular stock en tiempo real: " + e.getMessage());
+                return new javafx.beans.property.SimpleIntegerProperty(0).asObject();
+            }
+        });
 
         colEstado.setCellValueFactory(cellData -> {
             boolean estado = cellData.getValue().isEstado();
@@ -188,7 +196,7 @@ public class PanelPrincipalPlatillosController {
         }
     }
 
-    /*private void editarPlatillo() {
+    private void editarPlatillo(javafx.event.ActionEvent event) {
         Platillo seleccionado = tablePlatillos.getSelectionModel().getSelectedItem();
         if (seleccionado == null) {
             mostrarMensaje("Advertencia", "Selecciona un platillo para editar", Alert.AlertType.WARNING);
@@ -198,6 +206,11 @@ public class PanelPrincipalPlatillosController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/PanelRegistroPlatillos.fxml"));
             Parent root = loader.load();
+
+            PanelRegistroPlatillosController controller = loader.getController();
+            if (controller != null) {
+                controller.cargarDatosParaEdicion(seleccionado);
+            }
 
             Stage stage = new Stage();
             stage.setTitle("Editar Platillo");
@@ -210,9 +223,9 @@ public class PanelPrincipalPlatillosController {
         } catch (Exception e) {
             mostrarMensaje("Error", "Error al abrir formulario: " + e.getMessage(), Alert.AlertType.ERROR);
         }
-    }*/
+    }
 
-   /* private void eliminarPlatillo() {
+    private void eliminarPlatillo() {
         Platillo seleccionado = tablePlatillos.getSelectionModel().getSelectedItem();
         if (seleccionado == null) {
             mostrarMensaje("Advertencia", "Selecciona un platillo para eliminar", Alert.AlertType.WARNING);
@@ -222,15 +235,21 @@ public class PanelPrincipalPlatillosController {
         boolean confirmar = MensajesAlerta.mostrarConfirmacion("Confirmación", "¿Estás seguro de que deseas eliminar este platillo?", Alert.AlertType.CONFIRMATION);
         if (confirmar) {
             try {
-                platilloService.eliminarPlatillo(seleccionado.getId());
-                mostrarMensaje("Éxito", "Platillo eliminado correctamente", Alert.AlertType.INFORMATION);
+                String resultado = platilloService.eliminarPlatillo(seleccionado.getId());
+
+                if ("ELIMINADO".equalsIgnoreCase(resultado)) {
+                    mostrarMensaje("Éxito", "Platillo eliminado correctamente", Alert.AlertType.INFORMATION);
+                } else {
+                    mostrarMensaje("Aviso", resultado, Alert.AlertType.WARNING);
+                }
+
                 cargarPlatillos();
                 actualizarMetricas();
             } catch (Exception e) {
                 mostrarMensaje("Error", "Error al eliminar platillo: " + e.getMessage(), Alert.AlertType.ERROR);
             }
         }
-    }*/
+    }
 
 
     private void actualizarMetricas() {

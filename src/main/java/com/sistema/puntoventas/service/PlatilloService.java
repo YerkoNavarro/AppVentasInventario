@@ -127,8 +127,125 @@ public class PlatilloService {
         return cantidadIngresada;
     }
 
+    public int calcularStockDisponibleTiempoReal(Platillo platillo) throws Exception {
+        if (platillo == null) {
+            throw new Exception("El platillo no puede ser nulo.");
+        }
 
+        List<DetallePlatillo> ingredientes = platillo.getIngrediente();
+        if (ingredientes == null || ingredientes.isEmpty()) {
+            return 0;
+        }
 
+        int stockPosible = Integer.MAX_VALUE;
 
+        for (DetallePlatillo detalle : ingredientes) {
+            if (detalle == null || detalle.getProducto() == null) {
+                throw new Exception("Hay un ingrediente inválido en la receta del platillo.");
+            }
+
+            Producto ingrediente = detalle.getProducto();
+            double cantidadRequerida = detalle.getCantidadIngrediente();
+
+            if (cantidadRequerida <= 0) {
+                throw new Exception("La cantidad requerida del ingrediente '" + ingrediente.getNombre() + "' debe ser mayor a cero.");
+            }
+
+            if (ingrediente.getStockActual() < 0) {
+                throw new Exception("El stock del ingrediente '" + ingrediente.getNombre() + "' no puede ser negativo.");
+            }
+
+            int stockPorIngrediente = (int) Math.floor(ingrediente.getStockActual() / cantidadRequerida);
+            stockPosible = Math.min(stockPosible, stockPorIngrediente);
+        }
+
+        return Math.max(stockPosible, 0);
+    }
+
+    public boolean actualizarPlatillo(Platillo platillo) throws Exception {
+        if (platillo == null) {
+            throw new Exception("El platillo no puede ser nulo");
+        }
+
+        if (platillo.getId() <= 0) {
+            throw new Exception("El ID del platillo no es válido.");
+        }
+
+        if (platillo.getNombre() == null || platillo.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del platillo es obligatorio.");
+        }
+
+        if (platillo.getPrecio() <= 0) {
+            throw new Exception("El precio de venta debe ser mayor a cero.");
+        }
+
+        if (platillo.getCategoria() == null || platillo.getCategoria().getId() <= 0) {
+            throw new Exception("Debe seleccionar una categoría válida.");
+        }
+
+        if (platillo.getTipoProducto() != TipoProducto.PLATILLO) {
+            throw new Exception("El tipo de producto debe ser PLATILLO para actualizar un platillo.");
+        }
+
+        String nombreNormalizado = platillo.getNombre().trim();
+        if (platilloRepository.existeNombre(nombreNormalizado, platillo.getId())) {
+            throw new Exception("Ya existe un platillo con el nombre '" + nombreNormalizado + "'.");
+        }
+
+        platillo.setNombre(nombreNormalizado);
+        calcularCostoProduccion(platillo);
+
+        boolean actualizado = platilloRepository.actualizarPlatillo(platillo);
+        if (!actualizado) {
+            throw new Exception("No se pudo actualizar el platillo en la base de datos.");
+        }
+
+        return true;
+    }
+
+    public String eliminarPlatillo(int id) throws Exception {
+        if (id <= 0) {
+            throw new Exception("ID de platillo no válido.");
+        }
+
+        Platillo platillo = platilloRepository.obtenerPlatilloPorId(id);
+        if (platillo == null) {
+            throw new Exception("El platillo no existe.");
+        }
+
+        boolean asociadoVenta = platilloRepository.estaAsociadoVenta(id);
+        if (asociadoVenta) {
+            boolean desactivado = platilloRepository.desactivarPlatillo(id);
+            if (!desactivado) {
+                throw new Exception("Error al desactivar el platillo asociado a una venta.");
+            }
+            return "Este platillo está asociado a una venta y fue desactivado.";
+        }
+
+        boolean eliminado = platilloRepository.eliminarPlatillo(id);
+        if (!eliminado) {
+            throw new Exception("Error al eliminar el platillo.");
+        }
+
+        return "ELIMINADO";
+    }
+
+    public boolean desactivarPlatillo(int id) throws Exception {
+        if (id <= 0) {
+            throw new Exception("ID de platillo no válido.");
+        }
+
+        Platillo platillo = platilloRepository.obtenerPlatilloPorId(id);
+        if (platillo == null) {
+            throw new Exception("El platillo no existe.");
+        }
+
+        boolean desactivado = platilloRepository.desactivarPlatillo(id);
+        if (!desactivado) {
+            throw new Exception("No se pudo desactivar el platillo.");
+        }
+
+        return true;
+    }
 
 }

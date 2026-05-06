@@ -71,7 +71,8 @@ public class PanelRegistroPlatillosController {
     
     PlatilloService platilloService;
     ProductoService productoService;
-    
+    private Platillo platilloAEditar;
+
     private ObservableList<DetallePlatillo> listaIngredientesTemporal = FXCollections.observableArrayList();
 
     public void initialize() throws Exception {
@@ -228,6 +229,83 @@ public class PanelRegistroPlatillosController {
             lblEstado.setText("Error: " + e.getMessage());
             lblEstado.setTextFill(Color.RED);
         }
+    }
+
+    @FXML
+    public void actualizarPlatillo(ActionEvent event) {
+        try {
+            if (platilloAEditar == null) {
+                lblEstado.setText("Error: No hay un platillo seleccionado para actualizar.");
+                lblEstado.setTextFill(Color.RED);
+                return;
+            }
+
+            if (txtNombre.getText().trim().isEmpty() || txtPrecio.getText().trim().isEmpty()) {
+                lblEstado.setText("Error: El nombre y el precio son obligatorios.");
+                lblEstado.setTextFill(Color.RED);
+                return;
+            }
+
+            if (cmbCategoria.getValue() == null) {
+                lblEstado.setText("Error: Debes seleccionar una categoría.");
+                lblEstado.setTextFill(Color.RED);
+                return;
+            }
+
+            Platillo platilloActualizado = new Platillo();
+            platilloActualizado.setId(platilloAEditar.getId());
+            platilloActualizado.setNombre(txtNombre.getText().trim());
+            platilloActualizado.setPrecio(Double.parseDouble(txtPrecio.getText().trim()));
+            platilloActualizado.setCategoria(cmbCategoria.getValue());
+            platilloActualizado.setTipoProducto(TipoProducto.PLATILLO);
+            platilloActualizado.setEstado(platilloAEditar.isEstado());
+            platilloActualizado.setStockActual(platilloAEditar.getStockActual());
+
+            if (!listaIngredientesTemporal.isEmpty()) {
+                platilloActualizado.setIngrediente(new ArrayList<>(listaIngredientesTemporal));
+            } else {
+                platilloActualizado.setIngrediente(platilloAEditar.getIngrediente());
+                platilloActualizado.setCostoProduccion(platilloAEditar.getCostoProduccion());
+            }
+
+            platilloService.actualizarPlatillo(platilloActualizado);
+
+            lblEstado.setText("¡Platillo actualizado con éxito!");
+            lblEstado.setTextFill(Color.GREEN);
+        } catch (NumberFormatException e) {
+            lblEstado.setText("Error: El precio debe ser un número válido.");
+            lblEstado.setTextFill(Color.RED);
+        } catch (Exception e) {
+            lblEstado.setText("Error: " + e.getMessage());
+            lblEstado.setTextFill(Color.RED);
+        }
+    }
+
+    public void cargarDatosParaEdicion(Platillo platillo) {
+        this.platilloAEditar = platillo;
+        if (platillo == null) {
+            return;
+        }
+
+        txtNombre.setText(platillo.getNombre());
+        txtPrecio.setText(String.valueOf(platillo.getPrecio()));
+        if (platillo.getCategoria() != null) {
+            for (Categoria categoria : cmbCategoria.getItems()) {
+                if (categoria != null && categoria.getId() == platillo.getCategoria().getId()) {
+                    cmbCategoria.getSelectionModel().select(categoria);
+                    break;
+                }
+            }
+        }
+
+        listaIngredientesTemporal.clear();
+        if (platillo.getIngrediente() != null && !platillo.getIngrediente().isEmpty()) {
+            listaIngredientesTemporal.addAll(platillo.getIngrediente());
+            actualizarCostoTotalEnPantalla();
+        }
+
+        btnRegistrarPlatillo.setText("Actualizar Platillo");
+        btnRegistrarPlatillo.setOnAction(this::actualizarPlatillo);
     }
 
 
