@@ -1,5 +1,6 @@
 package com.sistema.puntoventas.service;
 
+import com.sistema.puntoventas.modelo.PrediccionStock;
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
 
@@ -81,5 +82,57 @@ public class EstadisticaService {
             System.err.println("Error al ejecutar el modelo predictivo: " + e.getMessage());
         }
 
+    }
+
+
+
+    public List<PrediccionStock> ejecutarPrediccionStock() {
+        List<PrediccionStock> predicciones = new ArrayList<>();
+        // Llama a tu nuevo método del Paso 1
+        estadisticasRepository.preparDatosStockParaIA();
+
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("python", "src/main/java/com/sistema/puntoventas/prediccion_stock.py");
+            processBuilder.redirectErrorStream(true);
+            Process procesoPython = processBuilder.start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(procesoPython.getInputStream()));
+            String linea;
+
+            while ((linea = reader.readLine()) != null) {
+                if(linea.contains("ERROR")) continue;
+
+                String[] partes = linea.split(",");
+                if(partes.length == 2) {
+                    int idProducto = Integer.parseInt(partes[0]);
+                    double demandaDiaria = Double.parseDouble(partes[1]);
+
+                    // 1. Aquí consultas el stock real de tu BD (Necesitas un método para esto)
+                    // int stockActual = productoService.obtenerStock(idProducto);
+                    int stockActual = 20; // Ejemplo estático, cámbialo por el real
+
+                    // 2. Calculamos los días restantes
+                    int diasParaAgotarse = (int) (stockActual / (demandaDiaria == 0 ? 1 : demandaDiaria));
+
+                    // 3. Calculamos riesgo (Si se agota en menos de 5 días = Riesgo Alto)
+                    double indiceRiesgo = diasParaAgotarse <= 5 ? 0.9 : 0.2;
+
+                    // 4. Llenamos tu objeto PrediccionStock
+                    PrediccionStock ps = new PrediccionStock();
+                    ps.setIdProducto(idProducto);
+                    ps.setDiasParaAgotarse(diasParaAgotarse);
+                    ps.setCantidadSugerida((int) (demandaDiaria * 7)); // Sugerir comprar para 7 días
+                    ps.setIndiceRiesgo(indiceRiesgo);
+
+                    predicciones.add(ps);
+                }
+            }
+            procesoPython.waitFor();
+
+        } catch (Exception e) {
+            System.err.println("Error en IA: " + e.getMessage());
+        }
+
+        return predicciones;
     }
 }

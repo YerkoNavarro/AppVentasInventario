@@ -139,4 +139,42 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
         }
         return filasExportadas;
     }
+
+    public int preparDatosStockParaIA() {
+        int filasExportadas = 0;
+        String rutaArchivo = "datos_stock.csv";
+
+        // Extraemos: Fecha, Cantidad Vendida, ID del Producto
+        String sql = "SELECT DATE(v.fechaHora) AS ds, " +
+                "SUM(d.cantidad) AS y, " +
+                "d.idProducto " +
+                "FROM venta v " +
+                "INNER JOIN detalle_venta d ON v.idVenta = d.idVenta " +
+                "WHERE v.estado = 1 " +
+                "GROUP BY DATE(v.fechaHora), d.idProducto " +
+                "ORDER BY DATE(v.fechaHora) ASC";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery();
+             FileWriter fw = new FileWriter(rutaArchivo);
+             PrintWriter pw = new PrintWriter(fw)){
+
+            pw.println("id_producto,ds,y"); // Nueva cabecera
+
+            while(rs.next()){
+                int idProducto = rs.getInt("idProducto");
+                String fecha = rs.getString("ds");
+                double cantidad = rs.getDouble("y");
+
+                pw.println(idProducto + "," + fecha + "," + cantidad);
+                filasExportadas++;
+            }
+            System.out.println("Éxito: Archivo de stock generado con " + filasExportadas + " registros.");
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al preparar datos de stock para IA: " + e.getMessage(), e);
+        }
+        return filasExportadas;
+    }
 }
