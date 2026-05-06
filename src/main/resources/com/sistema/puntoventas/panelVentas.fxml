@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="586.0" prefWidth="897.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.VentaController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="586.0" prefWidth="897.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.VentaController">
    <children>
       <TabPane layoutX="-4.0" layoutY="-4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="547.0" prefWidth="745.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.9949229410999578" AnchorPane.topAnchor="-4.0">
         <tabs>
@@ -39,7 +39,8 @@
                             </Menu>
                           </menus>
                         </MenuBar>
-                        <Button layoutX="766.0" layoutY="66.0" mnemonicParsing="false" onAction="#eliminarVenta" text="eliminar" AnchorPane.bottomAnchor="424.0033392736389" />
+                        <Button layoutX="793.0" layoutY="69.0" mnemonicParsing="false" onAction="#eliminarVenta" text="eliminar" AnchorPane.bottomAnchor="424.0" />
+                        <Button layoutX="43.0" layoutY="69.0" mnemonicParsing="false" onAction="#guardarTablaEnBD" text="Guardar" />
                      </children>
                   </AnchorPane>
             </content>

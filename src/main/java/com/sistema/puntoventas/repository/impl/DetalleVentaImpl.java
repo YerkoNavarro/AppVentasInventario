@@ -81,7 +81,7 @@ public class DetalleVentaImpl implements IDetalleVenta {
     public List<ventaAplicacion> obtenerTodasLasVentas() {  //trae toda la info de ventas y producto asociados
         List<ventaAplicacion> listaVentas  = new ArrayList<>();
         Map<Integer,ventaAplicacion> mapVentas = new LinkedHashMap<>();
-        String sql = "SELECT v.idVenta, v.fechaHora, v.totalVenta, p.nombre, p.precioVenta " +
+        String sql = "SELECT v.idVenta, v.fechaHora, v.totalVenta, v.tipoPago, v.descripcion, p.nombre, p.precioVenta " +
                      "FROM venta v " +
                      "JOIN detalle_venta dv ON v.idVenta = dv.idVenta " +
                      "JOIN producto p ON dv.idProducto = p.id";
@@ -99,6 +99,8 @@ public class DetalleVentaImpl implements IDetalleVenta {
                        v.setIdVenta(idVenta);
                        v.setFechaHora(rs.getString("fechaHora"));
                        v.setTotalVenta(rs.getDouble("totalVenta"));
+                       v.setTipoPago(rs.getString("tipoPago"));
+                       v.setDescripcion(rs.getString("descripcion"));
                         
                         ventaAplicacion ventaApp = new ventaAplicacion();
                         ventaApp.setVenta(v);
@@ -125,7 +127,7 @@ public class DetalleVentaImpl implements IDetalleVenta {
     public List<ventaAplicacion> obtenerTodasLasVentasporFecha(String fecha) {  //trae toda la info de ventas y producto asociados
         List<ventaAplicacion> listaVentas  = new ArrayList<>();
         Map<Integer,ventaAplicacion> mapVentas = new LinkedHashMap<>();
-        String sql = "SELECT v.idVenta, v.fechaHora, v.totalVenta, p.nombre, p.precioVenta " +
+        String sql = "SELECT v.idVenta, v.fechaHora, v.totalVenta, v.tipoPago, v.descripcion, p.nombre, p.precioVenta " +
                      "FROM venta v " +
                      "JOIN detalle_venta dv ON v.idVenta = dv.idVenta " +
                      "JOIN producto p ON dv.idProducto = p.id"
@@ -146,6 +148,8 @@ public class DetalleVentaImpl implements IDetalleVenta {
                        v.setIdVenta(idVenta);
                        v.setFechaHora(rs.getString("fechaHora"));
                        v.setTotalVenta(rs.getDouble("totalVenta"));
+                       v.setTipoPago(rs.getString("tipoPago"));
+                       v.setDescripcion(rs.getString("descripcion"));
                         
                         ventaAplicacion ventaApp = new ventaAplicacion();
                         ventaApp.setVenta(v);

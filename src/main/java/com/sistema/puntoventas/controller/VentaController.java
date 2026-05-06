@@ -77,6 +77,8 @@ public class VentaController {
     private TextField textfieldTotal;
 
     
+    private ProductoService productoService; // Declarar como miembro de la clase
+
 
    @FXML
     void agregarVenta(ActionEvent event) {
@@ -99,7 +101,20 @@ public class VentaController {
                 nuevaVentaAplicacion.setVenta(nuevaVenta);
                 List<Producto> listaProductos = new ArrayList<>();
                 Producto productoTemporal = new Producto();
-                productoTemporal.setNombre(textFieldProducto.getText());
+                // Buscar el producto real por su nombre para obtener su ID
+                // Iteramos sobre los productos disponibles para encontrar el que coincide con el nombre
+                Producto productoSeleccionado = null;
+                for (Producto p : productosDisponibles) {
+                    if (p.getNombre().equalsIgnoreCase(textFieldProducto.getText().trim())) {
+                        productoSeleccionado = p;
+                        break;
+                    }
+                }
+                if (productoSeleccionado == null) {
+                    mostrarAlerta(Alert.AlertType.ERROR, "Producto no encontrado", "El producto '" + textFieldProducto.getText() + "' no existe en el inventario o no fue seleccionado correctamente.");
+                    return;
+                }
+                productoTemporal = productoSeleccionado; // Ahora productoTemporal tiene el ID y otros detalles
                 listaProductos.add(productoTemporal);
                 nuevaVentaAplicacion.setDetalleVentas(listaProductos);
 
@@ -117,8 +132,8 @@ public class VentaController {
         }
     }
 
-    private final ContextMenu contextMenu = new ContextMenu();
-    private final List<String> productosSujerencia = new ArrayList<>();
+    private final ContextMenu contextMenu = new ContextMenu(); // Menú contextual para autocompletar
+    private final List<Producto> productosDisponibles = new ArrayList<>(); // Almacena objetos Producto completos
 
     private void configurarAutoComplete() {
 
@@ -140,7 +155,8 @@ public class VentaController {
             return;
         }
 
-        List<String> filtrados = productosSujerencia.stream()
+        List<String> filtrados = productosDisponibles.stream()
+            .map(Producto::getNombre) // Mapear a nombres para el filtrado
             .filter(p -> p.toLowerCase().contains(ultimaParte.toLowerCase()))
             .collect(Collectors.toList());
 
@@ -176,7 +192,7 @@ public class VentaController {
     });
 
     textFieldProducto.focusedProperty().addListener((obs, oldVal, isFocused) -> {
-        if (!isFocused) contextMenu.hide();
+        if (!isFocused) contextMenu.hide(); // Ocultar al perder el foco
     });
 }
    
@@ -262,9 +278,21 @@ public class VentaController {
     }
 
 
-     @FXML
-    void guardarEnBD(ActionEvent event) {
+    @FXML
+    void guardarTablaEnBD(ActionEvent event) {
+        //captura los datos actuales de la tabla y los guarda en la BD con los metodos de service
+        if(idTablaVentas.getItems().isEmpty()){
+            mostrarAlerta(Alert.AlertType.WARNING, "Tabla vacía", "No hay datos en la tabla para guardar.");
+            return;
+            
+        }
+        else{
+            ArrayList<ventaAplicacion> tablaVentaAplicacion = new ArrayList<>(idTablaVentas.getItems());
+            Boolean ventaRegistrada = ventaService.subirTablaBD(tablaVentaAplicacion);
 
+        }
+        
+        
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
@@ -316,14 +344,13 @@ public class VentaController {
     textfieldFecha.setText(ahora.format(formatter));
 
 
-    ProductoService productoService = new ProductoService();
-    List<com.sistema.puntoventas.modelo.moduloProducto.Producto> productosServiceList = productoService.obtenerProductos();
-    productosSujerencia.addAll(productosServiceList.stream().map(p -> p.getNombre()).toList());
-    configurarAutoComplete();
+    this.productoService = new ProductoService(); // Inicializar el servicio de productos
+    productosDisponibles.addAll(this.productoService.obtenerProductos()); // Cargar todos los productos disponibles
+    configurarAutoComplete(); // Configurar el autocompletado con los productos cargados
     
     System.out.println("el estado es: "+tablaEstaVacia);
-    for (int i = 0; i < productosSujerencia.size(); i++) {
-        System.out.println(productosSujerencia.get(i));
+    for (Producto p : productosDisponibles) {
+        System.out.println(p.getNombre() + " (ID: " + p.getId() + ")"); // Imprimir también el ID para verificar
     }
     
     
