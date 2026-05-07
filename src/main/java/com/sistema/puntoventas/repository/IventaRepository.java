@@ -12,5 +12,5 @@ public interface IventaRepository {
     public venta obtenerVentaPorId(int id);
     public List<venta> obtenerVentas();
     public void anularVenta(int id);
-    
+    public void activarVenta(int id);
 }

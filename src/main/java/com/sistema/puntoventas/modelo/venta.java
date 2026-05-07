@@ -7,7 +7,9 @@ public class venta {
     private String fechaHora;
     private int idUsuario;
     private double totalVenta;
+    private Boolean estado;  //estado para ver si esta valida la venta o no (true si, false no)
 
+    
     public venta() {
     }
 
@@ -16,6 +18,7 @@ public class venta {
         this.fechaHora = fechaHora;
         this.idUsuario = idUsuario;
         this.totalVenta = totalVenta;
+        this.estado = true;
     }
 
     public int getIdVenta() {
@@ -29,6 +32,11 @@ public class venta {
     public String getFechaHora() {
         return fechaHora;
     }
+
+    public Boolean getEstado() {
+        return estado;
+    }
+
 
     public void setFechaHora(String fechaHora) {
         this.fechaHora = fechaHora;
@@ -49,6 +57,20 @@ public class venta {
     public void setTotalVenta(double totalVenta) {
         this.totalVenta = totalVenta;
     }
-    
+    public void setEstado(Boolean estado) {
+        this.estado = estado;
+    }
+
+    //toString
+    @Override
+    public String toString() {
+        return "venta{" +
+                "idVenta=" + idVenta +
+                ", fechaHora='" + fechaHora + '\'' +
+                ", idUsuario=" + idUsuario +
+                ", totalVenta=" + totalVenta +
+                ", estado=" + estado +
+                '}';
+    }
 
 }
