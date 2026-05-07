@@ -1,4 +1,4 @@
-package com.sistema.puntoventas;
+package com.sistema.puntoventas.pruebas;
 
 import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;

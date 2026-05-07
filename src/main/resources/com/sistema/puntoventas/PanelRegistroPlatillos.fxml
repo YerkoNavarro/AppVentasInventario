@@ -50,6 +50,7 @@
                         <ComboBox fx:id="cmbCategoria" layoutX="297.0" layoutY="279.0" prefHeight="26.0" prefWidth="200.0" promptText="Categoria" styleClass="field" stylesheets="@css/panel-productos.css" />
                         <Button fx:id="btnAgregarIngrediente" layoutX="553.0" layoutY="400.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="173.0" styleClass="btn-primary" text="Agregar Ingrediente" />
                         <Button fx:id="btnRegistrarPlatillo" layoutX="519.0" layoutY="845.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="173.0" styleClass="btn-primary" text="Registrar Platillo" />
+                  <Label fx:id="lblCostoTotal" layoutX="655.0" layoutY="464.0" prefHeight="38.0" prefWidth="275.0" styleClass="status" text="Costo Total: " />
                     </children>
                 </AnchorPane>
             </content>
