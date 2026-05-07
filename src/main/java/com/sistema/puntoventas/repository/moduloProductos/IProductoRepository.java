@@ -16,6 +16,7 @@ public interface IProductoRepository {
     Producto obtenerProductoPorId(int id);
     List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto);
     boolean estaAsociadoVentaOPlatillo(int id);
+    int obtenerStockActual(int id);
 
 
 }

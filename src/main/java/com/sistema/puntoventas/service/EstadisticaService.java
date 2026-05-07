@@ -3,6 +3,7 @@ package com.sistema.puntoventas.service;
 import com.sistema.puntoventas.modelo.PrediccionStock;
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -12,9 +13,11 @@ import java.util.List;
 public class EstadisticaService {
 
     private final IEstadisticasRepository estadisticasRepository;
+    private final IProductoRepository productoRepository;
 
-    public EstadisticaService(IEstadisticasRepository estadisticasRepository) {
+    public EstadisticaService(IEstadisticasRepository estadisticasRepository, IProductoRepository productoRepository) {
         this.estadisticasRepository = estadisticasRepository;
+        this.productoRepository = productoRepository;
     }
 
 
@@ -46,6 +49,22 @@ public class EstadisticaService {
     }
 
 
+
+    public boolean prepararDatosStockParaIA() {
+
+        int filasExportadas = estadisticasRepository.prepararDatosStockParaIA();
+
+
+        if (filasExportadas < 7) {
+            System.err.println("Datos de stock insuficientes (" + filasExportadas + "). Se requieren al menos 7 días de historial.");
+            return false;
+        }
+
+        System.out.println("Datos de stock preparados con éxito.");
+        return true;
+    }
+
+
     public void ejecutarPrediccionProphet(){
         boolean datosListos = prepararDatosParaIA();
 
@@ -58,7 +77,7 @@ public class EstadisticaService {
         try{
             ProcessBuilder processBuilder = new ProcessBuilder("python", "src/main/java/com/sistema/puntoventas/modelo_predictivo.py");
 
-            // Unimos los errores de Python a la salida estándar para verlos en Java
+
             processBuilder.redirectErrorStream(true);
 
             Process procesoPython = processBuilder.start(); //Iniciamos python
@@ -67,7 +86,7 @@ public class EstadisticaService {
             String linea;
             System.out.println("--- Respuesta de la IA ---");
             while ((linea = reader.readLine()) != null) {
-                System.out.println(linea); // Aquí podríamos capturar el texto para mandarlo a JavaFX
+                System.out.println(linea);
             }
             System.out.println("-----------------------------------------------------------------");
 
@@ -88,8 +107,12 @@ public class EstadisticaService {
 
     public List<PrediccionStock> ejecutarPrediccionStock() {
         List<PrediccionStock> predicciones = new ArrayList<>();
-        // Llama a tu nuevo método del Paso 1
-        estadisticasRepository.preparDatosStockParaIA();
+
+        if (!prepararDatosStockParaIA()) {
+            return predicciones; // retornamos una lista vacía si no hay datos suficientes
+        }
+
+        estadisticasRepository.prepararDatosStockParaIA();
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("python", "src/main/java/com/sistema/puntoventas/prediccion_stock.py");
@@ -107,9 +130,8 @@ public class EstadisticaService {
                     int idProducto = Integer.parseInt(partes[0]);
                     double demandaDiaria = Double.parseDouble(partes[1]);
 
-                    // 1. Aquí consultas el stock real de tu BD (Necesitas un método para esto)
-                    // int stockActual = productoService.obtenerStock(idProducto);
-                    int stockActual = 20; // Ejemplo estático, cámbialo por el real
+
+                    int stockActual = productoRepository.obtenerStockActual(idProducto);
 
                     // 2. Calculamos los días restantes
                     int diasParaAgotarse = (int) (stockActual / (demandaDiaria == 0 ? 1 : demandaDiaria));

@@ -9,5 +9,5 @@ public interface IEstadisticasRepository {
     List<RankingProductosDTO>obtenerRankingProductos(int limite);
     int obtenerVentasUsuario(int idUsuario);
     int prepararDatosParaIA();
-    int preparDatosStockParaIA();
+    int prepararDatosStockParaIA();
 }

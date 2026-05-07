@@ -140,7 +140,7 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
         return filasExportadas;
     }
 
-    public int preparDatosStockParaIA() {
+    public int prepararDatosStockParaIA() {
         int filasExportadas = 0;
         String rutaArchivo = "datos_stock.csv";
 
