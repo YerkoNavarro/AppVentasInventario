@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -77,60 +78,78 @@ public class VentaController {
     private TextField textfieldTotal;
 
     
-    private ProductoService productoService; // Declarar como miembro de la clase
+    private ProductoService productoService; 
 
 
    @FXML
-    void agregarVenta(ActionEvent event) {
-    // Mostrar alerta si ALGÚN campo está vacío
-        if (textfieldFecha.getText().isEmpty() || textfieldTotal.getText().isEmpty() ||
-            textfieldTipoPago.getText().isEmpty() ||
-            textFieldProducto.getText().isEmpty()) {
+void agregarVenta(ActionEvent event) {
+    if (textfieldFecha.getText().isEmpty() || textfieldTotal.getText().isEmpty() ||
+        textfieldTipoPago.getText().isEmpty() || textFieldProducto.getText().isEmpty()) {
+        mostrarAlerta(Alert.AlertType.WARNING, "Campos incompletos",
+            "Por favor, complete todos los campos para registrar la venta.");
+        return; // retorno temprano es más limpio que un gran bloque else
+    }
 
-            mostrarAlerta(Alert.AlertType.WARNING, "Campos incompletos", "Por favor, complete los campos para registrar la venta.");
+    try {
+        // --- Resolver productos primero, antes de construir el objeto venta ---
+        // Dividir solo por coma para que nombres con espacios como "Coca Cola" funcionen
+        String[] nombresIngresados = textFieldProducto.getText().split(",");
 
-        } else {
-            try {
-                venta nuevaVenta = new venta();
-                nuevaVenta.setTotalVenta(Double.parseDouble(textfieldTotal.getText()));
-                nuevaVenta.setFechaHora(textfieldFecha.getText());
-                nuevaVenta.setTipoPago(textfieldTipoPago.getText());
-                nuevaVenta.setDescripcion(textfieldDescripcion.getText());
+        List<Producto> listaProductos = new ArrayList<>();
+        List<String> noEncontrados = new ArrayList<>();
 
-                ventaAplicacion nuevaVentaAplicacion = new ventaAplicacion();
-                nuevaVentaAplicacion.setVenta(nuevaVenta);
-                List<Producto> listaProductos = new ArrayList<>();
-                Producto productoTemporal = new Producto();
-                // Buscar el producto real por su nombre para obtener su ID
-                // Iteramos sobre los productos disponibles para encontrar el que coincide con el nombre
-                Producto productoSeleccionado = null;
-                for (Producto p : productosDisponibles) {
-                    if (p.getNombre().equalsIgnoreCase(textFieldProducto.getText().trim())) {
-                        productoSeleccionado = p;
-                        break;
-                    }
-                }
-                if (productoSeleccionado == null) {
-                    mostrarAlerta(Alert.AlertType.ERROR, "Producto no encontrado", "El producto '" + textFieldProducto.getText() + "' no existe en el inventario o no fue seleccionado correctamente.");
-                    return;
-                }
-                productoTemporal = productoSeleccionado; // Ahora productoTemporal tiene el ID y otros detalles
-                listaProductos.add(productoTemporal);
-                nuevaVentaAplicacion.setDetalleVentas(listaProductos);
+        for (String parte : nombresIngresados) {
+            String nombreLimpio = parte.trim();
+            if (nombreLimpio.isEmpty()) continue;
 
+            Optional<Producto> encontrado = productosDisponibles.stream()
+                .filter(p -> p.getNombre().equalsIgnoreCase(nombreLimpio))
+                .findFirst();
 
-                idTablaVentas.getItems().add(nuevaVentaAplicacion);
-                tablaEstaVacia = false;
-
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Venta registrada", "La venta se ha registrado correctamente.");
-                limpiarCamposVenta();
-                
-               
-            } catch (NumberFormatException e) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Error de formato", "El total debe ser un número válido.");
+            if (encontrado.isPresent()) {
+                listaProductos.add(encontrado.get());
+            } else {
+                noEncontrados.add(nombreLimpio); // registrar lo que no coincidió
             }
         }
+
+        // Advertir sobre fallos parciales antes de continuar
+        if (!noEncontrados.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Productos no encontrados",
+                "No se encontraron los siguientes productos: " + String.join(", ", noEncontrados) +
+                "\nVerifique los nombres e intente de nuevo.");
+            return;
+        }
+
+        if (listaProductos.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Sin productos",
+                "No se pudo identificar ningún producto. Verifique los nombres.");
+            return;
+        }
+
+        // --- Construir los objetos solo después de pasar todas las validaciones ---
+        venta nuevaVenta = new venta();
+        nuevaVenta.setTotalVenta(Double.parseDouble(textfieldTotal.getText()));
+        nuevaVenta.setFechaHora(textfieldFecha.getText());
+        nuevaVenta.setTipoPago(textfieldTipoPago.getText());
+        nuevaVenta.setDescripcion(textfieldDescripcion.getText());
+
+        ventaAplicacion nuevaVentaAplicacion = new ventaAplicacion();
+        nuevaVentaAplicacion.setVenta(nuevaVenta);
+        nuevaVentaAplicacion.setDetalleVentas(listaProductos);
+
+        idTablaVentas.getItems().add(nuevaVentaAplicacion);
+        tablaEstaVacia = false;
+
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Venta registrada",
+            "La venta se ha registrado correctamente.");
+        limpiarCamposVenta();
+
+    } catch (NumberFormatException e) {
+        mostrarAlerta(Alert.AlertType.ERROR, "Error de formato",
+            "El total debe ser un número válido (ejemplo: 1500.00).");
     }
+}
 
     private final ContextMenu contextMenu = new ContextMenu(); // Menú contextual para autocompletar
     private final List<Producto> productosDisponibles = new ArrayList<>(); // Almacena objetos Producto completos
@@ -144,8 +163,8 @@ public class VentaController {
             return;
         }
 
-        // Obtiene solo el último fragmento después de la última "," o " "
-        String[] partes = newVal.split("[,\\s]+");
+        // Obtiene solo el último fragmento después de la última ","
+        String[] partes = newVal.split(",");
         String ultimaParte = partes[partes.length - 1].trim();
 
         // Si el último fragmento está vacío (ej: el usuario escribió "Pan, ")
@@ -172,10 +191,9 @@ public class VentaController {
 
                 // Reemplaza solo la última parte, conserva lo anterior
                 String textoActual = textFieldProducto.getText();
-                int ultimaSeparador = Math.max(
-                    textoActual.lastIndexOf(","),
-                    textoActual.lastIndexOf(" ")
-                );
+                int ultimaSeparador = Math.max(textoActual.lastIndexOf(","), 
+                                      Math.max(textoActual.lastIndexOf(" "), 
+                                               textoActual.lastIndexOf("-")));
 
                 String prefijo = ultimaSeparador >= 0
                     ? textoActual.substring(0, ultimaSeparador + 1) + " "
@@ -288,7 +306,13 @@ public class VentaController {
         }
         else{
             ArrayList<ventaAplicacion> tablaVentaAplicacion = new ArrayList<>(idTablaVentas.getItems());
+
             Boolean ventaRegistrada = ventaService.subirTablaBD(tablaVentaAplicacion);
+            if(ventaRegistrada){
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Venta registrada", "La venta se ha registrado correctamente en la base de datos.");
+            }
+
+            
 
         }
         
