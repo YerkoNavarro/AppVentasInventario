@@ -1,6 +1,7 @@
 package com.sistema.puntoventas.service;
 
 import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.repository.moduloProductos.ICategoriaRepository;
@@ -50,11 +51,6 @@ public class ProductoService {
         }
 
 
-        // Validación de margen (Ejemplo: Mínimo 10% de ganancia)
-        double precioMinimoVenta = producto.getPrecioCompra() * 1.10;
-        if (producto.getPrecioVenta() < precioMinimoVenta) {
-            throw new Exception("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
-        }
 
         if (producto.getTipoProducto() == TipoProducto.PLATILLO) {
             // Para platillos, el costo viene de los ingredientes. Se valida que se venda a un precio válido.
@@ -63,6 +59,18 @@ public class ProductoService {
             }
             // Aquí en el futuro llamarías a PlatilloService para calcular el costo de los ingredientes
         }
+
+        // Validación de margen (Ejemplo: Mínimo 10% de ganancia)
+        double precioMinimoVenta = producto.getPrecioCompra() * 1.10;
+
+        if(producto.getTipoProducto() == TipoProducto.SOLO_INVENTARIO){
+            producto.setPrecioVenta(0.0) ; // Forzamos a que el precio de venta sea 0 para productos que solo son de inventario
+        } else if (producto.getPrecioVenta() < precioMinimoVenta) {
+            throw new Exception("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
+
+        }
+
+
 
 
         if (producto.getUnidadMedida() == null) {
@@ -259,5 +267,21 @@ public class ProductoService {
         }
 
         return true;
+    }
+
+
+    public MetricasDTO calcularMetricas() throws Exception {
+        List<Producto> lista = obtenerProductos();
+
+        return new MetricasDTO(
+                lista.size(),
+                lista.stream().filter(p -> p.getStockActual() <= p.getStockMinimo()).count(),
+                lista.stream().filter(p -> p.getTipoProducto() != null && (
+                        p.getTipoProducto() == TipoProducto.DIRECTO ||
+                                p.getTipoProducto() == TipoProducto.PLATILLO ||
+                                p.getTipoProducto() == TipoProducto.SOLO_INVENTARIO
+                )).count(),
+                lista.stream().filter(p -> p.getCategoria() != null).map(p -> p.getCategoria().getId()).distinct().count()
+        );
     }
 }

@@ -21,8 +21,8 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
 
     private static final String SQL_INSERT =
             "INSERT INTO producto (nombre, precioCompra, precioVenta, idcategoria, " +
-                    "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida, tipoProducto) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+                    "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida, cantidad,  tipoProducto) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
 
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
 
@@ -40,7 +40,8 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
             pstmt.setInt(7, producto.getStockMinimo());
             pstmt.setString(8, producto.getImagen());
             pstmt.setString(9, obtenerUnidadMedida(producto));
-            pstmt.setString(10, producto.getTipoProducto().name());
+            pstmt.setDouble(10, producto.getCantidad());
+            pstmt.setString(11, producto.getTipoProducto().name());
             int rowsInserted = pstmt.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
@@ -80,7 +81,8 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                 producto.setStockMinimo(rs.getInt(8));
                 producto.setImagen(rs.getString(9));
                 producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
-                producto.setTipoProducto(TipoProducto.valueOf(rs.getString(11)));
+                producto.setCantidad(rs.getDouble(11));
+                producto.setTipoProducto(TipoProducto.valueOf(rs.getString(12)));
                 // Agregamos el producto armado a nuestra lista
                 listaProductos.add(producto);
                 System.out.println(listaProductos);
@@ -116,7 +118,8 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                     producto.setStockMinimo(rs.getInt(8));
                     producto.setImagen(rs.getString(9));
                     producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
-                    producto.setTipoProducto(TipoProducto.valueOf(rs.getString(11)));
+                    producto.setCantidad(rs.getDouble(11));
+                    producto.setTipoProducto(TipoProducto.valueOf(rs.getString(12)));
 
                     // Agregamos el producto armado a nuestra lista
                     listaProductos.add(producto);
@@ -134,7 +137,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     @Override
     public boolean actualizarProducto(Producto producto) {
         String sql = "UPDATE producto SET nombre = ?, precioCompra = ?, precioVenta = ?, idcategoria = ?, " +
-                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ?, tipoProducto = ? WHERE id = ?";
+                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ?, cantidad = ?, tipoProducto = ? WHERE id = ?";
 
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
@@ -147,8 +150,9 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
             pstmt.setInt(7, producto.getStockMinimo());
             pstmt.setString(8, producto.getImagen());
             pstmt.setString(9, obtenerUnidadMedida(producto));
-            pstmt.setString(10, producto.getTipoProducto().name());
-            pstmt.setInt(11, producto.getId());
+            pstmt.setDouble(10, producto.getCantidad());
+            pstmt.setString(11, producto.getTipoProducto().name());
+            pstmt.setInt(12, producto.getId());
             pstmt.executeUpdate();
             System.out.println("producto actualizado correctamente");
 
@@ -224,7 +228,8 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                     producto.setStockMinimo(rs.getInt(8));
                     producto.setImagen(rs.getString(9));
                     producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
-                    producto.setTipoProducto(TipoProducto.valueOf(rs.getString(11)));
+                    producto.setCantidad(rs.getDouble(11));
+                    producto.setTipoProducto(TipoProducto.valueOf(rs.getString(12)));
 
                     // Agregamos el producto armado a nuestra lista
                     System.out.println("producto encontrado correctamente");
@@ -266,7 +271,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     @Override
     public List<Producto> obtenerStockCritico() {
         List<Producto> productosStockCritico = new ArrayList<>();
-        String sql = "SELECT * FROM producto WHERE stockActual <= stockMinimo";
+        String sql = "SELECT p.*, c.nombreCategoria FROM producto p INNER JOIN categoria c ON p.idCategoria = c.id WHERE p.stockActual <= p.stockMinimo";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -278,12 +283,18 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                 producto.setNombre(rs.getString("nombre"));
                 producto.setPrecioCompra(rs.getDouble("precioCompra"));
                 producto.setPrecioVenta(rs.getDouble("precioVenta"));
-                producto.setCategoria(mapCategoria(rs.getString("categoria")));
+                
+                Categoria categoria = new Categoria();
+                categoria.setId(rs.getInt("idCategoria"));
+                categoria.setNombreCategoria(rs.getString("nombreCategoria"));
+                producto.setCategoria(categoria);
+                
                 producto.setFechaVenc(rs.getString("fechaVenc"));
                 producto.setStockActual(rs.getInt("stockActual"));
                 producto.setStockMinimo(rs.getInt("stockMinimo"));
                 producto.setImagen(rs.getString("imagen"));
                 producto.setUnidadMedida(mapUnidadMedida(rs.getString("unidadMedida")));
+                producto.setCantidad(rs.getDouble("cantidad"));
                 producto.setTipoProducto(TipoProducto.valueOf(rs.getString("tipoProducto")));
                 productosStockCritico.add(producto);
             }
@@ -335,7 +346,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
 
     @Override
     public boolean existeCategoria(String nombre) {
-        String sql = "SELECT 1 FROM producto WHERE categoria = ? LIMIT 1";
+        String sql = "SELECT 1 FROM categoria WHERE nombreCategoria = ? LIMIT 1";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -408,7 +419,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
         }
 
         String sqlBuscarNombre = "SELECT nombreCategoria FROM categoria WHERE id = ?";
-        String sqlAsociada = "SELECT COUNT(*) AS total FROM producto WHERE lower(trim(categoria)) = lower(trim(?))";
+        String sqlAsociada = "SELECT COUNT(*) AS total FROM producto WHERE id = ?";
         String sqlEliminar = "DELETE FROM categoria WHERE id = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
@@ -443,7 +454,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     @Override
     public List<Producto> buscarPorTipoProducto(TipoProducto tipoProducto) {
         List<Producto> productosPorTipo = new ArrayList<>();
-        String sql = "SELECT * FROM producto WHERE tipoProducto = ?";
+        String sql = "SELECT p.*, c.nombreCategoria FROM producto p INNER JOIN categoria c ON p.idCategoria = c.id WHERE p.tipoProducto = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -457,12 +468,18 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                     producto.setNombre(rs.getString("nombre"));
                     producto.setPrecioCompra(rs.getDouble("precioCompra"));
                     producto.setPrecioVenta(rs.getDouble("precioVenta"));
-                    producto.setCategoria(mapCategoria(rs.getString("categoria")));
+                    
+                    Categoria categoria = new Categoria();
+                    categoria.setId(rs.getInt("idCategoria"));
+                    categoria.setNombreCategoria(rs.getString("nombreCategoria"));
+                    producto.setCategoria(categoria);
+                    
                     producto.setFechaVenc(rs.getString("fechaVenc"));
                     producto.setStockActual(rs.getInt("stockActual"));
                     producto.setStockMinimo(rs.getInt("stockMinimo"));
                     producto.setImagen(rs.getString("imagen"));
                     producto.setUnidadMedida(mapUnidadMedida(rs.getString("unidadMedida")));
+                    producto.setCantidad(rs.getDouble("cantidad"));
                     producto.setTipoProducto(TipoProducto.valueOf(rs.getString("tipoProducto")));
                     productosPorTipo.add(producto);
                 }

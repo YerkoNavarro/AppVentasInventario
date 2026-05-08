@@ -18,7 +18,7 @@ public class DbManager {
     }
 
 
-
+/* 
     public void crearTablaProductos(){
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS producto ("
@@ -43,7 +43,7 @@ public class DbManager {
             System.out.println(e.getMessage());
         }
     }
-
+*/
     public void crearTablaUsuario(){
 
         // SQL statement for creating a new table
@@ -67,7 +67,31 @@ public class DbManager {
         }
     }
 
+    public void crearTablaProductos() {
+        String sql = "CREATE TABLE IF NOT EXISTS producto ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " nombre TEXT NOT NULL,"
+                + " precioCompra REAL,"
+                + " precioVenta REAL,"
+                + " idCategoria INTEGER NOT NULL,"
+                + " fechaVenc TEXT,"
+                + " stockActual INTEGER,"
+                + " stockMinimo INTEGER,"
+                + " imagen TEXT DEFAULT 'IMG',"
+                + " unidadMedida TEXT, "
+                + " cantidad DOUBLE, "
+                + " tipoProducto TEXT,"
+                + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+                + ");";
 
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'producto' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla productos: " + e.getMessage());
+        }
+    }
 
     public void creartablaVentas() {
         String sql = "CREATE TABLE IF NOT EXISTS venta ("
@@ -75,6 +99,8 @@ public class DbManager {
                 + " fechaHora TEXT NOT NULL,"
                 + " idUsuario INTEGER,"
                 + " totalVenta REAL,"
+                + " tipoPago TEXT,"
+                + " descripcion TEXT,"
                 + " estado INTEGER,"
                 + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
                 + ");";
@@ -183,6 +209,7 @@ public class DbManager {
             + " estado boolean DEFAULT 1, "
             + " costoProduccion double DEFAULT 0.0, "
             + " stockActual INTEGER DEFAULT 0, "
+            + " tipoProducto TEXT DEFAULT 'PLATILLO', "
             + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
             + ");";
         try(var conn = DriverManager.getConnection(url);

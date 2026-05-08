@@ -2,6 +2,8 @@ package com.sistema.puntoventas.controller.moduloProductos;
 
 
 
+import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
+import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.service.ProductoService;
 import com.sistema.puntoventas.util.MensajesAlerta;
@@ -77,6 +79,9 @@ public class PanelPrincipalProductosController {
     private TableColumn<Producto, Integer> colStockMin;
     @FXML
     private TableColumn<Producto, String> colUnidadMedida;
+
+    @FXML
+    private TableColumn<Producto, Double> colCantidad;
     @FXML
     private TableColumn<Producto, String> colTipoProducto;
 
@@ -96,6 +101,7 @@ public class PanelPrincipalProductosController {
         colStockActual.setCellValueFactory(new PropertyValueFactory<>("stockActual"));
         colStockMin.setCellValueFactory(new PropertyValueFactory<>("stockMinimo"));
         colUnidadMedida.setCellValueFactory(new PropertyValueFactory<>("unidadMedida"));
+        colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
         colTipoProducto.setCellValueFactory(new PropertyValueFactory<>("tipoProducto"));
 
         obtenerProductos();
@@ -125,6 +131,7 @@ public class PanelPrincipalProductosController {
             stage.setScene(new Scene(root,1200,768));
             stage.showAndWait();
             obtenerProductos();
+            actualizarMetricas();
 
         } catch (Exception e) {
             MensajesAlerta.mostrarMensaje("ERROR","No se pudo cargar la vista: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -152,7 +159,10 @@ public class PanelPrincipalProductosController {
             stage.showAndWait();
 
 
+
             obtenerProductos();
+            actualizarMetricas();
+
 
         } catch (Exception e) {
             MensajesAlerta.mostrarMensaje("ERROR", "Error al abrir vista: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -190,13 +200,10 @@ public class PanelPrincipalProductosController {
             }
 
             MensajesAlerta.mostrarMensaje("ÉXITO","Productos cargados correctamente: " + productos.size(), Alert.AlertType.INFORMATION);
-            actualizarMetricas();
         }catch (Exception e){
             MensajesAlerta.mostrarMensaje("ERROR","Error al obtener productos: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
         }
-
-
     }
 
     @FXML
@@ -234,9 +241,11 @@ public class PanelPrincipalProductosController {
                 if (eliminado.equalsIgnoreCase("ELIMINADO")) {
                     mostrarMensaje("ÉXITO", "Producto eliminado correctamente", Alert.AlertType.INFORMATION);
                     obtenerProductos();
+                    actualizarMetricas();
                 } else {
                     mostrarMensaje("AVISO", "El producto tiene asociaciones, Solo se desactivara " + eliminado, Alert.AlertType.WARNING);
                     obtenerProductos();
+                    actualizarMetricas();
                 }
             } catch (Exception e) {
                 MensajesAlerta.mostrarMensaje("ERROR", e.getMessage(), Alert.AlertType.ERROR);
@@ -246,49 +255,21 @@ public class PanelPrincipalProductosController {
 
     }
 
-
     private void actualizarMetricas(){
         try{
             if(productoService == null){
                 productoService = new ProductoService();
             }
 
-            java.util.List<Producto> lista = productoService.obtenerProductos();
-            int totalProductos = lista.size();
-            long totalPlatillos = lista.stream()
-                    .filter(p -> p.getTipoProducto() != null && p.getTipoProducto().name().equals("PLATILLO"))
-                    .count();
+            MetricasDTO metricas = productoService.calcularMetricas();
 
-            long totalCategorias = lista.stream()
-                    .filter(p -> p.getCategoria() != null)
-                    .map(p -> p.getCategoria().getNombreCategoria())
-                    .distinct()
-                    .count();
-
-            long bajoStock = lista.stream()
-                    .filter(p -> p.getStockActual() <= p.getStockMinimo())
-                    .count();
-
-            long noBajoStock = lista.stream()
-                            .filter(p -> p.getStockActual() > p.getStockMinimo())
-                             .count();
-
-            lblProductosActivos.setText(String.valueOf(totalProductos));
-            lblPlatillosActivos.setText(String.valueOf(totalPlatillos));
-            lblCategoriasActivas.setText(String.valueOf(totalCategorias));
-
-            if(bajoStock>0) {
-                lblBajoStock.setText(String.valueOf(bajoStock));
-            }else{
-                lblBajoStock.setText("No bajo stock");
-            }
-
-
+            lblProductosActivos.setText(String.valueOf(metricas.getTotalPlatillos()));
+            lblPlatillosActivos.setText(String.valueOf(metricas.getPlatillosActivos()));
+            lblCategoriasActivas.setText(String.valueOf(metricas.getCategoriasActivas()));
+            lblBajoStock.setText(metricas.getBajoStock() > 0 ? String.valueOf(metricas.getBajoStock()) : "No hay");
 
         } catch (Exception e) {
-            System.err.println("Error al actualizar metricas" +e.getMessage());
-            MensajesAlerta.mostrarMensaje("Error","No se pudieron actualizar las métricas", Alert.AlertType.ERROR);
+            System.err.println("Error al actualizar metricas: " + e.getMessage());
         }
     }
-
 }

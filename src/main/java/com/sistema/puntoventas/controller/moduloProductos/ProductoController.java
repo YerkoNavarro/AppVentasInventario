@@ -34,8 +34,8 @@ public class ProductoController {
         @FXML
         private TextField txtFechaVenc;
 
-        @FXML
-        private TextField txtImagen;
+       /* @FXML
+        private TextField txtImagen;*/
 
         @FXML
         private TextField txtNombre;
@@ -54,6 +54,9 @@ public class ProductoController {
 
         @FXML
         private ComboBox<UnidadMedida> cmbUnidadMedida;
+
+        @FXML
+        private TextField txtCantidad;
 
         @FXML
         private ComboBox<TipoProducto> cmbTipoProducto;
@@ -111,6 +114,28 @@ public class ProductoController {
                 }
             });
 
+            cmbUnidadMedida.getSelectionModel().selectedItemProperty().addListener((observable, valorViejo, valorNuevo) -> {
+                if (valorNuevo != null) {
+
+                    switch (valorNuevo) {
+
+                        case UNIDAD:
+                            txtCantidad.setText("1");
+                            txtCantidad.setDisable(true); // Bloqueamos el campo para el usuario
+                            break;
+
+
+                        case GRAMOS:
+                        case MILILITROS:
+                            txtCantidad.clear();
+                            txtCantidad.setDisable(false); // Habilitamos el campo
+                            break;
+
+                        // Si tienes más opciones, agrégalas aquí...
+                    }
+                }
+            });
+
                 cmbTipoProducto.setConverter(new StringConverter<>() {
                     @Override
                     public String toString(TipoProducto tipoProducto) {
@@ -120,6 +145,26 @@ public class ProductoController {
                     @Override
                     public TipoProducto fromString(String string) {
                         return null;
+                    }
+                });
+
+                cmbTipoProducto.getSelectionModel().selectedItemProperty().addListener((observable, valorViejo, valorNuevo) ->{
+                    if(valorNuevo != null){
+                        switch (valorNuevo){
+                            case SOLO_INVENTARIO:
+                                txtPrecioVenta.setText("0");
+                                txtPrecioVenta.setDisable(true);
+                                System.out.println("Campo precio venta bloqueado");
+                                break;
+
+                            case PLATILLO:
+                            case DIRECTO:
+                                txtPrecioVenta.clear();
+                                txtPrecioVenta.setDisable(false);
+                                System.out.println("Campo precio venta desbloqueado");
+                                break;
+                        }
+                        
                     }
                 });
 
@@ -153,8 +198,9 @@ public class ProductoController {
                     lblEstado.setTextFill(Color.RED);
                     return;
                 }
+                
                 double precioCompra = Double.parseDouble(txtPrecioCompra.getText());
-                double precioVenta = Double.parseDouble(txtPrecioVenta.getText());
+                double precioVenta = Double.parseDouble(txtPrecioVenta.getText().isEmpty() ? "0" : txtPrecioVenta.getText());
                 int stockActual = Integer.parseInt(txtStockActual.getText());
                 int stockMinimo = Integer.parseInt(txtStockMinimo.getText());
 
@@ -168,8 +214,9 @@ public class ProductoController {
                     nuevoProducto.setStockMinimo(stockMinimo);
                     nuevoProducto.setCategoria(cmbCategoria.getValue());
                     nuevoProducto.setFechaVenc(txtFechaVenc.getText());
-                    nuevoProducto.setImagen(txtImagen.getText());
+                   // nuevoProducto.setImagen(txtImagen.getText());
                     nuevoProducto.setUnidadMedida(cmbUnidadMedida.getValue());
+                    nuevoProducto.setCantidad(Double.parseDouble(txtCantidad.getText()));
                     nuevoProducto.setTipoProducto(cmbTipoProducto.getValue());
 
 
@@ -186,9 +233,11 @@ public class ProductoController {
                     productoAEditar.setStockMinimo(stockMinimo);
                     productoAEditar.setCategoria(cmbCategoria.getValue());
                     productoAEditar.setFechaVenc(txtFechaVenc.getText());
-                    productoAEditar.setImagen(txtImagen.getText());
+                   // productoAEditar.setImagen(txtImagen.getText());
                     productoAEditar.setUnidadMedida(cmbUnidadMedida.getValue());
+                    productoAEditar.setCantidad(Double.parseDouble(txtCantidad.getText()));
                     productoAEditar.setTipoProducto(cmbTipoProducto.getValue());
+
 
                     productoService.actualizarProducto(productoAEditar); // Llama al UPDATE
                     lblEstado.setText("¡Producto actualizado con éxito!");
@@ -217,12 +266,13 @@ public class ProductoController {
         txtStockActual.setText(String.valueOf(producto.getStockActual()));
         txtStockMinimo.setText(String.valueOf(producto.getStockMinimo()));
         txtFechaVenc.setText(producto.getFechaVenc());
-        txtImagen.setText(producto.getImagen());
+       // txtImagen.setText(producto.getImagen());
 
 
         cmbCategoria.setValue(producto.getCategoria());
         cmbUnidadMedida.setValue(producto.getUnidadMedida());
         cmbTipoProducto.setValue(producto.getTipoProducto());
+        txtCantidad.setText(String.valueOf(producto.getCantidad()));
 
         // Cambiamos el texto del botón para que diga "Actualizar" en lugar de "Registrar"
         btnRegistrar.setText("Actualizar Producto");
@@ -236,9 +286,10 @@ public class ProductoController {
         txtFechaVenc.clear();
         txtStockActual.clear();
         txtStockMinimo.clear();
-        txtImagen.clear();
+        //txtImagen.clear();
         cmbUnidadMedida.getSelectionModel().clearSelection();
         cmbTipoProducto.getSelectionModel().clearSelection();
+        txtCantidad.clear();
     }
 
 

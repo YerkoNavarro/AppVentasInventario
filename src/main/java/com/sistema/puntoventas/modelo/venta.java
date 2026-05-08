@@ -8,16 +8,19 @@ public class venta {
     private int idUsuario;
     private double totalVenta;
     private Boolean estado;  //estado para ver si esta valida la venta o no (true si, false no)
-
+    private String tipoPago;
+    private String descripcion;
     
     public venta() {
     }
 
-    public venta(int idVenta, String fechaHora, int idUsuario, double totalVenta) {
+    public venta(int idVenta, String fechaHora, int idUsuario, double totalVenta, String tipoPago, String descripcion) {
         this.idVenta = idVenta;
         this.fechaHora = fechaHora;
         this.idUsuario = idUsuario;
         this.totalVenta = totalVenta;
+        this.tipoPago = tipoPago;
+        this.descripcion = descripcion;
         this.estado = true;
     }
 
@@ -61,6 +64,22 @@ public class venta {
         this.estado = estado;
     }
 
+    public String getTipoPago() {
+        return tipoPago;
+    }
+
+    public void setTipoPago(String tipoPago) {
+        this.tipoPago = tipoPago;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
     //toString
     @Override
     public String toString() {
@@ -69,6 +88,8 @@ public class venta {
                 ", fechaHora='" + fechaHora + '\'' +
                 ", idUsuario=" + idUsuario +
                 ", totalVenta=" + totalVenta +
+                ", tipoPago='" + tipoPago + '\'' +
+                ", descripcion='" + descripcion + '\'' +
                 ", estado=" + estado +
                 '}';
     }

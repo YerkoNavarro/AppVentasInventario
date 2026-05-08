@@ -11,8 +11,9 @@ public class Platillo {
     private boolean estado;
     private double costoProduccion;
     private int stockActual;
+    private TipoProducto tipoProducto;
 
-    public Platillo(int stockActual, double costoProduccion, boolean estado, double precio, Categoria categoria, List<DetallePlatillo> ingrediente, String nombre, int id) {
+    public Platillo(int stockActual, double costoProduccion, boolean estado, double precio, Categoria categoria, List<DetallePlatillo> ingrediente, String nombre, int id, TipoProducto tipoProducto) {
         this.stockActual = stockActual;
         this.costoProduccion = costoProduccion;
         this.estado = estado;
@@ -21,6 +22,7 @@ public class Platillo {
         this.ingrediente = ingrediente;
         this.nombre = nombre;
         this.id = id;
+        this.tipoProducto = tipoProducto;
     }
 
     public Platillo() {
@@ -88,5 +90,13 @@ public class Platillo {
 
     public void setStockActual(int stockActual) {
         this.stockActual = stockActual;
+    }
+
+    public TipoProducto getTipoProducto() {
+        return tipoProducto;
+    }
+
+    public void setTipoProducto(TipoProducto tipoProducto) {
+        this.tipoProducto = tipoProducto;
     }
 }

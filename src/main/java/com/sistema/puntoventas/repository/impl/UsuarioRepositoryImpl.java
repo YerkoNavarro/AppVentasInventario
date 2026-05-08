@@ -127,4 +127,28 @@ public class UsuarioRepositoryImpl implements IUsuarioRepository {
         user.setEstado(rs.getBoolean("estado"));
         return user;
     }
+    @Override
+    public boolean actualizarUsuario(Usuario usuario) {
+        // El RUT no se cambia (es el WHERE), actualizamos el resto
+        String sql = "UPDATE Usuario SET nombre = ?, apellido = ?, password = ?, telefono = ?, rol = ?, estado = ? WHERE rut = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, usuario.getNombre());
+            ps.setString(2, usuario.getApellido());
+            ps.setString(3, usuario.getContraseña());
+            ps.setString(4, usuario.getTelefono());
+            ps.setString(5, usuario.getRol().name());
+            ps.setBoolean(6, usuario.getEstado());
+            ps.setString(7, usuario.getRut()); // El filtro por RUT
+
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar usuario: " + e.getMessage());
+            return false;
+        }
+    }
 }

@@ -66,5 +66,18 @@ public class UsuarioService {
         }
         return usuarioRepository.eliminarUsuario(rut);
     }
+    public String actualizarUsuario(Usuario usuario) {
+        if (usuario == null || usuario.getRut() == null || usuario.getRut().isEmpty()) {
+            return "El RUT es obligatorio para actualizar";
+        }
+
+        boolean actualizado = usuarioRepository.actualizarUsuario(usuario);
+
+        if (actualizado) {
+            return "Usuario actualizado exitosamente";
+        } else {
+            return "Error al actualizar el usuario en la base de datos";
+        }
+    }
 }
 

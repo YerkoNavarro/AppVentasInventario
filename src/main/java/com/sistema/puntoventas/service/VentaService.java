@@ -12,6 +12,7 @@ import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
@@ -89,6 +90,11 @@ public class VentaService {
         }
     }
         
+
+    public Boolean subirTablaBD(ArrayList<ventaAplicacion> tablaVentaAplicacion){
+        return ventaRepositoryimpl.registrarTabladeVentaCompleta(tablaVentaAplicacion);
+    }
+
 
 
 }

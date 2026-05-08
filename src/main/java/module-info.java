@@ -37,4 +37,6 @@ module com.sistema.puntoventas {
     opens com.sistema.puntoventas.modelo.moduloProducto to javafx.base;
     exports com.sistema.puntoventas.controller.moduloProductos;
     opens com.sistema.puntoventas.controller.moduloProductos to javafx.fxml;
+    exports com.sistema.puntoventas.pruebas;
+    opens com.sistema.puntoventas.pruebas to javafx.fxml;
 }

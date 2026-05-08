@@ -4,6 +4,8 @@ import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 
 import java.util.List;
 
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+
 public class ventaAplicacion {
      
     private venta venta;
