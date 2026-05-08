@@ -395,19 +395,22 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     }
 
     @Override
-    public boolean actualizarCategoria(int id) {
-        if (id <= 0) {
+    public boolean actualizarCategoria(Categoria categoria) {
+        if (categoria == null || categoria.getId() <= 0) {
             return false;
         }
 
-        String sql = "UPDATE categoria SET activa = CASE WHEN activa = 1 THEN 0 ELSE 1 END WHERE id = ?";
+        String sql = "UPDATE categoria SET nombreCategoria = ?, descripcion = ?, activa = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setString(1, categoria.getNombreCategoria());
+            pstmt.setString(2, categoria.getDescripcion());
+            pstmt.setBoolean(3, categoria.isActiva());
+            pstmt.setInt(4, categoria.getId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error al actualizar categoría: " + e.getMessage());
+            System.err.println("Error al actualizar categoria: " + e.getMessage());
             return false;
         }
     }
