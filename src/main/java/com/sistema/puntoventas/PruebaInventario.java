@@ -13,97 +13,125 @@ import java.sql.SQLException;
 public class PruebaInventario {
 
     public static void main(String[] args) {
-        System.out.println("==========================================");
-        System.out.println("    INICIANDO PRUEBA DE BACKEND");
-        System.out.println("==========================================");
+        System.out.println("--- INICIANDO PRUEBA DE MÚLTIPLES PRODUCTOS ---");
 
-        // 1. Inicializar la Base de Datos y las Tablas
-        System.out.println("\n[Paso 1] Preparando Base de Datos...");
+        // 1. Preparar la Base de Datos
         DbManager dbManager = new DbManager();
         dbManager.crearTodasLasTablas();
-        dbManager.crearUsuarioAdmin(); // Esto nos asegura que existe un usuario con ID para la prueba
+        dbManager.crearUsuarioAdmin(); // El Admin es el ID 1
 
-        // 2. Crear un producto de prueba (Para evitar error de Foreign Key)
-        System.out.println("\n[Paso 2] Insertando producto de prueba...");
-        insertarProductoPrueba();
+        // 2. Crear VARIOS productos de prueba (ID 1 y ID 2)
+        System.out.println("Insertando productos en la base de datos...");
+        insertarProductosDePrueba();
 
-        // 3. Probar el Repositorio de Movimientos
-        System.out.println("\n[Paso 3] Probando el registro de inventario...");
-        MovimientoRepositoryImpl repoMovimientos = new MovimientoRepositoryImpl();
+        // 3. Registrar movimientos para ambos productos
+        MovimientoRepositoryImpl repo = new MovimientoRepositoryImpl();
 
-        // Creamos un movimiento: Una ENTRADA de 50 unidades
-        MovimientoInventario nuevoMovimiento = new MovimientoInventario(
-                1, // ID del producto (El que acabamos de crear)
+        System.out.println("Registrando movimientos...");
+
+        // ---> MOVIMIENTO 1: Para el Producto 1 (Galletas)
+        MovimientoInventario mov1 = new MovimientoInventario(
+                1, // ID del Producto 1
                 TipoMovimiento.ENTRADA,
-                50, // Cantidad
-                "Compra inicial a proveedor",
-                1 // ID del usuario Admin
+                25, // Sumamos 25
+                "Ingreso de Galletas",
+                1 // ID del Usuario (Admin)
         );
+        repo.registrarMovimiento(mov1);
+        repo.actualizarStockFisico(1, 25);
 
-        // A. Probamos guardar en el historial_inventario
-        boolean registrado = repoMovimientos.registrarMovimiento(nuevoMovimiento);
-        if (registrado) {
-            System.out.println("✅ ÉXITO: El movimiento se guardó en historial_inventario.");
-        } else {
-            System.out.println("❌ ERROR: No se pudo guardar el movimiento.");
-        }
+        // ---> MOVIMIENTO 2: Para el Producto 2 (Bebidas)
+        MovimientoInventario mov2 = new MovimientoInventario(
+                2, // ID del Producto 2 (¡Ahora sí existe!)
+                TipoMovimiento.ENTRADA,
+                40, // Sumamos 50
+                "Ingreso de Bebidas",
+                1 // ID del Usuario (Sigue siendo el Admin 1)
+        );
+        repo.registrarMovimiento(mov2);
+        repo.actualizarStockFisico(2, 50);
 
-        // B. Probamos actualizar el stock en la tabla producto (sumamos los 50)
-        boolean stockActualizado = repoMovimientos.actualizarStockFisico(1, 50);
-        if (stockActualizado) {
-            System.out.println("✅ ÉXITO: El stock del producto se actualizó correctamente.");
-        } else {
-            System.out.println("❌ ERROR: No se pudo actualizar el stock del producto.");
-        }
+        // ---> MOVIMIENTO 3: Una venta del Producto 1 (Galletas)
+        MovimientoInventario mov3 = new MovimientoInventario(
+                1, // Volvemos al Producto 1
+                TipoMovimiento.SALIDA_VENTA,
+                -5, // Restamos 5 unidades
+                "Venta en caja",
+                1 // ID del Usuario
+        );
+        repo.registrarMovimiento(mov3);
+        repo.actualizarStockFisico(1, -5);
 
-        // C. Probamos el sistema de alertas
-        System.out.println("\n[Paso 4] Probando sistema de alertas...");
-        // Simulamos una merma grande que deje el stock en 0 para forzar la alerta
-        repoMovimientos.actualizarStockFisico(1, -60);
-        repoMovimientos.generarAlertaStock();
+        // ---> MOVIMIENTO 3: Una venta del Producto 1 (Galletas)
+        MovimientoInventario mov4 = new MovimientoInventario(
+                6, // Volvemos al Producto 1
+                TipoMovimiento.AJUSTE,
+                8, // Restamos 5 unidades
+                "Venta en caja",
+                1 // ID del Usuario
+        );
+        repo.registrarMovimiento(mov4);
+        repo.actualizarStockFisico(6, 8);
 
-        // 4. Verificación final directamente en la BD
-        System.out.println("\n[Paso 5] Verificando datos finales en la BD...");
-        mostrarDatosGuardados();
+        // 4. Mostrar todo el historial
+        System.out.println("\n--- RESULTADOS EN LA BASE DE DATOS ---");
+        mostrarTodosLosDatos();
     }
 
-    // --- MÉTODOS AUXILIARES SOLO PARA LA PRUEBA ---
+    // --- MÉTODOS AUXILIARES ---
 
-    private static void insertarProductoPrueba() {
+    private static void insertarProductosDePrueba() {
         String url = "jdbc:sqlite:DBventasInventario.db";
-        // Usamos INSERT OR IGNORE para que no de error si corres la prueba varias veces
-        String sql = "INSERT OR IGNORE INTO producto (id, nombre, precioCompra, precioVenta, categoria, stockActual, stockMinimo) " +
-                "VALUES (1, 'Café de Grano 1Kg', 8000, 12000, 'Insumos', 10, 15)";
+        String sql = "INSERT OR REPLACE INTO producto (id, nombre, precioCompra, precioVenta, categoria, stockActual, stockMinimo) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Insertar Producto 1
+            pstmt.setInt(1, 1); // ID 1
+            pstmt.setString(2, "Galletas de Prueba");
+            pstmt.setDouble(3, 500);
+            pstmt.setDouble(4, 1000);
+            pstmt.setString(5, "Snacks");
+            pstmt.setInt(6, 0); // Stock inicial
+            pstmt.setInt(7, 5); // Stock mínimo
             pstmt.executeUpdate();
-            System.out.println("   -> Producto 'Café de Grano 1Kg' (ID: 1) creado/verificado.");
+
+            // Insertar Producto 2
+            pstmt.setInt(1, 2); // ID 2
+            pstmt.setString(2, "Bebida Cola 2L");
+            pstmt.setDouble(3, 1200);
+            pstmt.setDouble(4, 2000);
+            pstmt.setString(5, "Bebidas");
+            pstmt.setInt(6, 0); // Stock inicial
+            pstmt.setInt(7, 10); // Stock mínimo
+            pstmt.executeUpdate();
+
         } catch (SQLException e) {
-            System.err.println("   -> Error al crear producto: " + e.getMessage());
+            System.out.println("Error al insertar productos: " + e.getMessage());
         }
     }
 
-    private static void mostrarDatosGuardados() {
+    private static void mostrarTodosLosDatos() {
         String url = "jdbc:sqlite:DBventasInventario.db";
         try (Connection conn = DriverManager.getConnection(url)) {
-            // Verificamos cómo quedó el stock
-            var rsProd = conn.createStatement().executeQuery("SELECT nombre, stockActual FROM producto WHERE id = 1");
-            if (rsProd.next()) {
-                System.out.println("📦 ESTADO DEL PRODUCTO:");
-                System.out.println("   - Nombre: " + rsProd.getString("nombre"));
-                System.out.println("   - Stock Actual en BD: " + rsProd.getInt("stockActual"));
+
+            // Ver el stock de todos los productos (Usamos WHILE en lugar de IF para leer varios)
+            System.out.println(" INVENTARIO ACTUAL:");
+            var rsProd = conn.createStatement().executeQuery("SELECT id, nombre, stockActual FROM producto");
+            while (rsProd.next()) {
+                System.out.println("   - [" + rsProd.getInt("id") + "] " + rsProd.getString("nombre") + " | STOCK: " + rsProd.getInt("stockActual"));
             }
 
-            // Verificamos el último registro en el historial
-            var rsHist = conn.createStatement().executeQuery("SELECT tipoMovimiento, cantidad, motivo FROM historial_inventario ORDER BY idMovimiento DESC LIMIT 1");
-            if (rsHist.next()) {
-                System.out.println("📝 ÚLTIMO MOVIMIENTO GUARDADO:");
-                System.out.println("   - Tipo: " + rsHist.getString("tipoMovimiento"));
-                System.out.println("   - Cantidad: " + rsHist.getInt("cantidad"));
-                System.out.println("   - Motivo: " + rsHist.getString("motivo"));
+            // Ver todos los movimientos registrados
+            System.out.println("\n HISTORIAL DE MOVIMIENTOS:");
+            var rsHist = conn.createStatement().executeQuery("SELECT idProducto, tipoMovimiento, cantidad, motivo FROM historial_inventario");
+            while (rsHist.next()) {
+                System.out.println("   - Producto ID " + rsHist.getInt("idProducto") + " | " + rsHist.getString("tipoMovimiento") + " | Cantidad: " + rsHist.getInt("cantidad") + " | Motivo: " + rsHist.getString("motivo"));
             }
+
         } catch (SQLException e) {
-            System.err.println("Error al leer datos: " + e.getMessage());
+            System.out.println("Error al leer datos: " + e.getMessage());
         }
     }
 }
