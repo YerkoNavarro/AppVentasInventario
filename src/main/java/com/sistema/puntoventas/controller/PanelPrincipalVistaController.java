@@ -25,6 +25,7 @@ public class PanelPrincipalVistaController {
         @FXML private Button btnVentas;
         @FXML private Button btnInventario;
         @FXML private Button btnPlatillos;
+        @FXML private Button btnEstadisticas;
 
         @FXML private StackPane contentArea;
 
@@ -43,6 +44,7 @@ public class PanelPrincipalVistaController {
             btnVentas.setOnAction(e -> cargarVistaModulo("PanelVentas-vista.fxml", btnVentas));
             btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario-vista.fxml", btnInventario));
             btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelPrincipalPlatillosVista.fxml", btnPlatillos));
+            btnEstadisticas.setOnAction(e -> cargarVistaModulo("PanelPrincipalEstadisticasVista.fxml", btnEstadisticas));
         }
 
         // 3. SISTEMA DE NAVEGACIÓN DINÁMICA
@@ -75,7 +77,7 @@ public class PanelPrincipalVistaController {
         // 4. CAMBIO DE COLOR DEL BOTÓN (Estado Activo/Inactivo)
         private void actualizarEstiloBotones(Button botonActivo) {
             // Agrupamos los botones en una lista
-            List<Button> botones = Arrays.asList(btnUsuarios, btnProductos, btnVentas, btnInventario);
+            List<Button> botones = Arrays.asList(btnUsuarios, btnProductos, btnVentas, btnInventario, btnPlatillos, btnEstadisticas);
 
             // A todos les quitamos la clase azul
             for (Button btn : botones) {

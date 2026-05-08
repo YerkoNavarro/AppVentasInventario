@@ -31,7 +31,7 @@ public class PanelPrincipalEstadisticasController implements Initializable {
     private Label lblIngresosTotales;
 
     @FXML
-    private VBox vboxRankingProductos;
+    private VBox vboxProductosTop;
 
     @FXML
     private VBox vboxVentasUsuarios;
@@ -74,7 +74,7 @@ public class PanelPrincipalEstadisticasController implements Initializable {
         if (rankingProductos.isEmpty()) {
             Label lblSinDatos = new Label("No hay datos de ventas para mostrar el ranking de productos.");
             lblSinDatos.setFont(new Font("Arial", 16));
-            vboxRankingProductos.getChildren().add(lblSinDatos);
+            vboxProductosTop.getChildren().add(lblSinDatos);
             return;
         }
 
@@ -88,7 +88,7 @@ public class PanelPrincipalEstadisticasController implements Initializable {
             //lblCantidadVendida.setFont(new Font("Arial", 14));
 
             //hboxProducto.getChildren().addAll(lblNombre, lblCantidadVendida);
-            vboxRankingProductos.getChildren().add(hboxProducto);
+            vboxProductosTop.getChildren().add(hboxProducto);
         }
     }
 }

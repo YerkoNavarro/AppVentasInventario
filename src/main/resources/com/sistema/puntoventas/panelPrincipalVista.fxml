@@ -48,6 +48,11 @@
                               <Label style="-fx-background-color: #C11C84;" styleClass="icon-circle" text="I" />
                            </graphic>
                         </Button>
+                        <Button fx:id="btnEstadisticas" maxWidth="Infinity" styleClass="menu-button" text="Estadísticas">
+                           <graphic>
+                              <Label style="-fx-background-color: #8b5cf6;" styleClass="icon-circle" text="E" />
+                           </graphic>
+                        </Button>
                             </children>
                         </VBox>
 
