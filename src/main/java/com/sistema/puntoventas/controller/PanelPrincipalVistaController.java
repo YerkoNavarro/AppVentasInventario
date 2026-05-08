@@ -40,13 +40,15 @@ public class PanelPrincipalVistaController {
 
             // Asignamos qué archivo FXML se abrirá al hacer clic en cada botón
             // (Asegúrate de que los nombres de los archivos .fxml coincidan con los tuyos)
-            btnUsuarios.setOnAction(e -> cargarVistaModulo("PanelUsuarios-vista.fxml", btnUsuarios));
+
+            btnUsuarios.setOnAction(e -> cargarVistaModulo("PanelPrincipalUsuarios.fxml", btnUsuarios));
             btnProductos.setOnAction(e -> cargarVistaModulo("PanelPrincipalProductos.fxml", btnProductos));
             btnVentas.setOnAction(e -> cargarVistaModulo("panelVentas.fxml", btnVentas));
-            btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario-vista.fxml", btnInventario));
+            btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario.fxml", btnInventario));
             btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelPrincipalPlatillosVista.fxml", btnPlatillos));
             btnEstadisticas.setOnAction(e -> cargarVistaModulo("PanelPrincipalEstadisticasVista.fxml", btnEstadisticas));
             btnCategorias.setOnAction(e -> cargarVistaModulo("PanelPrincipalCategorias.fxml", btnCategorias));
+
 
 
 
