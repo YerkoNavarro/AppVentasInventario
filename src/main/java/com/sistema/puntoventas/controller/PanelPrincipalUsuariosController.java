@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
 
 public class PanelPrincipalUsuariosController implements Initializable {
 
-    // --- ELEMENTOS GRÁFICOS INTACTOS ---
+    // --- ELEMENTOS GRÁFICOS ---
     @FXML private Pane CardUsuariosActivos;
     @FXML private Pane CardUsuariosAdmin;
     @FXML private Pane CardUsuariosVendedor;
@@ -56,8 +56,23 @@ public class PanelPrincipalUsuariosController implements Initializable {
         // 1. Inicializar el Servicio
         usuarioService = new UsuarioService();
 
-        // 2. Configurar las Columnas
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        // 2. CONFIGURACIÓN DE COLUMNAS
+
+        // === CONFIGURACIÓN DE ID (Numeración automática 1, 2, 3...) ===
+        // Usamos setCellFactory para que sea secuencial visualmente
+        colId.setCellFactory(columna -> new TableCell<Usuario, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean vacio) {
+                super.updateItem(item, vacio);
+                if (vacio) {
+                    setText(null);
+                } else {
+                    // getIndex() nos da el índice de la fila actual, le sumamos 1
+                    setText(String.valueOf(getIndex() + 1));
+                }
+            }
+        });
+
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colApellido.setCellValueFactory(new PropertyValueFactory<>("apellido"));
         colRut.setCellValueFactory(new PropertyValueFactory<>("rut"));
@@ -98,10 +113,8 @@ public class PanelPrincipalUsuariosController implements Initializable {
         // 4. Asignar acciones a los botones
         btnEliminarUsuario.setOnAction(this::eliminarUsuarioSeleccionado);
 
-        // === NUEVO: ACCIÓN PARA AGREGAR ===
         btnAgregarUsuario.setOnAction(event -> abrirVentanaUsuario(null));
 
-        // === NUEVO: ACCIÓN PARA EDITAR ===
         btnEditarUsuario.setOnAction(event -> {
             Usuario usuarioSeleccionado = tableUsuarios.getSelectionModel().getSelectedItem();
             if (usuarioSeleccionado == null) {
@@ -112,33 +125,27 @@ public class PanelPrincipalUsuariosController implements Initializable {
         });
     }
 
-    // --- MÉTODOS PROPIOS ---
+    // --- MÉTODOS DE VENTANAS ---
 
-    // MÉTODO PARA ABRIR LA VENTANA (RECICLADA PARA AGREGAR Y EDITAR)
     private void abrirVentanaUsuario(Usuario usuario) {
         try {
-            // Cargar el FXML de la ventana de formulario
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/PanelAgregarUsuario.fxml"));
             Parent root = loader.load();
 
-            // Obtener el controlador de esa ventana
             PanelAgregarUsuarioController controlador = loader.getController();
 
-            // Si se pasó un usuario, activar el modo edición en el otro controlador
             if (usuario != null) {
                 controlador.cargarDatosUsuario(usuario);
             }
 
-            // Crear y configurar la ventana (Stage)
             Stage stage = new Stage();
             stage.setTitle(usuario == null ? "Agregar Nuevo Usuario" : "Editar Usuario");
-            stage.setScene(new Scene(root,1200,768));
+            stage.setScene(new Scene(root, 1200, 768)); // Mantiene tu tamaño personalizado
 
-            // Hacerla modal (bloquea la ventana principal hasta cerrar esta)
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
 
-            // Al cerrar la ventana, recargamos la tabla para ver cambios (nuevos o editados)
+            // Refrescar tabla al volver
             cargarUsuarios();
 
         } catch (Exception e) {
@@ -147,18 +154,20 @@ public class PanelPrincipalUsuariosController implements Initializable {
         }
     }
 
+    // --- MÉTODOS DE DATOS ---
+
     private void cargarUsuarios() {
         List<Usuario> listaUsuarios = usuarioService.obtenerUsuarios();
         ObservableList<Usuario> datosTabla = FXCollections.observableArrayList(listaUsuarios);
         tableUsuarios.setItems(datosTabla);
 
+        // Actualizar KPIs
         int conteoActivos = 0;
         int conteoAdmins = 0;
         int conteoVendedores = 0;
 
         for (Usuario user : listaUsuarios) {
             if (user.getEstado() != null && user.getEstado()) conteoActivos++;
-
             if (user.getRol() != null) {
                 if (user.getRol().name().equalsIgnoreCase("ADMIN")) conteoAdmins++;
                 if (user.getRol().name().equalsIgnoreCase("VENDEDOR")) conteoVendedores++;
@@ -174,24 +183,21 @@ public class PanelPrincipalUsuariosController implements Initializable {
         Usuario usuarioSeleccionado = tableUsuarios.getSelectionModel().getSelectedItem();
 
         if (usuarioSeleccionado == null) {
-            mostrarAlerta("Atención", "Ningún usuario seleccionado", "Por favor, selecciona un usuario de la tabla para eliminarlo.", Alert.AlertType.WARNING);
+            mostrarAlerta("Atención", "Ningún usuario seleccionado", "Por favor, selecciona un usuario.", Alert.AlertType.WARNING);
             return;
         }
 
         Alert alertaConfirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         alertaConfirmacion.setTitle("Confirmar");
         alertaConfirmacion.setHeaderText("Eliminar Usuario");
-        alertaConfirmacion.setContentText("¿Estás seguro de que deseas eliminar al usuario " + usuarioSeleccionado.getNombre() + " (RUT: " + usuarioSeleccionado.getRut() + ")?");
+        alertaConfirmacion.setContentText("¿Estás seguro de que deseas eliminar a " + usuarioSeleccionado.getNombre() + "?");
 
         alertaConfirmacion.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 Usuario eliminado = usuarioService.eliminarUsuario(usuarioSeleccionado.getRut());
-
                 if (eliminado != null) {
                     mostrarAlerta("Éxito", "Usuario eliminado", "El usuario fue borrado correctamente.", Alert.AlertType.INFORMATION);
                     cargarUsuarios();
-                } else {
-                    mostrarAlerta("Error", "No se pudo eliminar", "Hubo un error al intentar eliminar el usuario de la base de datos.", Alert.AlertType.ERROR);
                 }
             }
         });

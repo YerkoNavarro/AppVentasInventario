@@ -37,10 +37,10 @@ public class PanelPrincipalVistaController {
 
             // Asignamos qué archivo FXML se abrirá al hacer clic en cada botón
             // (Asegúrate de que los nombres de los archivos .fxml coincidan con los tuyos)
-            btnUsuarios.setOnAction(e -> cargarVistaMódulo("PanelUsuarios-vista.fxml", btnUsuarios));
+            btnUsuarios.setOnAction(e -> cargarVistaMódulo("PanelPrincipalUsuarios.fxml", btnUsuarios));
             btnProductos.setOnAction(e -> cargarVistaMódulo("PanelProductos-vista.fxml", btnProductos));
             btnVentas.setOnAction(e -> cargarVistaMódulo("PanelVentas-vista.fxml", btnVentas));
-            btnInventario.setOnAction(e -> cargarVistaMódulo("PanelInventario-vista.fxml", btnInventario));
+            btnInventario.setOnAction(e -> cargarVistaMódulo("PanelInventario.fxml", btnInventario));
         }
 
         // 3. SISTEMA DE NAVEGACIÓN DINÁMICA
