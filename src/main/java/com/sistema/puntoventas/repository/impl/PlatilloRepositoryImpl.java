@@ -16,7 +16,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean registrarPlatillo(Platillo platillo) {
-        String sqlPlatillo = "INSERT INTO platillo (nombre, precio, idCategoria, estado, costoProduccion, stockActual,tipoPlatillo) VALUES (?, ?, ?, ?, ?, ?,?)";
+        String sqlPlatillo = "INSERT INTO platillo (nombre, precio, idCategoria, estado, costoProduccion, stockActual,tipoProducto) VALUES (?, ?, ?, ?, ?, ?,?)";
         String sqlDetalle = "INSERT INTO detalle_platillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
         try(var conn = DriverManager.getConnection(url);
             var stmt = conn.prepareStatement(sqlPlatillo)) {
@@ -186,7 +186,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean actualizarPlatillo(Platillo platillo) {
-        String sqlUpdatePlatillo = "UPDATE platillo SET nombre = ?, precio = ?, idCategoria = ?, estado = ?, costoProduccion = ?, stockActual = ?, tipoPlatillo = ? WHERE id = ?";
+        String sqlUpdatePlatillo = "UPDATE platillo SET nombre = ?, precio = ?, idCategoria = ?, estado = ?, costoProduccion = ?, stockActual = ?, tipoProducto = ? WHERE id = ?";
         String sqlDeleteDetalle = "DELETE FROM detalle_platillo WHERE idPlatillo = ?";
         String sqlInsertDetalle = "INSERT INTO detalle_platillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
 

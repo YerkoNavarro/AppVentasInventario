@@ -36,58 +36,7 @@ public class HelloApplication extends Application {
         dbManager.crearTodasLasTablas();
         dbManager.crearUsuarioAdmin();
 
-        /* 
-        VentaRepositoryimpl ventaRepositoryimpl = new VentaRepositoryimpl();
 
-        venta venta = new venta(0, "2024-05-20 10:30:00", 0,150.75);
-   
-        ArrayList<Integer> idProductos = new ArrayList<>();
-        idProductos.add(1);
-        idProductos.add(2);
-        idProductos.add(3);
-
-        ventaRepositoryimpl.registrarVentaCompleta(venta, idProductos);
-       
-        ProductoRepositoryImpl productoRepositoryImpl = new ProductoRepositoryImpl();
-
-        Producto producto = new Producto(0, "producto1", 50000, 10000, "fritura", "2024-12-31", 0, 0, "", 0);
-        productoRepositoryImpl.registrarProducto(producto);
-        
-         
-       DetalleVentaImpl detalleVentaImpl = new DetalleVentaImpl();
-
-        List<detalleVenta> detalleVentas = detalleVentaImpl.obtenerDetalleVentasporIdVenta(1);
-
-        for (detalleVenta detalleVenta : detalleVentas) {
-            System.out.println(detalleVenta.toString());
-        }
-        
-        
-
-        ProductoRepositoryImpl productoRepositoryImpl = new ProductoRepositoryImpl();
-        Producto producto = new Producto(3, "producto3", 50000, 10000, "fritura", "2024-12-31", 0, 0, "", 0);
-        productoRepositoryImpl.registrarProducto(producto);
-        */
-
-        
-       VentaService ventaService = new VentaService();
-
-
-
-      List<ventaAplicacion> ventas = ventaService.traerTodasLasVentas();
-
-        
-
-        for (ventaAplicacion va : ventas) {
-    System.out.println("idVenta: " + va.getVenta().getIdVenta() + 
-                       " | fecha: " + va.getVenta().getFechaHora() + 
-                       " | total: " + va.getVenta().getTotalVenta());
-
-    for (Producto p : va.getDetalleVentas()) {
-        System.out.println("  -> " + p.getNombre() + " $" + p.getPrecioVenta());
-    }
-    System.out.println("----------");
-}
     
     
 
