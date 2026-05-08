@@ -17,7 +17,36 @@ public class DbManager {
         }
     }
 
-    public void crearTablaUsuario() {
+
+/* 
+    public void crearTablaProductos(){
+        // SQL statement for creating a new table
+        String sql = "CREATE TABLE IF NOT EXISTS producto ("
+                + " id INTEGER PRIMARY KEY ,"
+                + " nombre TEXT NOT NULL,"
+                + " precioCompra REAL,"
+                + " precioVenta REAL,"
+                + " categoria TEXT,"
+                + " fechaVenc TEXT,"
+                + " stockActual INTEGER,"
+                + " stockMinimo INTEGER,"
+                + " imagen TEXT,"
+                + " unidadMedida TEXT"
+                + ");";
+
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            // create a new table
+            stmt.execute(sql);
+            System.out.println("Tabla productos creada correctamente");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+*/
+    public void crearTablaUsuario(){
+
+        // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS usuario ("
                 + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + " nombre TEXT NOT NULL,"
@@ -70,6 +99,8 @@ public class DbManager {
                 + " fechaHora TEXT NOT NULL,"
                 + " idUsuario INTEGER,"
                 + " totalVenta REAL,"
+                + " tipoPago TEXT,"
+                + " descripcion TEXT,"
                 + " estado INTEGER,"
                 + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
                 + ");";
@@ -87,8 +118,6 @@ public class DbManager {
                 + " idDetalle INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + " idVenta INTEGER,"
                 + " idProducto INTEGER,"
-                + " cantidad INTEGER NOT NULL,"
-                + " precioUnitario REAL NOT NULL,"
                 + " FOREIGN KEY (idVenta) REFERENCES venta(idVenta) ON DELETE CASCADE,"
                 + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
                 + ");";
