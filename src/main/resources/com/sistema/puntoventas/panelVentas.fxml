@@ -12,15 +12,15 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="586.0" prefWidth="897.0" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.VentaController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="586.0" prefWidth="897.0" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.VentaController">
    <children>
-      <TabPane layoutX="-4.0" layoutY="-4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="547.0" prefWidth="745.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.9949229410999578" AnchorPane.topAnchor="-4.0">
+      <TabPane layoutX="-4.0" layoutY="-4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="547.0" prefWidth="745.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="43.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.9949229410999578" AnchorPane.topAnchor="-4.0">
         <tabs>
           <Tab text="tabla ventas">
             <content>
-              <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="643.0" prefWidth="897.0">
+              <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                      <children>
-                        <TableView id="idTableView" fx:id="idTablaVentas" editable="true" layoutX="43.0" layoutY="103.33403753389665" prefHeight="403.0" prefWidth="809.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="103.0">
+                        <TableView id="idTableView" fx:id="idTablaVentas" editable="true" layoutX="43.0" layoutY="103.33403753389665" prefHeight="412.0" prefWidth="809.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="103.0">
                           <columns>
                             <TableColumn fx:id="ColFecha" sortable="false" text="fecha" />
                             <TableColumn fx:id="ColProductos" sortable="false" text="Productos" />
@@ -39,7 +39,7 @@
                             </Menu>
                           </menus>
                         </MenuBar>
-                        <Button layoutX="775.0" layoutY="60.0" mnemonicParsing="false" onAction="#eliminarVenta" styleClass="field" text="eliminar" AnchorPane.bottomAnchor="418.33659310045704" />
+                        <Button layoutX="775.0" layoutY="60.0" mnemonicParsing="false" onAction="#eliminarVenta" styleClass="field" text="eliminar" AnchorPane.topAnchor="61.0" />
                         <Button layoutX="43.0" layoutY="60.0" mnemonicParsing="false" onAction="#guardarTablaEnBD" styleClass="field" text="Guardar" />
                      </children>
                   </AnchorPane>
