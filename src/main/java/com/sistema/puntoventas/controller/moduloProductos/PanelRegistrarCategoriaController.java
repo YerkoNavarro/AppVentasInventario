@@ -79,7 +79,6 @@ public class PanelRegistrarCategoriaController {
 
                 productoService.actualizarCategoria(categoriaEnEdicion);
                 lblEstado.setText("Categoria actualizada correctamente");
-                cerrarVentana();
                 return;
             }
 
@@ -90,7 +89,6 @@ public class PanelRegistrarCategoriaController {
 
             productoService.registrarCategoria(categoria);
             lblEstado.setText("Categoria registrada correctamente");
-            cerrarVentana();
         } catch (Exception e) {
             MensajesAlerta.mostrarMensaje("ERROR", "No se pudo guardar la categoria: " + e.getMessage(), Alert.AlertType.ERROR);
         }
