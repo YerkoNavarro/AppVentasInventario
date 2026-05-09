@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
@@ -120,26 +121,11 @@
                   </Label>
 
                   <HBox layoutX="40.0" layoutY="310.0" prefHeight="400.0" prefWidth="1800.0" spacing="20.0">
-                     <!-- PRODUCTOS MÁS VENDIDOS -->
-                     <Pane styleClass="card" stylesheets="@css/panel-productos.css" prefHeight="400.0" prefWidth="880.0">
-                        <children>
-                           <Label layoutX="25.0" layoutY="15.0" text="Top 10 Productos Más Vendidos" textFill="#274f8d">
-                              <font>
-                                 <Font name="Arial Black" size="16.0" />
-                              </font>
-                           </Label>
-                           <VBox fx:id="vboxProductosTop" layoutX="25.0" layoutY="50.0" prefHeight="335.0" prefWidth="830.0" spacing="8.0">
-                              <children>
-                                 <!-- Los items se cargarán dinámicamente -->
-                              </children>
-                           </VBox>
-                        </children>
-                     </Pane>
 
                      <!-- INFORMACIÓN ADICIONAL -->
                      <VBox prefHeight="400.0" prefWidth="880.0" spacing="15.0">
                         <!-- Stock Bajo -->
-                        <Pane styleClass="card" stylesheets="@css/panel-productos.css" prefHeight="190.0" prefWidth="880.0">
+                        <Pane prefHeight="190.0" prefWidth="880.0" styleClass="card" stylesheets="@css/panel-productos.css">
                            <children>
                               <Label layoutX="25.0" layoutY="15.0" text="⚠️ Productos Bajo Stock" textFill="#274f8d">
                                  <font>
@@ -160,14 +146,14 @@
                         </Pane>
 
                           <!-- Ventas por Usuario -->
-                          <Pane styleClass="card" stylesheets="@css/panel-productos.css" prefHeight="190.0" prefWidth="880.0">
+                          <Pane prefHeight="190.0" prefWidth="880.0" styleClass="card" stylesheets="@css/panel-productos.css">
                              <children>
                                 <Label layoutX="25.0" layoutY="15.0" text="Ventas por Usuario" textFill="#274f8d">
                                    <font>
                                       <Font name="Arial Black" size="14.0" />
                                    </font>
                                 </Label>
-                                <VBox fx:id="vboxVentasUsuarios" layoutX="25.0" layoutY="50.0" prefHeight="120.0" prefWidth="830.0" spacing="8.0">
+                                <VBox fx:id="vboxVentasUsuarios" layoutX="25.0" layoutY="36.0" prefHeight="86.0" prefWidth="830.0" spacing="8.0">
                                    <children>
                                       <!-- Aquí se cargarán dinámicamente los items por usuario -->
                                    </children>
@@ -176,14 +162,14 @@
                           </Pane>
 
                         <!-- Estadísticas Generales -->
-                        <Pane styleClass="card" stylesheets="@css/panel-productos.css" prefHeight="190.0" prefWidth="880.0">
+                        <Pane prefHeight="190.0" prefWidth="880.0" styleClass="card" stylesheets="@css/panel-productos.css">
                            <children>
                               <Label layoutX="25.0" layoutY="15.0" text="Resumen General" textFill="#274f8d">
                                  <font>
                                     <Font name="Arial Black" size="14.0" />
                                  </font>
                               </Label>
-                              <HBox layoutX="25.0" layoutY="55.0" prefHeight="115.0" prefWidth="830.0" spacing="40.0">
+                              <HBox layoutX="25.0" layoutY="55.0" prefHeight="64.0" prefWidth="830.0" spacing="40.0">
                                  <children>
                                     <VBox spacing="5.0">
                                        <children>
@@ -213,7 +199,7 @@
                                           </Label>
                                        </children>
                                     </VBox>
-                                    <VBox spacing="5.0">
+                                    <VBox prefHeight="67.0" prefWidth="90.0" spacing="5.0">
                                        <children>
                                           <Label text="Productos Activos" textFill="#607399">
                                              <font>
@@ -227,11 +213,35 @@
                                           </Label>
                                        </children>
                                     </VBox>
+                                    <VBox layoutX="260.0" layoutY="10.0" prefHeight="67.0" prefWidth="90.0" spacing="5.0">
+                                       <children>
+                                          <Label text="Usuarios Activos" textFill="#607399">
+                                             <font>
+                                                <Font name="Arial" size="11.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lblProductos1" text="0" textFill="#274f8d">
+                                             <font>
+                                                <Font name="Arial Black" size="20.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
                                  </children>
                               </HBox>
                            </children>
                         </Pane>
                      </VBox>
+                     <TableView prefHeight="422.0" prefWidth="796.0">
+                       <columns>
+                         <TableColumn prefWidth="102.39990234375" text="nombre" />
+                         <TableColumn prefWidth="121.60009765625" text="stock actual " />
+                           <TableColumn prefWidth="115.199951171875" text="días restantes " />
+                           <TableColumn prefWidth="135.199951171875" text="fecha agotamiento" />
+                           <TableColumn prefWidth="137.60009765625" text="índice de riesgo" />
+                           <TableColumn prefWidth="184.800048828125" text="sugerencia de compra" />
+                       </columns>
+                     </TableView>
                   </HBox>
 
                   <!-- BOTTOM SECTION: VENTAS POR PERÍODO -->
@@ -243,18 +253,28 @@
 
                   <Pane layoutX="40.0" layoutY="770.0" prefHeight="300.0" prefWidth="1800.0" styleClass="card" stylesheets="@css/panel-productos.css">
                      <children>
-                        <Label layoutX="25.0" layoutY="15.0" text="Historial de Estadísticas" textFill="#274f8d">
+                        <Label fx:id="lblIngresos" layoutX="25.0" layoutY="15.0" styleClass="title" text="Ingresos" textFill="#274f8d">
                            <font>
                               <Font name="Arial Black" size="16.0" />
                            </font>
                         </Label>
-                        <VBox fx:id="vboxHistorial" layoutX="25.0" layoutY="55.0" prefHeight="230.0" prefWidth="1750.0" spacing="10.0">
-                           <children>
-                              <!-- Se cargarán dinámicamente -->
-                           </children>
-                        </VBox>
+                        <Label fx:id="lblPerdidas" layoutX="583.0" layoutY="15.0" styleClass="title" text="Perdidas" textFill="#274f8d">
+                           <font>
+                              <Font name="Arial Black" size="16.0" />
+                           </font>
+                        </Label>
+                        <ComboBox layoutX="239.0" layoutY="20.0" prefWidth="150.0" promptText="fecha" styleClass="field" stylesheets="@css/panel-productos.css" />
+                        <Label fx:id="lblIngresos" layoutX="45.0" layoutY="115.0" text="Label" />
+                        <Label fx:id="lblPerdidas" layoutX="611.0" layoutY="124.0" text="Label" />
+                        <Label fx:id="lblGanancias" layoutX="1035.0" layoutY="15.0" styleClass="title" text="Ganancias" textFill="#274f8d">
+                           <font>
+                              <Font name="Arial Black" size="16.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="lblGanancias" layoutX="1073.0" layoutY="124.0" text="Label" />
                      </children>
                   </Pane>
+                  <Label layoutX="1287.0" layoutY="279.0" styleClass="subtitle" text="Predicciones de stock" />
                </children>
             </Pane>
          </content>
