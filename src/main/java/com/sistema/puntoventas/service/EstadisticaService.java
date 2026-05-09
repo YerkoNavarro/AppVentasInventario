@@ -1,6 +1,8 @@
 package com.sistema.puntoventas.service;
 
+import com.sistema.puntoventas.modelo.BalanceFinancieroDTO;
 import com.sistema.puntoventas.modelo.PrediccionStock;
+import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
@@ -21,7 +23,7 @@ public class EstadisticaService {
     }
 
 
-    public int obtenerIngresosTotales(String periodo) {
+    public double obtenerIngresosTotales(String periodo) {
         return estadisticasRepository.obtenerIngresosTotales(periodo);
     }
 
@@ -37,6 +39,47 @@ public class EstadisticaService {
 
         return estadisticasRepository.obtenerRankingProductos(limite);
     }
+
+    public double obtenerPerdidasTotales(String periodo){
+
+        if(estadisticasRepository.obtenerPerdidasTotales(periodo) == 0){
+            System.out.println("No se han registrado pérdidas en el periodo " + periodo);
+        }
+
+        if(estadisticasRepository.obtenerPerdidasTotales(periodo) < 0){
+            System.err.println("Error: Las pérdidas no pueden ser negativas. Revisa los datos.");
+        }
+
+
+        return estadisticasRepository.obtenerPerdidasTotales(periodo);
+    }
+
+
+    public BalanceFinancieroDTO obtenerBalance(String periodo){
+        if(periodo == null || periodo.trim().isEmpty()){
+            return new BalanceFinancieroDTO(periodo, 0.0, 0.0, 0.0);
+        }
+
+       double  perdida = estadisticasRepository.obtenerPerdidasTotales(periodo);
+       double ingreso = estadisticasRepository.obtenerIngresosTotales(periodo);
+       double balance = (ingreso - perdida) ;
+
+
+        return new BalanceFinancieroDTO(periodo, ingreso, perdida, balance);
+    }
+
+
+
+    public int obtenerVentasPorUsuarios(int id){
+        if(id == 0 || id < 0){
+            System.err.println("ID de usuario no valido");
+            return 0;
+        }
+
+        int ventas = obtenerVentasPorUsuarios(id);
+        return ventas;
+    }
+
 
     public boolean prepararDatosParaIA(){
         int filasExportadas = estadisticasRepository.prepararDatosParaIA();

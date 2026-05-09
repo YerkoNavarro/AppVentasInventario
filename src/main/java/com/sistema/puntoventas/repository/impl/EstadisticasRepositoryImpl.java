@@ -16,31 +16,31 @@ import java.util.List;
 public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
 
-    @Override
-    public int obtenerIngresosTotales(String periodo) {
+    public double obtenerIngresosTotales(String periodo) {
         if (periodo == null || periodo.trim().isEmpty()) {
-            return 0;
+            return 0.0;
         }
+
 
         String sql = "SELECT COALESCE(SUM(totalVenta), 0) AS total "
                 + "FROM venta "
-                + "WHERE fechaHora LIKE ? AND estado = 1"
-                +"ORDER BY fechaHora DESC" ;
+                + "WHERE fechaHora LIKE ? AND estado = 1";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, "%" + periodo.trim() + "%");
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return (int) Math.round(rs.getDouble("total"));
+                    return rs.getDouble("total"); // Retornamos double limpio
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener ingresos totales: " + e.getMessage());
         }
 
-        return 0;
+        return 0.0;
     }
 
     @Override
@@ -176,5 +176,34 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
             throw new RuntimeException("Error al preparar datos de stock para IA: " + e.getMessage(), e);
         }
         return filasExportadas;
+    }
+
+    public double obtenerPerdidasTotales(String periodo) {
+        if (periodo == null || periodo.trim().isEmpty()) {
+            return 0.0;
+        }
+
+        // Unimos historial y producto, y aplicamos el mismo filtro de fecha
+        String sql = "SELECT COALESCE(SUM(h.cantidad * p.precioCompra), 0) AS total "
+                + "FROM historial_inventario h "
+                + "INNER JOIN producto p ON p.id = h.idProducto "
+                + "WHERE h.tipoMovimiento IN ('MERMA', 'AJUSTE') "
+                + "AND h.fecha LIKE ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "%" + periodo.trim() + "%");
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("total");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener perdidas totales: " + e.getMessage());
+        }
+
+        return 0.0;
     }
 }

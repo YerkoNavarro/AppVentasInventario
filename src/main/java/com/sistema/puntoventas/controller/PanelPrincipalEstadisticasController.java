@@ -1,5 +1,6 @@
 package com.sistema.puntoventas.controller;
 
+import com.sistema.puntoventas.modelo.BalanceFinancieroDTO;
 import com.sistema.puntoventas.util.MensajesAlerta;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -31,6 +32,12 @@ public class PanelPrincipalEstadisticasController implements Initializable {
     private Label lblIngresosTotales;
 
     @FXML
+    private Label lblUtilidadNeta;
+
+    @FXML
+    private Label lblPerdidasTotales;
+
+    @FXML
     private VBox vboxProductosTop;
 
     @FXML
@@ -45,11 +52,38 @@ public class PanelPrincipalEstadisticasController implements Initializable {
         IProductoRepository productoRepository = new ProductoRepositoryImpl();
         this.estadisticaService = new EstadisticaService(estadisticasRepository, productoRepository);
         //this.productoService = new ProductoService(productoRepository);
-
+        cargarReporteFinanciero();
         cargarIngresosTotales();
         cargarRankingProductos();
         cargarVentasUsuarios();
     }
+
+    private void cargarReporteFinanciero() {
+
+        String periodo = LocalDate.now().toString().substring(0, 7);
+
+        // Traemos todo el paquete de datos desde el Service en una sola llamada
+        BalanceFinancieroDTO reporte = estadisticaService.obtenerBalance(periodo);
+
+
+        if (lblIngresosTotales != null && lblUtilidadNeta != null && lblPerdidasTotales != null) {
+
+            // Usamos formato para moneda (₡) con 2 decimales
+            lblIngresosTotales.setText(String.format("₡%.2f", reporte.getIngresosTotales()));
+            lblPerdidasTotales.setText(String.format("₡%.2f", reporte.getPerdidasTotales()));
+            lblUtilidadNeta.setText(String.format("₡%.2f", reporte.getUtilidadNeta()));
+
+
+            if (reporte.getUtilidadNeta() < 0) {
+                lblUtilidadNeta.setStyle("-fx-text-fill: #ffb3b3;"); // Un rojo suave
+            } else {
+                lblUtilidadNeta.setStyle("-fx-text-fill: #ffffff;"); // Blanco normal
+            }
+        }
+    }
+
+
+
 
     private void cargarVentasUsuarios() {
         // Por ahora mostramos entradas de ejemplo para evitar dependencias con la BD
@@ -64,7 +98,7 @@ public class PanelPrincipalEstadisticasController implements Initializable {
 
     private void cargarIngresosTotales() {
         String periodo = LocalDate.now().toString().substring(0, 7); // Formato "YYYY-MM"
-        int ingresosTotales = estadisticaService.obtenerIngresosTotales(periodo);
+        double ingresosTotales = estadisticaService.obtenerIngresosTotales(periodo);
         lblIngresosTotales.setText("Ingresos Totales (" + periodo + "): $" + ingresosTotales);
     }
 
