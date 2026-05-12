@@ -2,6 +2,7 @@ package com.sistema.puntoventas.service;
 
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.detalleVenta;
 
 
@@ -13,14 +14,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Observable;
+import java.util.Optional;
+import java.util.Set;
 
 public class VentaService {
     
     DetalleVentaImpl detalleVentaImpl = new DetalleVentaImpl();
-
     VentaRepositoryimpl ventaRepositoryimpl = new VentaRepositoryimpl();
+    ProductoService productoService = new ProductoService();
 
     public boolean guardarVenta(venta venta, List<Integer> idProductos){
 
@@ -44,26 +47,15 @@ public class VentaService {
     public ObservableList<String> obtenerFechasTableView(){
         try {
             List<String> listaFechas = ventaRepositoryimpl.obtenerTodasLasFechas();
+            Set<String> fechasUnicas = new HashSet<>();
 
-            //limpia la hora de las fechas y solo agrega si no se repite
-            for (int i = 0; i < listaFechas.size(); i++) {
-            String fecha = listaFechas.get(i).split(" ")[0];
-            listaFechas.set(i, fecha);
-        }
+            for (String fechaCompleta : listaFechas) {
+                fechasUnicas.add(fechaCompleta.split(" ")[0]);
+            }
 
-            // Elimina duplicados en la misma lista
-            for (int i = 0; i < listaFechas.size(); i++) {
-                for (int j = i + 1; j < listaFechas.size(); j++) {
-                    if (listaFechas.get(i).equals(listaFechas.get(j))) {
-                        listaFechas.remove(j);
-                        j--;
-                    }
-                }
-        }
-            
-
-            ObservableList<String> obsListFechas = FXCollections.observableArrayList(listaFechas);
-            return obsListFechas;
+            List<String> resultado = new ArrayList<>(fechasUnicas);
+            resultado.sort((a, b) -> b.compareTo(a)); // Orden descendente
+            return FXCollections.observableArrayList(resultado);
             
         } catch (Exception e) {
             System.err.println("Error al obtener fechas: " + e.getMessage());
@@ -95,6 +87,64 @@ public class VentaService {
         return ventaRepositoryimpl.registrarTabladeVentaCompleta(tablaVentaAplicacion);
     }
 
+    /**
+     * Resuelve una cadena de texto con nombres de productos separados por comas
+     * buscando coincidencias en el catálogo.
+     * 
+     * @param input Nombres ingresados por el usuario.
+     * @param catalogo Lista de productos disponibles para comparar.
+     * @return Lista de productos encontrados.
+     * @throws Exception Si algún producto no existe o la entrada es inválida.
+     */
+    public List<Producto> resolverProductos(String input, List<Producto> catalogo) throws Exception {
+        if (input == null || input.isBlank()) {
+            throw new Exception("El campo de productos no puede estar vacío.");
+        }
 
+        String[] nombres = input.split(",");
+        List<Producto> listaProductos = new ArrayList<>();
+        List<String> noEncontrados = new ArrayList<>();
 
+        for (String nombre : nombres) {
+            String nombreLimpio = nombre.trim();
+            if (nombreLimpio.isEmpty()) continue;
+
+            Optional<Producto> encontrado = catalogo.stream()
+                .filter(p -> p.getNombre().equalsIgnoreCase(nombreLimpio))
+                .findFirst();
+
+            if (encontrado.isPresent()) {
+                listaProductos.add(encontrado.get());
+            } else {
+                noEncontrados.add(nombreLimpio);
+            }
+        }
+
+        if (!noEncontrados.isEmpty()) {
+            throw new Exception("No se encontraron los siguientes productos: " + String.join(", ", noEncontrados));
+        }
+
+        return listaProductos;
+    }
+
+    public ventaAplicacion procesarNuevaVentaApp(String totalStr, String fecha, String pago, String desc, List<Producto> productos) throws Exception {
+        double total;
+        try {
+            total = Double.parseDouble(totalStr);
+        } catch (NumberFormatException e) {
+            throw new Exception("El total de la venta no tiene un formato numérico válido.");
+        }
+
+        venta v = new venta();
+        v.setTotalVenta(total);
+        v.setFechaHora(fecha);
+        v.setTipoPago(pago);
+        v.setDescripcion(desc);
+
+        ventaAplicacion nuevaVentaApp = new ventaAplicacion();
+        nuevaVentaApp.setVenta(v);
+        nuevaVentaApp.setDetalleVentas(productos);
+        return nuevaVentaApp;
+    }
+    
 }

@@ -1,12 +1,10 @@
 package com.sistema.puntoventas.controller;
 
-import java.lang.annotation.Repeatable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
@@ -33,200 +31,178 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+/**
+ * Controlador encargado de la gestión de la vista de ventas.
+ * Permite registrar nuevas ventas, gestionar la tabla temporal de transacciones
+ * y persistir la información en la base de datos a través de servicios.
+ */
 public class VentaController {
-    Boolean tablaEstaVacia = true;
 
+    // --- Componentes de la Interfaz (FXML) ---
+    @FXML private TableView<ventaAplicacion> idTablaVentas;
+    @FXML private TableColumn<ventaAplicacion, String> ColFecha;
+    @FXML private TableColumn<ventaAplicacion, String> ColProductos;
+    @FXML private TableColumn<ventaAplicacion, String> ColTipoPago;
+    @FXML private TableColumn<ventaAplicacion, Double> ColTotalVenta;
+    @FXML private TableColumn<ventaAplicacion, String> ColDescripcion;
+
+    @FXML private TextField textFieldProducto;
+    @FXML private TextField textfieldDescripcion;
+    @FXML private TextField textfieldFecha;
+    @FXML private TextField textfieldTipoPago;
+    @FXML private TextField textfieldTotal;
+
+    @FXML private MenuItem BotonNuevaVenta;
+
+    // --- Servicios y Estado del Controlador ---
+    private final VentaService ventaService = new VentaService();
+    private ProductoService productoService = new ProductoService();
+    private final List<Producto> productosDisponibles = new ArrayList<>();
+    private final ContextMenu contextMenu = new ContextMenu();
+    private Boolean tablaEstaVacia = true;
+
+    /**
+     * Método de inicialización automática de JavaFX.
+     * Configura el estado inicial de la vista.
+     */
     @FXML
-    private TableColumn<ventaAplicacion, String> ColDescripcion;
-
-    @FXML
-    private TableColumn<ventaAplicacion, String> ColFecha;
-
-    
-    @FXML
-    private TableColumn<ventaAplicacion, String> ColProductos;
-
-    @FXML
-    private TableColumn<ventaAplicacion, String> ColTipoPago;
-
-    @FXML
-    private TableColumn<ventaAplicacion, Double> ColTotalVenta;
-
-    @FXML
-    private TableView<ventaAplicacion> idTablaVentas;
-
-
-    @FXML
-    private MenuItem BotonNuevaVenta;
-
-
-
-    //del tab agregar venta
-    @FXML
-    private TextField textFieldProducto;
-
-    @FXML
-    private TextField textfieldDescripcion;
-
-    @FXML
-    private TextField textfieldFecha;
-
-    @FXML
-    private TextField textfieldTipoPago;
-
-    @FXML
-    private TextField textfieldTotal;
-
-    
-    private ProductoService productoService; 
-
-
-   @FXML
-void agregarVenta(ActionEvent event) {
-    if (textfieldFecha.getText().isEmpty() || textfieldTotal.getText().isEmpty() ||
-        textfieldTipoPago.getText().isEmpty() || textFieldProducto.getText().isEmpty()) {
-        mostrarAlerta(Alert.AlertType.WARNING, "Campos incompletos",
-            "Por favor, complete todos los campos para registrar la venta.");
-        return; // retorno temprano es más limpio que un gran bloque else
+    public void initialize() {
+        configurarColumnasTabla();
+        inicializarFechaActual();
+        cargarCatalogoProductos();
+        configurarAutoComplete();
     }
 
-    try {
-        // --- Resolver productos primero, antes de construir el objeto venta ---
-        // Dividir solo por coma para que nombres con espacios como "Coca Cola" funcionen
-        String[] nombresIngresados = textFieldProducto.getText().split(",");
+    /**
+     * Configura el mapeo de las celdas y el redimensionamiento de las columnas.
+     */
+    private void configurarColumnasTabla() {
+        ColFecha.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
+        ColProductos.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
+        ColTipoPago.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
+        ColTotalVenta.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
+        ColDescripcion.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
 
-        List<Producto> listaProductos = new ArrayList<>();
-        List<String> noEncontrados = new ArrayList<>();
+        ColFecha.setCellValueFactory(cellData -> 
+            new SimpleStringProperty(cellData.getValue().getVenta().getFechaHora()));
+        ColTotalVenta.setCellValueFactory(cellData -> 
+            new SimpleObjectProperty<>(cellData.getValue().getVenta().getTotalVenta()));
+        ColProductos.setCellValueFactory(cellData -> 
+            new SimpleObjectProperty<>(cellData.getValue().getNombreProducto()));
+        ColDescripcion.setCellValueFactory(cellData -> 
+            new SimpleStringProperty(cellData.getValue().getVenta().getDescripcion()));
+        ColTipoPago.setCellValueFactory(cellData -> 
+            new SimpleStringProperty(cellData.getValue().getVenta().getTipoPago()));
+    }
 
-        for (String parte : nombresIngresados) {
-            String nombreLimpio = parte.trim();
-            if (nombreLimpio.isEmpty()) continue;
+    private void inicializarFechaActual() {
+        LocalDateTime ahora = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        textfieldFecha.setText(ahora.format(formatter));
+    }
 
-            Optional<Producto> encontrado = productosDisponibles.stream()
-                .filter(p -> p.getNombre().equalsIgnoreCase(nombreLimpio))
-                .findFirst();
+    private void cargarCatalogoProductos() {
+        productosDisponibles.clear();
+        productosDisponibles.addAll(this.productoService.obtenerProductos());
+    }
 
-            if (encontrado.isPresent()) {
-                listaProductos.add(encontrado.get());
-            } else {
-                noEncontrados.add(nombreLimpio); // registrar lo que no coincidió
-            }
-        }
-
-        // Advertir sobre fallos parciales antes de continuar
-        if (!noEncontrados.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Productos no encontrados",
-                "No se encontraron los siguientes productos: " + String.join(", ", noEncontrados) +
-                "\nVerifique los nombres e intente de nuevo.");
+    /**
+     * Valida la entrada del usuario y agrega una venta a la lista temporal (TableView).
+     * Resuelve los productos ingresados mediante comas.
+     */
+    @FXML
+    void agregarVenta(ActionEvent event) {
+        if (esFormularioInvalido()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Campos incompletos", 
+                "Por favor, complete todos los campos requeridos.");
             return;
         }
 
-        if (listaProductos.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Sin productos",
-                "No se pudo identificar ningún producto. Verifique los nombres.");
-            return;
+        try {
+            // Delegamos la resolución de productos y la creación del objeto de negocio al servicio
+            List<Producto> listaProductos = ventaService.resolverProductos(textFieldProducto.getText(), productosDisponibles);
+            
+            ventaAplicacion nuevaVentaApp = ventaService.procesarNuevaVentaApp(
+                textfieldTotal.getText(),
+                textfieldFecha.getText(),
+                textfieldTipoPago.getText(),
+                textfieldDescripcion.getText(),
+                listaProductos
+            );
+
+            idTablaVentas.getItems().add(nuevaVentaApp);
+            tablaEstaVacia = false;
+
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Venta añadida", "Venta agregada exitosamente a la tabla.");
+            limpiarCamposVenta();
+        } catch (Exception e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Error de validación", e.getMessage());
         }
-
-        // --- Construir los objetos solo después de pasar todas las validaciones ---
-        venta nuevaVenta = new venta();
-        nuevaVenta.setTotalVenta(Double.parseDouble(textfieldTotal.getText()));
-        nuevaVenta.setFechaHora(textfieldFecha.getText());
-        nuevaVenta.setTipoPago(textfieldTipoPago.getText());
-        nuevaVenta.setDescripcion(textfieldDescripcion.getText());
-
-        ventaAplicacion nuevaVentaAplicacion = new ventaAplicacion();
-        nuevaVentaAplicacion.setVenta(nuevaVenta);
-        nuevaVentaAplicacion.setDetalleVentas(listaProductos);
-
-        idTablaVentas.getItems().add(nuevaVentaAplicacion);
-        tablaEstaVacia = false;
-
-        mostrarAlerta(Alert.AlertType.INFORMATION, "Venta registrada",
-            "La venta se ha registrado correctamente.");
-        limpiarCamposVenta();
-
-    } catch (NumberFormatException e) {
-        mostrarAlerta(Alert.AlertType.ERROR, "Error de formato",
-            "El total debe ser un número válido (ejemplo: 1500.00).");
     }
-}
 
-    private final ContextMenu contextMenu = new ContextMenu(); // Menú contextual para autocompletar
-    private final List<Producto> productosDisponibles = new ArrayList<>(); // Almacena objetos Producto completos
+    private boolean esFormularioInvalido() {
+        return textfieldFecha.getText().isEmpty() || textfieldTotal.getText().isEmpty() ||
+               textfieldTipoPago.getText().isEmpty() || textFieldProducto.getText().isEmpty();
+    }
 
+    /**
+     * Configura el comportamiento de autocompletado para el campo de productos.
+     * Permite buscar sugerencias basándose en el último fragmento después de una coma.
+     */
     private void configurarAutoComplete() {
-
-    textFieldProducto.textProperty().addListener((obs, oldVal, newVal) -> {
-
-        if (newVal == null || newVal.isBlank()) {
-            contextMenu.hide();
-            return;
-        }
-
-        // Obtiene solo el último fragmento después de la última ","
-        String[] partes = newVal.split(",");
-        String ultimaParte = partes[partes.length - 1].trim();
-
-        // Si el último fragmento está vacío (ej: el usuario escribió "Pan, ")
-        // no busca sugerencias
-        if (ultimaParte.isBlank()) {
-            contextMenu.hide();
-            return;
-        }
-
-        List<String> filtrados = productosDisponibles.stream()
-            .map(Producto::getNombre) // Mapear a nombres para el filtrado
-            .filter(p -> p.toLowerCase().contains(ultimaParte.toLowerCase()))
-            .collect(Collectors.toList());
-
-        if (filtrados.isEmpty()) {
-            contextMenu.hide();
-            return;
-        }
-
-        contextMenu.getItems().clear();
-        for (String sugerencia : filtrados) {
-            MenuItem item = new MenuItem(sugerencia);
-            item.setOnAction(e -> {
-
-                // Reemplaza solo la última parte, conserva lo anterior
-                String textoActual = textFieldProducto.getText();
-                int ultimaSeparador = Math.max(textoActual.lastIndexOf(","), 
-                                      Math.max(textoActual.lastIndexOf(" "), 
-                                               textoActual.lastIndexOf("-")));
-
-                String prefijo = ultimaSeparador >= 0
-                    ? textoActual.substring(0, ultimaSeparador + 1) + " "
-                    : "";
-
-                textFieldProducto.setText(prefijo + sugerencia);
-                textFieldProducto.positionCaret(textFieldProducto.getText().length());
+        textFieldProducto.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.isBlank()) {
                 contextMenu.hide();
-            });
-            contextMenu.getItems().add(item);
-        }
+                return;
+            }
 
-        contextMenu.show(textFieldProducto, Side.BOTTOM, 0, 0);
-    });
+            String[] partes = newVal.split(",");
+            String ultimaParte = partes[partes.length - 1].trim();
 
-    textFieldProducto.focusedProperty().addListener((obs, oldVal, isFocused) -> {
-        if (!isFocused) contextMenu.hide(); // Ocultar al perder el foco
-    });
-}
-   
+            if (ultimaParte.isBlank()) {
+                contextMenu.hide();
+                return;
+            }
 
+            List<String> filtrados = productosDisponibles.stream()
+                .map(Producto::getNombre)
+                .filter(p -> p.toLowerCase().contains(ultimaParte.toLowerCase()))
+                .collect(Collectors.toList());
 
+            if (filtrados.isEmpty()) {
+                contextMenu.hide();
+                return;
+            }
 
-    
-    
+            contextMenu.getItems().clear();
+            for (String sugerencia : filtrados) {
+                MenuItem item = new MenuItem(sugerencia);
+                item.setOnAction(e -> {
+                    String textoActual = textFieldProducto.getText();
+                    int lastSep = textoActual.lastIndexOf(",");
+                    String prefijo = lastSep >= 0 ? textoActual.substring(0, lastSep + 1) + " " : "";
+                    textFieldProducto.setText(prefijo + sugerencia);
+                    textFieldProducto.positionCaret(textFieldProducto.getText().length());
+                    contextMenu.hide();
+                });
+                contextMenu.getItems().add(item);
+            }
+            contextMenu.show(textFieldProducto, Side.BOTTOM, 0, 0);
+        });
+
+        textFieldProducto.focusedProperty().addListener((obs, oldVal, isFocused) -> {
+            if (!isFocused) contextMenu.hide();
+        });
+    }
+
+    /**
+     * Abre el diálogo para cargar ventas históricas filtradas por fecha.
+     */
     @FXML
     void cargarVentaAplicacion(ActionEvent event) {
-        //lanzar el panel panelCargarVenta.fxml
         try {
             FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/panelCargarVenta.fxml"));
             Parent root = loader1.load();
-            
-            //  referencia al controlador del panel de carga
             CargarVentaController cargarController = loader1.getController();
 
             Dialog<ButtonType> dialog = new Dialog<>();
@@ -237,86 +213,60 @@ void agregarVenta(ActionEvent event) {
             Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
             stage.showAndWait();
 
-            // la fecha seleccionada desde el controlador del diálogo
             String fechaElegida = cargarController.getFechaSeleccionada();
-            
-            // Llamamos al método para cargar los datos si se eligió una fecha
             if (fechaElegida != null && !fechaElegida.isEmpty()) {
-                System.out.println("Fecha recibida para filtrar: " + fechaElegida);
                 cargarVentasTableView(fechaElegida);
-                System.out.println("el estado es: "+tablaEstaVacia);
             }
-            
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-
     }
-
-
-    VentaService ventaService = new VentaService();
-
 
     private void cargarVentasTableView(String fecha) {
         List<ventaAplicacion> listaVentas = ventaService.obtenerVentasporFecha(fecha);
-         if (listaVentas != null) {
-           
-            // Cargar la lista en el TableView
+        if (listaVentas != null) {
             idTablaVentas.setItems(FXCollections.observableArrayList(listaVentas));
             tablaEstaVacia = false;
         }
-        
     }
 
-
+    /**
+     * Prepara el formulario para una nueva sesión de venta, limpiando la tabla actual.
+     */
     @FXML
-    void cargarNuevaVenta(ActionEvent event) { //al pulsar el botonNuevaVenta
-        //pone la tabla con una lista vacia
-        System.out.println("tabla seteada vacia");
-        List<ventaAplicacion> listaNueva = new ArrayList<>();
-
-        var listaNuevaObs = FXCollections.observableArrayList(listaNueva);
-        idTablaVentas.setItems(listaNuevaObs);
-
-
+    void cargarNuevaVenta(ActionEvent event) {
+        idTablaVentas.getItems().clear();
+        tablaEstaVacia = true;
     }
 
+    /**
+     * Elimina el registro seleccionado actualmente en el TableView.
+     */
     @FXML
     void eliminarVenta(ActionEvent event) {
         ventaAplicacion seleccionada = idTablaVentas.getSelectionModel().getSelectedItem();
         if (seleccionada != null) {
             idTablaVentas.getItems().remove(seleccionada);
-            if (idTablaVentas.getItems().isEmpty()) {
-                tablaEstaVacia = true;
-            }
+            tablaEstaVacia = idTablaVentas.getItems().isEmpty();
         } else {
-            mostrarAlerta(Alert.AlertType.WARNING, "Selección requerida", "Por favor, seleccione una venta de la tabla para eliminar.");
+            mostrarAlerta(Alert.AlertType.WARNING, "Selección requerida", "Seleccione un registro para eliminar.");
         }
     }
 
-
+    /**
+     * Envía todos los registros de la tabla actual al servicio de persistencia.
+     */
     @FXML
     void guardarTablaEnBD(ActionEvent event) {
-        //captura los datos actuales de la tabla y los guarda en la BD con los metodos de service
-        if(idTablaVentas.getItems().isEmpty()){
-            mostrarAlerta(Alert.AlertType.WARNING, "Tabla vacía", "No hay datos en la tabla para guardar.");
+        if (idTablaVentas.getItems().isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Tabla vacía", "No hay datos para guardar.");
             return;
-            
         }
-        else{
-            ArrayList<ventaAplicacion> tablaVentaAplicacion = new ArrayList<>(idTablaVentas.getItems());
 
-            Boolean ventaRegistrada = ventaService.subirTablaBD(tablaVentaAplicacion);
-            if(ventaRegistrada){
-                mostrarAlerta(Alert.AlertType.INFORMATION, "Venta registrada", "La venta se ha registrado correctamente en la base de datos.");
-            }
-
-            
-
+        ArrayList<ventaAplicacion> tablaVentaAplicacion = new ArrayList<>(idTablaVentas.getItems());
+        if (ventaService.subirTablaBD(tablaVentaAplicacion)) {
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Las ventas se han guardado correctamente.");
         }
-        
-        
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
@@ -333,53 +283,4 @@ void agregarVenta(ActionEvent event) {
         textfieldTipoPago.clear();
         textfieldTotal.clear();
     }
-
-    @FXML
-    public void initialize() {
-    // Sin CONSTRAINED_RESIZE_POLICY
-    
-    ColFecha.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
-    ColProductos.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
-    ColTipoPago.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
-    ColTotalVenta.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
-    ColDescripcion.prefWidthProperty().bind(idTablaVentas.widthProperty().multiply(0.2));
-
-
-
-     // Mapeo de datos para las columnas existentes
-            ColFecha.setCellValueFactory(cellData -> 
-                new SimpleStringProperty(cellData.getValue().getVenta().getFechaHora()));
-            
-            ColTotalVenta.setCellValueFactory(cellData -> 
-                new SimpleObjectProperty<>(cellData.getValue().getVenta().getTotalVenta()));
-            
-            ColProductos.setCellValueFactory(cellData -> 
-                new SimpleObjectProperty<>(cellData.getValue().getNombreProducto()));
-
-            ColDescripcion.setCellValueFactory(cellData -> 
-                new SimpleStringProperty(cellData.getValue().getVenta().getDescripcion()));
-            
-            ColTipoPago.setCellValueFactory(cellData -> 
-                new SimpleStringProperty(cellData.getValue().getVenta().getTipoPago()));
-
-    // Inicializar con la fecha y hora actual formateada
-    LocalDateTime ahora = LocalDateTime.now();
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    textfieldFecha.setText(ahora.format(formatter));
-
-
-    this.productoService = new ProductoService(); // Inicializar el servicio de productos
-    productosDisponibles.addAll(this.productoService.obtenerProductos()); // Cargar todos los productos disponibles
-    configurarAutoComplete(); // Configurar el autocompletado con los productos cargados
-    
-    System.out.println("el estado es: "+tablaEstaVacia);
-    for (Producto p : productosDisponibles) {
-        System.out.println(p.getNombre() + " (ID: " + p.getId() + ")"); // Imprimir también el ID para verificar
-    }
-    
-    
-
-}
-   
-
 }
