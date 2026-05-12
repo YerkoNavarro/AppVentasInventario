@@ -59,7 +59,7 @@ public class VentaController {
     private ProductoService productoService = new ProductoService();
     private final List<Producto> productosDisponibles = new ArrayList<>();
     private final ContextMenu contextMenu = new ContextMenu();
-    
+    private final List<String> productosAgregados = new ArrayList<>(); //lista de los productos agregados durante esta sesion 
 
     /**
      * Método de inicialización automática de JavaFX.
@@ -131,7 +131,7 @@ public class VentaController {
             );
 
             idTablaVentas.getItems().add(nuevaVentaApp);
-            
+            productosAgregados.add(textFieldProducto.getText());
             
             mostrarAlerta(Alert.AlertType.INFORMATION, "Venta añadida", "Venta agregada exitosamente a la tabla.");
             limpiarCamposVenta();
