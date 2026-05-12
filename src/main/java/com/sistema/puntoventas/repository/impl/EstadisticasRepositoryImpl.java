@@ -49,13 +49,13 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
 
         String sql = "SELECT " +
                 "p.nombre AS nombreProducto, " +
-                "SUM(d.cantidad) AS totalCantidadVendida " +
-                "FROM detalle_venta d  " +
-                "INNER JOIN venta v ON d.idVenta = v.idVenta  " +
-                "INNER JOIN producto p ON d.idProducto = p.id  " +
-                "WHERE v.estado = 1  " +
-                "GROUP BY p.id, p.nombre  " +
-                "ORDER BY totalCantidadVendida DESC  " +
+                "COUNT(*) AS totalCantidadVendida " +
+                "FROM detalle_venta d " +
+                "INNER JOIN venta v ON d.idVenta = v.idVenta " +
+                "INNER JOIN producto p ON d.idProducto = p.id " +
+                "WHERE v.estado = 1 " +
+                "GROUP BY p.id, p.nombre " +
+                "ORDER BY totalCantidadVendida DESC " +
                 "LIMIT ?";
 
         try (Connection conn = DriverManager.getConnection(url);
