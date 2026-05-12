@@ -25,18 +25,7 @@ public class VentaService {
     VentaRepositoryimpl ventaRepositoryimpl = new VentaRepositoryimpl();
     ProductoService productoService = new ProductoService();
 
-    public boolean guardarVenta(venta venta, List<Integer> idProductos){
-
-        if (idProductos != null && !idProductos.isEmpty() && venta != null){
-            boolean ventaRegistrada ;
-            ventaRegistrada = ventaRepositoryimpl.registrarVentaCompleta(venta, idProductos);
-            return ventaRegistrada;
-        }
-        else{
-            System.err.println("Error al registrar la venta: idProductos o venta son nulos o vacíos.");
-            return false;
-        }
-    }
+    
 
 
     public List<ventaAplicacion> traerTodasLasVentas(){
@@ -146,5 +135,8 @@ public class VentaService {
         nuevaVentaApp.setDetalleVentas(productos);
         return nuevaVentaApp;
     }
+
+
+    
     
 }

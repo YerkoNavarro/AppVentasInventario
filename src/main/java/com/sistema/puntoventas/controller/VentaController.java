@@ -59,7 +59,7 @@ public class VentaController {
     private ProductoService productoService = new ProductoService();
     private final List<Producto> productosDisponibles = new ArrayList<>();
     private final ContextMenu contextMenu = new ContextMenu();
-    private Boolean tablaEstaVacia = true;
+    
 
     /**
      * Método de inicialización automática de JavaFX.
@@ -131,8 +131,8 @@ public class VentaController {
             );
 
             idTablaVentas.getItems().add(nuevaVentaApp);
-            tablaEstaVacia = false;
-
+            
+            
             mostrarAlerta(Alert.AlertType.INFORMATION, "Venta añadida", "Venta agregada exitosamente a la tabla.");
             limpiarCamposVenta();
         } catch (Exception e) {
@@ -226,7 +226,7 @@ public class VentaController {
         List<ventaAplicacion> listaVentas = ventaService.obtenerVentasporFecha(fecha);
         if (listaVentas != null) {
             idTablaVentas.setItems(FXCollections.observableArrayList(listaVentas));
-            tablaEstaVacia = false;
+           
         }
     }
 
@@ -236,7 +236,7 @@ public class VentaController {
     @FXML
     void cargarNuevaVenta(ActionEvent event) {
         idTablaVentas.getItems().clear();
-        tablaEstaVacia = true;
+       
     }
 
     /**
@@ -247,7 +247,7 @@ public class VentaController {
         ventaAplicacion seleccionada = idTablaVentas.getSelectionModel().getSelectedItem();
         if (seleccionada != null) {
             idTablaVentas.getItems().remove(seleccionada);
-            tablaEstaVacia = idTablaVentas.getItems().isEmpty();
+            
         } else {
             mostrarAlerta(Alert.AlertType.WARNING, "Selección requerida", "Seleccione un registro para eliminar.");
         }
