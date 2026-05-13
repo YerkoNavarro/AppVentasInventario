@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
 import com.sistema.puntoventas.modelo.detalleVenta;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
@@ -31,6 +32,7 @@ public class DetalleVentaImpl implements IDetalleVenta {
                     detalleVenta.setIdDetalle(rs.getInt("idDetalle"));
                     detalleVenta.setIdVenta(rs.getInt("idVenta"));
                     detalleVenta.setIdProducto(rs.getInt("idProducto"));
+                    detalleVenta.setIdPlatillo(rs.getInt("idPlatillo"));
                     System.out.println("detalleventa encontrado correctamente");
                     listaDetalleVenta.add(detalleVenta);
                     
@@ -49,21 +51,26 @@ public class DetalleVentaImpl implements IDetalleVenta {
         List<String> listaInfoDetalleVenta = new ArrayList<>();
 
         String infoDetalleVenta = "";
-        String sql = "SELECT dv.idDetalle, dv.idProducto, dv.idVenta, v.fechaHora, v.totalVenta, p.nombre, p.precioVenta " +
+        String sql = "SELECT dv.idDetalle, dv.idProducto, dv.idPlatillo, dv.idVenta, v.fechaHora, v.totalVenta, " +
+                     "p.nombre AS prodNombre, p.precioVenta AS prodPrecio, pl.nombre AS platNombre, pl.precio AS platPrecio " +
                      "FROM detalle_venta dv " +
                      "JOIN venta v ON dv.idVenta = v.idVenta " +
-                     "JOIN producto p ON p.id = dv.idProducto " +
+                     "LEFT JOIN producto p ON p.id = dv.idProducto " +
+                     "LEFT JOIN platillo pl ON pl.id = dv.idPlatillo " +
                      "WHERE v.idVenta = ?";
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) { // Changed from if to while to handle multiple results if the query was changed
+                    String nombreItem = rs.getString("prodNombre") != null ? rs.getString("prodNombre") : rs.getString("platNombre");
+                    double precioItem = rs.getString("prodNombre") != null ? rs.getDouble("prodPrecio") : rs.getDouble("platPrecio");
+
                     infoDetalleVenta = "ID Detalle: " + rs.getInt("idDetalle") +
                                        ", ID Venta: " + rs.getInt("idVenta") +
                                        ", ID Producto: " + rs.getInt("idProducto") +
-                                       ", Nombre Producto: " + rs.getString("nombre") +
-                                       ", Precio Venta: " + rs.getDouble("precioVenta") + // Added precioVenta
+                                       ", Nombre Ítem: " + nombreItem +
+                                       ", Precio Venta: " + precioItem + 
                                        ", Fecha Venta: " + rs.getString("fechaHora") + 
                                        ", Total Venta: " + rs.getDouble("totalVenta"); 
                     listaInfoDetalleVenta.add(infoDetalleVenta);
@@ -81,10 +88,13 @@ public class DetalleVentaImpl implements IDetalleVenta {
     public List<ventaAplicacion> obtenerTodasLasVentas() {  //trae toda la info de ventas y producto asociados
         List<ventaAplicacion> listaVentas  = new ArrayList<>();
         Map<Integer,ventaAplicacion> mapVentas = new LinkedHashMap<>();
-        String sql = "SELECT v.idVenta, v.fechaHora, v.totalVenta, v.tipoPago, v.descripcion, p.nombre, p.precioVenta " +
+        String sql = "SELECT v.idVenta, v.fechaHora, v.totalVenta, v.tipoPago, v.descripcion, " +
+                     "p.nombre AS prodNombre, p.precioVenta AS prodPrecio, " +
+                     "pl.nombre AS platNombre, pl.precio AS platPrecio " +
                      "FROM venta v " +
                      "JOIN detalle_venta dv ON v.idVenta = dv.idVenta " +
-                     "JOIN producto p ON dv.idProducto = p.id";
+                     "LEFT JOIN producto p ON dv.idProducto = p.id " +
+                     "LEFT JOIN platillo pl ON dv.idPlatillo = pl.id";
 
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
@@ -105,13 +115,23 @@ public class DetalleVentaImpl implements IDetalleVenta {
                         ventaAplicacion ventaApp = new ventaAplicacion();
                         ventaApp.setVenta(v);
                         ventaApp.setDetalleVentas(new ArrayList<>());
+                        ventaApp.setDetallePlatillos(new ArrayList<>());
                         mapVentas.put(idVenta, ventaApp);
                     }
-                    Producto p = new Producto();
-                    p.setNombre(rs.getString("nombre"));
-                    p.setPrecioVenta(rs.getDouble("precioVenta"));
                     
-                    mapVentas.get(idVenta).getDetalleVentas().add(p); //busca la venta por id y le agrega el producto 
+                    if (rs.getString("prodNombre") != null) {
+                        Producto p = new Producto();
+                        p.setNombre(rs.getString("prodNombre"));
+                        p.setPrecioVenta(rs.getDouble("prodPrecio"));
+                        mapVentas.get(idVenta).getDetalleVentas().add(p);
+                    }
+                    
+                    if (rs.getString("platNombre") != null) {
+                        Platillo pl = new Platillo();
+                        pl.setNombre(rs.getString("platNombre"));
+                        pl.setPrecio(rs.getDouble("platPrecio"));
+                        mapVentas.get(idVenta).getDetallePlatillos().add(pl);
+                    }
 
                 }
             }
@@ -127,11 +147,14 @@ public class DetalleVentaImpl implements IDetalleVenta {
     public List<ventaAplicacion> obtenerTodasLasVentasporFecha(String fecha) {  //trae toda la info de ventas y producto asociados
         List<ventaAplicacion> listaVentas  = new ArrayList<>();
         Map<Integer,ventaAplicacion> mapVentas = new LinkedHashMap<>();
-        String sql = "SELECT v.idVenta, v.fechaHora, v.totalVenta, v.tipoPago, v.descripcion, p.nombre, p.precioVenta " +
+        String sql = "SELECT v.idVenta, v.fechaHora, v.totalVenta, v.tipoPago, v.descripcion, " +
+                     "p.nombre AS prodNombre, p.precioVenta AS prodPrecio, " +
+                     "pl.nombre AS platNombre, pl.precio AS platPrecio " +
                      "FROM venta v " +
                      "JOIN detalle_venta dv ON v.idVenta = dv.idVenta " +
-                     "JOIN producto p ON dv.idProducto = p.id"
-                     + " WHERE v.fechaHora LIKE ?";
+                     "LEFT JOIN producto p ON dv.idProducto = p.id " +
+                     "LEFT JOIN platillo pl ON dv.idPlatillo = pl.id " +
+                     "WHERE v.fechaHora LIKE ?";
 
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
@@ -154,13 +177,23 @@ public class DetalleVentaImpl implements IDetalleVenta {
                         ventaAplicacion ventaApp = new ventaAplicacion();
                         ventaApp.setVenta(v);
                         ventaApp.setDetalleVentas(new ArrayList<>());
+                        ventaApp.setDetallePlatillos(new ArrayList<>());
                         mapVentas.put(idVenta, ventaApp);
                     }
-                    Producto p = new Producto();
-                    p.setNombre(rs.getString("nombre"));
-                    p.setPrecioVenta(rs.getDouble("precioVenta"));
                     
-                    mapVentas.get(idVenta).getDetalleVentas().add(p); //busca la venta por id y le agrega el producto 
+                    if (rs.getString("prodNombre") != null) {
+                        Producto p = new Producto();
+                        p.setNombre(rs.getString("prodNombre"));
+                        p.setPrecioVenta(rs.getDouble("prodPrecio"));
+                        mapVentas.get(idVenta).getDetalleVentas().add(p);
+                    }
+                    
+                    if (rs.getString("platNombre") != null) {
+                        Platillo pl = new Platillo();
+                        pl.setNombre(rs.getString("platNombre"));
+                        pl.setPrecio(rs.getDouble("platPrecio"));
+                        mapVentas.get(idVenta).getDetallePlatillos().add(pl);
+                    }
 
                 }
             }

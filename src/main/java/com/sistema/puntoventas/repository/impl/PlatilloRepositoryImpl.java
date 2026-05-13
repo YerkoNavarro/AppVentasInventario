@@ -16,10 +16,11 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean registrarPlatillo(Platillo platillo) {
-        String sqlPlatillo = "INSERT INTO platillo (nombre, precio, idCategoria, estado, costoProduccion, stockActual,tipoPlatillo) VALUES (?, ?, ?, ?, ?, ?,?)";
+        String sqlPlatillo = "INSERT INTO platillo (nombre, precio, idCategoria, estado, costoProduccion, stockActual, tipoProducto) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String sqlDetalle = "INSERT INTO detalle_platillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
-        try(var conn = DriverManager.getConnection(url);
-            var stmt = conn.prepareStatement(sqlPlatillo)) {
+        
+        try(Connection conn = DriverManager.getConnection(url)) {
+            conn.setAutoCommit(false);
 
             try (PreparedStatement stmtPlatillo = conn.prepareStatement(sqlPlatillo, Statement.RETURN_GENERATED_KEYS)) {
                 // 3. Seteamos los datos del Platillo (Calculados previamente por el sistema)
@@ -155,8 +156,8 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
     public List<Platillo> obtenerPlatilloPorNombre(String nombre) {
         List<Platillo> listaPlatillos = new ArrayList<>();
         String sql = "SELECT p.*,c.nombreCategoria FROM platillo p " +
-                     "INNER JOIN categoria c ON p.idCategoria = c.id" +
-                     " WHERE nombre LIKE ? AND estado = 1 ORDER BY ASC"; // Solo platillos activos
+                     "INNER JOIN categoria c ON p.idCategoria = c.id " +
+                     " WHERE p.nombre LIKE ? AND p.estado = 1 ORDER BY p.nombre ASC"; // Solo platillos activos
         try(Connection conn = DriverManager.getConnection(url);
             var stmt = conn.prepareStatement(sql)) {
 
@@ -186,7 +187,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean actualizarPlatillo(Platillo platillo) {
-        String sqlUpdatePlatillo = "UPDATE platillo SET nombre = ?, precio = ?, idCategoria = ?, estado = ?, costoProduccion = ?, stockActual = ?, tipoPlatillo = ? WHERE id = ?";
+        String sqlUpdatePlatillo = "UPDATE platillo SET nombre = ?, precio = ?, idCategoria = ?, estado = ?, costoProduccion = ?, stockActual = ?, tipoProducto = ? WHERE id = ?";
         String sqlDeleteDetalle = "DELETE FROM detalle_platillo WHERE idPlatillo = ?";
         String sqlInsertDetalle = "INSERT INTO detalle_platillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
 

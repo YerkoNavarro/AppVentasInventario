@@ -118,8 +118,10 @@ public class DbManager {
                 + " idDetalle INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + " idVenta INTEGER,"
                 + " idProducto INTEGER,"
+                + " idPlatillo INTEGER,"
                 + " FOREIGN KEY (idVenta) REFERENCES venta(idVenta) ON DELETE CASCADE,"
-                + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
+                + " FOREIGN KEY (idProducto) REFERENCES producto(id),"
+                + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id)"
                 + ");";
         try (var conn = DriverManager.getConnection(url);
              var stmt = conn.createStatement()) {
@@ -161,7 +163,6 @@ public class DbManager {
         crearTablaHistorialInventario();
         crearTablaPlatillo();
         crearTablaDetallePlatillo();
-        crearTablaProductosALaVenta();
         System.out.println("Inicialización de todas las tablas completada.");
     }
 
@@ -241,26 +242,6 @@ public class DbManager {
         }
     }
 
-    public void crearTablaProductosALaVenta(){ // Crea la tabla de productos a la venta
-        String sql = "CREATE TABLE IF NOT EXISTS productos_a_la_venta ("
-            + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + " idProducto INTEGER,"
-            + " idPlatillo INTEGER,"
-            + " categoria TEXT NOT NULL CHECK(categoria IN ('producto', 'platillo')),"
-            + " precioVenta REAL,"
-            + " stockVenta INTEGER DEFAULT 0,"
-            + " activo BOOLEAN DEFAULT 1,"
-            + " FOREIGN KEY (idProducto) REFERENCES producto(id) ON DELETE CASCADE,"
-            + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id) ON DELETE CASCADE"
-            + ");";
-
-        try (var conn = DriverManager.getConnection(url);
-            var stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            System.out.println("Tabla 'productos_a_la_venta' verificada/creada.");
-        } catch (SQLException e) {
-            System.err.println("Error al crear tabla productos_a_la_venta: " + e.getMessage());
-        }
-    }
+    
 
 }

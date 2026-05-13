@@ -3,10 +3,13 @@ package com.sistema.puntoventas.service;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
+import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
 import com.sistema.puntoventas.modelo.detalleVenta;
 
 
 import com.sistema.puntoventas.repository.impl.DetalleVentaImpl;
+import com.sistema.puntoventas.repository.impl.MovimientoRepositoryImpl;
 
 import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
 
@@ -24,6 +27,7 @@ public class VentaService {
     DetalleVentaImpl detalleVentaImpl = new DetalleVentaImpl();
     VentaRepositoryimpl ventaRepositoryimpl = new VentaRepositoryimpl();
     ProductoService productoService = new ProductoService();
+    MovimientoRepositoryImpl movimientoRepo = new MovimientoRepositoryImpl();
 
     
 
@@ -77,46 +81,55 @@ public class VentaService {
     }
 
     /**
-     * Resuelve una cadena de texto con nombres de productos separados por comas
-     * buscando coincidencias en el catálogo.
-     * 
-     * @param input Nombres ingresados por el usuario.
-     * @param catalogo Lista de productos disponibles para comparar.
-     * @return Lista de productos encontrados.
-     * @throws Exception Si algún producto no existe o la entrada es inválida.
+     * Resuelve una cadena de texto buscando coincidencias tanto en el catálogo de productos
+     * como en el de platillos.
      */
-    public List<Producto> resolverProductos(String input, List<Producto> catalogo) throws Exception {
+    public void resolverItemsVenta(String input, List<Producto> catalogoProd, List<Platillo> catalogoPlat, ventaAplicacion ventaApp) throws Exception {
         if (input == null || input.isBlank()) {
-            throw new Exception("El campo de productos no puede estar vacío.");
+            throw new Exception("El campo de productos/platillos no puede estar vacío.");
         }
 
         String[] nombres = input.split(",");
         List<Producto> listaProductos = new ArrayList<>();
+        List<Platillo> listaPlatillos = new ArrayList<>();
         List<String> noEncontrados = new ArrayList<>();
 
         for (String nombre : nombres) {
             String nombreLimpio = nombre.trim();
             if (nombreLimpio.isEmpty()) continue;
 
-            Optional<Producto> encontrado = catalogo.stream()
+            // Intentar encontrar como producto
+            Optional<Producto> prodEncontrado = catalogoProd.stream()
                 .filter(p -> p.getNombre().equalsIgnoreCase(nombreLimpio))
                 .findFirst();
 
-            if (encontrado.isPresent()) {
-                listaProductos.add(encontrado.get());
-            } else {
-                noEncontrados.add(nombreLimpio);
+            if (prodEncontrado.isPresent()) {
+                listaProductos.add(prodEncontrado.get());
+                continue;
             }
+
+            // Intentar encontrar como platillo
+            Optional<Platillo> platEncontrado = catalogoPlat.stream()
+                .filter(pl -> pl.getNombre().equalsIgnoreCase(nombreLimpio))
+                .findFirst();
+
+            if (platEncontrado.isPresent()) {
+                listaPlatillos.add(platEncontrado.get());
+                continue;
+            }
+
+            noEncontrados.add(nombreLimpio);
         }
 
         if (!noEncontrados.isEmpty()) {
-            throw new Exception("No se encontraron los siguientes productos: " + String.join(", ", noEncontrados));
+            throw new Exception("No se encontraron los siguientes ítems: " + String.join(", ", noEncontrados));
         }
 
-        return listaProductos;
+        ventaApp.setDetalleVentas(listaProductos);
+        ventaApp.setDetallePlatillos(listaPlatillos);
     }
 
-    public ventaAplicacion procesarNuevaVentaApp(String totalStr, String fecha, String pago, String desc, List<Producto> productos) throws Exception {
+    public ventaAplicacion procesarNuevaVentaApp(String totalStr, String fecha, String pago, String desc, List<Producto> productos, List<Platillo> platillos) throws Exception {
         double total;
         try {
             total = Double.parseDouble(totalStr);
@@ -133,10 +146,42 @@ public class VentaService {
         ventaAplicacion nuevaVentaApp = new ventaAplicacion();
         nuevaVentaApp.setVenta(v);
         nuevaVentaApp.setDetalleVentas(productos);
+        nuevaVentaApp.setDetallePlatillos(platillos);
         return nuevaVentaApp;
     }
 
+    /**
+     * Descuenta el stock de productos y los ingredientes de los platillos vendidos.
+     * 
+     * @param productos Lista de productos vendidos (descuenta 1 unidad).
+     * @param platillos Lista de platillos vendidos (descuenta según la receta).
+     */
+    public void descontarProductoyPlatillo(List<Producto> productos, List<Platillo> platillos) {
+        System.out.println("[STOCK] Iniciando proceso de descuento de inventario...");
+        if (productos != null) {
+            for (Producto p : productos) {
+                // Descuenta 1 unidad del stockActual para productos de venta directa
+                System.out.println("[STOCK] Descontando 1 unidad de Producto: " + p.getNombre() + " (ID: " + p.getId() + ")");
+                movimientoRepo.actualizarStockFisico(p.getId(), -1);
+            }
+        }
 
-    
-    
+        if (platillos != null) {
+            for (Platillo platillo : platillos) {
+                System.out.println("[INVENTARIO] Procesando receta del Platillo: " + platillo.getNombre());
+                if (platillo.getIngrediente() != null) {
+                    for (DetallePlatillo detalle : platillo.getIngrediente()) {
+                        // Descuenta la cantidad del ingrediente del stock del producto correspondiente
+                        int idProductoIngrediente = detalle.getProducto().getId();
+                        int cantidadADescontar = (int) detalle.getCantidadIngrediente();
+                        System.out.println("[DETALLE INGREDIENTE] -> Producto: " + detalle.getProducto().getNombre() 
+                                           + " (ID: " + idProductoIngrediente + ") | Cantidad a descontar: " + cantidadADescontar);
+                        movimientoRepo.actualizarStockFisico(idProductoIngrediente, -cantidadADescontar);
+                    }
+                }
+            }
+        }
+        System.out.println("[STOCK] Proceso de descuento finalizado.");
+    }
+
 }

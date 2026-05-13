@@ -10,7 +10,7 @@ import com.sistema.puntoventas.modelo.venta;
 import javafx.collections.ObservableList;
 
 public interface IventaRepository {
-    public Boolean registrarVentaCompleta(venta venta, List<Integer> idProducto );
+    public Boolean registrarVentaCompleta(venta venta, List<Integer> idProducto, List<Integer> idPlatillo);
     public boolean actualizarVenta(venta venta);
     public venta obtenerVentaPorId(int id);
     public List<venta> obtenerVentas();

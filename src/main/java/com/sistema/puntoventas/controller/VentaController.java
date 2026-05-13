@@ -8,8 +8,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
+import com.sistema.puntoventas.service.PlatilloService;
 import com.sistema.puntoventas.service.ProductoService;
 import com.sistema.puntoventas.service.VentaService;
 import javafx.beans.property.SimpleObjectProperty;
@@ -57,9 +60,15 @@ public class VentaController {
     // --- Servicios y Estado del Controlador ---
     private final VentaService ventaService = new VentaService();
     private ProductoService productoService = new ProductoService();
+    private final PlatilloService platilloService = new PlatilloService();
+
     private final List<Producto> productosDisponibles = new ArrayList<>();
+    private final List<Platillo> platillosDisponibles = new ArrayList<>();
+
+    // Listas para almacenar lo que se ingresa manualmente en la sesión actual
+    private final List<Producto> productosAgregados = new ArrayList<>();
+    private final List<Platillo> platillosAgregados = new ArrayList<>();
     private final ContextMenu contextMenu = new ContextMenu();
-    private final List<Producto> productosAgregados = new ArrayList<>(); //lista de los productos agregados durante esta sesion 
 
     /**
      * Método de inicialización automática de JavaFX.
@@ -69,7 +78,7 @@ public class VentaController {
     public void initialize() {
         configurarColumnasTabla();
         inicializarFechaActual();
-        cargarCatalogoProductos();
+        cargarCatalogos();
         configurarAutoComplete();
     }
 
@@ -101,9 +110,16 @@ public class VentaController {
         textfieldFecha.setText(ahora.format(formatter));
     }
 
-    private void cargarCatalogoProductos() {
+    private void cargarCatalogos() {
         productosDisponibles.clear();
         productosDisponibles.addAll(this.productoService.obtenerProductos());
+
+        try {
+            platillosDisponibles.clear();
+            platillosDisponibles.addAll(this.platilloService.obtenerPlatillos());
+        } catch (Exception e) {
+            System.err.println("Error al cargar catálogo de platillos: " + e.getMessage());
+        }
     }
 
     /**
@@ -119,20 +135,24 @@ public class VentaController {
         }
 
         try {
-            // Delegamos la resolución de productos y la creación del objeto de negocio al servicio
-            List<Producto> listaProductos = ventaService.resolverProductos(textFieldProducto.getText(), productosDisponibles);
+            // Usamos un objeto temporal para que el servicio resuelva tanto productos como platillos
+            ventaAplicacion tempVA = new ventaAplicacion();
+            ventaService.resolverItemsVenta(textFieldProducto.getText(), productosDisponibles, platillosDisponibles, tempVA);
             
             ventaAplicacion nuevaVentaApp = ventaService.procesarNuevaVentaApp(
                 textfieldTotal.getText(),
                 textfieldFecha.getText(),
                 textfieldTipoPago.getText(),
                 textfieldDescripcion.getText(),
-                listaProductos
+                tempVA.getDetalleVentas(),
+                tempVA.getDetallePlatillos()
             );
 
             idTablaVentas.getItems().add(nuevaVentaApp);
-            productosAgregados.addAll(listaProductos);
-           
+            
+            // Guardamos en las listas de seguimiento manual
+            productosAgregados.addAll(nuevaVentaApp.getDetalleVentas());
+            platillosAgregados.addAll(nuevaVentaApp.getDetallePlatillos());
             
             mostrarAlerta(Alert.AlertType.INFORMATION, "Venta añadida", "Venta agregada exitosamente a la tabla.");
             limpiarCamposVenta();
@@ -165,10 +185,19 @@ public class VentaController {
                 return;
             }
 
-            List<String> filtrados = productosDisponibles.stream()
+            List<String> sugerenciasProductos = productosDisponibles.stream()
+                .filter(p -> p.getTipoProducto() == TipoProducto.DIRECTO)
                 .map(Producto::getNombre)
                 .filter(p -> p.toLowerCase().contains(ultimaParte.toLowerCase()))
                 .collect(Collectors.toList());
+
+            List<String> sugerenciasPlatillos = platillosDisponibles.stream()
+                .map(Platillo::getNombre)
+                .filter(pl -> pl.toLowerCase().contains(ultimaParte.toLowerCase()))
+                .collect(Collectors.toList());
+
+            List<String> filtrados = new ArrayList<>(sugerenciasProductos);
+            filtrados.addAll(sugerenciasPlatillos);
 
             if (filtrados.isEmpty()) {
                 contextMenu.hide();
@@ -237,18 +266,23 @@ public class VentaController {
     @FXML
     void cargarNuevaVenta(ActionEvent event) {
         idTablaVentas.getItems().clear();
-       
+        // Limpiamos también el rastro manual al resetear la venta
+        productosAgregados.clear();
+        platillosAgregados.clear();
     }
 
     /**
-     * Elimina el registro seleccionado actualmente en el TableView.
+     * Elimina el registro seleccionado y actualiza las listas de items agregados.
      */
     @FXML
     void eliminarVenta(ActionEvent event) {
         ventaAplicacion seleccionada = idTablaVentas.getSelectionModel().getSelectedItem();
         if (seleccionada != null) {
             idTablaVentas.getItems().remove(seleccionada);
-            
+
+            // Sincronizamos las listas manuales eliminando lo que contenía esa fila
+            productosAgregados.removeAll(seleccionada.getDetalleVentas());
+            platillosAgregados.removeAll(seleccionada.getDetallePlatillos());
         } else {
             mostrarAlerta(Alert.AlertType.WARNING, "Selección requerida", "Seleccione un registro para eliminar.");
         }
@@ -266,6 +300,12 @@ public class VentaController {
 
         ArrayList<ventaAplicacion> tablaVentaAplicacion = new ArrayList<>(idTablaVentas.getItems());
         if (ventaService.subirTablaBD(tablaVentaAplicacion)) {
+            System.out.println("[VENTA] Venta guardada en BD. Procediendo a descontar stock de " 
+                               + productosAgregados.size() + " productos y " + platillosAgregados.size() + " platillos.");
+            // Descontamos del inventario los productos y ingredientes de platillos procesados
+            ventaService.descontarProductoyPlatillo(productosAgregados, platillosAgregados);
+
+            System.out.println("[VENTA] Stock actualizado con éxito.");
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Las ventas se han guardado correctamente.");
         }
     }
