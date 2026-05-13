@@ -1,4 +1,4 @@
-package com.sistema.puntoventas.modelo;
+package com.sistema.puntoventas.modelo.moduloProducto;
 
 public class Categoria {
     private int id;
@@ -47,5 +47,10 @@ public class Categoria {
 
     public void setActiva(boolean activa) {
         this.activa = activa;
+    }
+
+    @Override
+    public String toString() {
+        return this.nombreCategoria;
     }
 }

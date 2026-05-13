@@ -1,8 +1,15 @@
 
 package com.sistema.puntoventas.repository.impl;
 
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.venta;
+import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.repository.IventaRepository;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,25 +17,97 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 public class VentaRepositoryimpl implements IventaRepository {
 
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
  
     @Override
-    public Boolean registrarVentaCompleta(venta venta){
-        String sql = "INSERT INTO venta (fechaHora, idUsuario, totalVenta, estado) VALUES (?, ?, ?, ?)";
-        try (var conn = DriverManager.getConnection(url);
-             var pstmt = conn.prepareStatement(sql)) {
+    public Boolean registrarVentaCompleta(venta venta, List<Integer> idProductos) {
+        String sqlVenta = "INSERT INTO venta (fechaHora, idUsuario, totalVenta, tipoPago, descripcion, estado) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlDetalle = "INSERT INTO detalle_venta (idVenta, idProducto) VALUES (?, ?)";
+    
+        try (Connection conn = DriverManager.getConnection(url)) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlVenta, Statement.RETURN_GENERATED_KEYS);
+                 PreparedStatement pstmtDetalle = conn.prepareStatement(sqlDetalle)) {
+            
                 pstmt.setString(1, venta.getFechaHora());
                 pstmt.setInt(2, venta.getIdUsuario());
                 pstmt.setDouble(3, venta.getTotalVenta());
-                pstmt.setInt(4, 1); // 1 significa que la venta está activa
-                int rowsInserted = pstmt.executeUpdate();
+                pstmt.setString(4, venta.getTipoPago());
+                pstmt.setString(5, venta.getDescripcion());
+                pstmt.setInt(6, 1);
+                pstmt.executeUpdate();
+
+                try (ResultSet keys = pstmt.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        int idVenta = keys.getInt(1);
+                        for (Integer idProducto : idProductos) {
+                            pstmtDetalle.setInt(1, idVenta);
+                            pstmtDetalle.setInt(2, idProducto);
+                            pstmtDetalle.executeUpdate();
+                        }
+                    }
+                }
+
+                conn.commit();
                 System.out.println("Venta registrada correctamente");
-                return rowsInserted > 0;
-        } catch (SQLException e) {
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        }catch (SQLException e) {
             System.err.println("Error al registrar venta: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean registrarTabladeVentaCompleta(ArrayList<ventaAplicacion> tablaVentaAplicacion) {
+        String sqlVenta = "INSERT INTO venta (fechaHora, idUsuario, totalVenta, tipoPago, descripcion, estado) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlDetalle = "INSERT INTO detalle_venta (idVenta, idProducto) VALUES (?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(url)) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement pstmtVenta = conn.prepareStatement(sqlVenta, Statement.RETURN_GENERATED_KEYS);
+                 PreparedStatement pstmtDetalle = conn.prepareStatement(sqlDetalle)) {
+
+                for (ventaAplicacion va : tablaVentaAplicacion) {
+                    venta v = va.getVenta();
+                    pstmtVenta.setString(1, v.getFechaHora());
+                    pstmtVenta.setInt(2, v.getIdUsuario());
+                    pstmtVenta.setDouble(3, v.getTotalVenta());
+                    pstmtVenta.setString(4, v.getTipoPago());
+                    pstmtVenta.setString(5, v.getDescripcion());
+                    pstmtVenta.setInt(6, 1); // Estado activa
+
+                    pstmtVenta.executeUpdate();
+
+                    try (ResultSet generatedKeys = pstmtVenta.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            int idVenta = generatedKeys.getInt(1);
+                            for (Producto producto : va.getDetalleVentas()) {
+                                pstmtDetalle.setInt(1, idVenta);
+                                pstmtDetalle.setInt(2, producto.getId());
+                                pstmtDetalle.addBatch();
+                            }
+                            pstmtDetalle.executeBatch();
+                        }
+                    }
+                }
+                conn.commit();
+                System.out.println("Tabla de ventas registrada exitosamente, guardada en BD.");
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                System.err.println("Error en la transacción de ventas: " + e.getMessage());
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error de conexión: " + e.getMessage());
             return false;
         }
     }
@@ -61,11 +140,14 @@ public class VentaRepositoryimpl implements IventaRepository {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    v.setIdVenta(rs.getInt(1));
-                    v.setFechaHora(rs.getString(2));
-                    v.setIdUsuario(rs.getInt(3));
-                    v.setTotalVenta(rs.getDouble(4));
-                    if (rs.getInt(5) == 1) {
+                    v.setIdVenta(rs.getInt("idVenta"));
+                    v.setFechaHora(rs.getString("fechaHora"));
+                    v.setIdUsuario(rs.getInt("idUsuario"));
+                    v.setTotalVenta(rs.getDouble("totalVenta"));
+                    v.setTipoPago(rs.getString("tipoPago"));
+                    v.setDescripcion(rs.getString("descripcion"));
+                    
+                    if (rs.getInt("estado") == 1) {
                         v.setEstado(true);
                     } else {
                         v.setEstado(false);
@@ -89,11 +171,14 @@ public class VentaRepositoryimpl implements IventaRepository {
              var rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 venta v = new venta();
-                v.setIdVenta(rs.getInt(1));
-                v.setFechaHora(rs.getString(2));
-                v.setIdUsuario(rs.getInt(3));
-                v.setTotalVenta(rs.getDouble(4));
-                if (rs.getInt(5) == 1) {
+                v.setIdVenta(rs.getInt("idVenta"));
+                v.setFechaHora(rs.getString("fechaHora"));
+                v.setIdUsuario(rs.getInt("idUsuario"));
+                v.setTotalVenta(rs.getDouble("totalVenta"));
+                v.setTipoPago(rs.getString("tipoPago"));
+                v.setDescripcion(rs.getString("descripcion"));
+
+                if (rs.getInt("estado") == 1) {
                     v.setEstado(true);
                 } else {
                     v.setEstado(false);
@@ -134,4 +219,24 @@ public class VentaRepositoryimpl implements IventaRepository {
             System.err.println("Error al anular venta: " + e.getMessage());
         }
     }
+
+    @Override
+    public List<String> obtenerTodasLasFechas() { 
+        List<String> listaFechas = new ArrayList<>();
+        String sql = "SELECT fechaHora FROM venta";
+
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+                try (var rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        listaFechas.add(rs.getString("fechaHora"));
+                    }
+                }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener todas las fechas: " + e.getMessage());
+        }
+        return listaFechas;
+    }
+
+
 }

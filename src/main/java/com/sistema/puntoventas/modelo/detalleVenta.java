@@ -8,6 +8,10 @@ public class detalleVenta {
 
 
     //constructor
+
+    public detalleVenta() {
+    }
+
     public detalleVenta(int idDetalle, int idVenta, int idProducto) {
         this.idDetalle = idDetalle;
         this.idVenta = idVenta;
@@ -39,6 +43,14 @@ public class detalleVenta {
         return idProducto;
     }
 
-
+    //toString
+    @Override
+    public String toString() {
+        return "detalleVenta{" +
+                "idDetalle=" + idDetalle +
+                ", idVenta=" + idVenta +
+                ", idProducto=" + idProducto +
+                '}';
+    }
 
 }

@@ -24,6 +24,9 @@ public class PanelPrincipalVistaController {
         @FXML private Button btnProductos;
         @FXML private Button btnVentas;
         @FXML private Button btnInventario;
+        @FXML private Button btnPlatillos;
+        @FXML private Button btnEstadisticas;
+        @FXML private Button btnCategorias;
 
         @FXML private StackPane contentArea;
 
@@ -33,18 +36,26 @@ public class PanelPrincipalVistaController {
         // 2. MÉTODO DE INICIALIZACIÓN
         @FXML
         public void initialize() {
-            cargarVistaMódulo("DashboardVista.fxml", null);
+            cargarVistaModulo("DashboardVista.fxml", null);
 
             // Asignamos qué archivo FXML se abrirá al hacer clic en cada botón
             // (Asegúrate de que los nombres de los archivos .fxml coincidan con los tuyos)
-            btnUsuarios.setOnAction(e -> cargarVistaMódulo("PanelPrincipalUsuarios.fxml", btnUsuarios));
-            btnProductos.setOnAction(e -> cargarVistaMódulo("PanelProductos-vista.fxml", btnProductos));
-            btnVentas.setOnAction(e -> cargarVistaMódulo("PanelVentas-vista.fxml", btnVentas));
-            btnInventario.setOnAction(e -> cargarVistaMódulo("PanelInventario.fxml", btnInventario));
+
+            btnUsuarios.setOnAction(e -> cargarVistaModulo("PanelPrincipalUsuarios.fxml", btnUsuarios));
+            btnProductos.setOnAction(e -> cargarVistaModulo("PanelPrincipalProductos.fxml", btnProductos));
+            btnVentas.setOnAction(e -> cargarVistaModulo("panelVentas.fxml", btnVentas));
+            btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario.fxml", btnInventario));
+            btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelPrincipalPlatillosVista.fxml", btnPlatillos));
+            btnEstadisticas.setOnAction(e -> cargarVistaModulo("PanelPrincipalEstadisticasVista.fxml", btnEstadisticas));
+            btnCategorias.setOnAction(e -> cargarVistaModulo("PanelPrincipalCategorias.fxml", btnCategorias));
+
+
+
+
         }
 
         // 3. SISTEMA DE NAVEGACIÓN DINÁMICA
-        private void cargarVistaMódulo(String archivoFxml, Button botonActivo) {
+        private void cargarVistaModulo(String archivoFxml, Button botonActivo) {
             try {
                 // Cargar el archivo FXML del módulo correspondiente
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + archivoFxml));
@@ -73,7 +84,7 @@ public class PanelPrincipalVistaController {
         // 4. CAMBIO DE COLOR DEL BOTÓN (Estado Activo/Inactivo)
         private void actualizarEstiloBotones(Button botonActivo) {
             // Agrupamos los botones en una lista
-            List<Button> botones = Arrays.asList(btnUsuarios, btnProductos, btnVentas, btnInventario);
+            List<Button> botones = Arrays.asList(btnUsuarios, btnProductos, btnVentas, btnInventario, btnPlatillos, btnEstadisticas, btnCategorias);
 
             // A todos les quitamos la clase azul
             for (Button btn : botones) {
@@ -94,9 +105,8 @@ public class PanelPrincipalVistaController {
         public void handleNavegacion(MouseEvent event) {
         /* Aquí puedes detectar en qué tarjeta se hizo clic.
            Por ejemplo, si hacen clic en la tarjeta "Productos",
-           podrías llamar a cargarVistaMódulo("PanelProductos-vista.fxml", btnProductos);
+           podrías llamar a cargarVistaMódulo("PanelRegistrarProductosvista.fxml", btnProductos);
         */
             System.out.println("Clic detectado en una tarjeta del Dashboard!");
         }
     }
-

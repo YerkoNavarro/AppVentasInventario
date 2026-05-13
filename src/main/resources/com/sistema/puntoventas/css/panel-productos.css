@@ -101,7 +101,14 @@
     -fx-text-fill: #173f7a;
 }
 
-/*--- Estilos para la Tabla de Productos ---*/
+
+.label-metrica{
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* --- Estilos para la Tabla de Productos --- */
 
 .table-view {
     -fx-background-color: transparent;

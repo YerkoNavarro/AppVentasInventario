@@ -108,3 +108,48 @@
     -fx-background-radius: 12;
     -fx-effect: dropshadow(three-pass-box, rgba(245,158,11,0.3), 10, 0, 0, 5);
 }
+
+.card-kpi-red {
+    -fx-background-color: linear-gradient(to bottom right, #f50b0b, #d90606);
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(245, 11, 11, 0.3), 10, 0, 0, 5);
+}
+
+.card-kpi-ai, .card-kpi-ai-2 {
+    /* TARJETAS IA - MÁS PROTAGONISMO */
+}
+.card-kpi-ai {
+    -fx-background-color: linear-gradient(to bottom right, #7c3aed, #4f46e5);
+    -fx-background-radius: 16;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(three-pass-box, rgba(79,70,229,0.35), 18, 0, 0, 10);
+    -fx-border-color: rgba(255,255,255,0.06);
+    -fx-border-width: 1;
+}
+
+.card-kpi-ai-2 {
+    -fx-background-color: linear-gradient(to bottom right, #0ea5e9, #0369a1);
+    -fx-background-radius: 16;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(three-pass-box, rgba(3,105,161,0.25), 18, 0, 0, 10);
+    -fx-border-color: rgba(255,255,255,0.06);
+    -fx-border-width: 1;
+}
+
+/* Acento lateral para destacar las tarjetas IA */
+.card-kpi-ai {
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
+}
+
+/* Estilo para los textos dentro de las tarjetas IA */
+.card-kpi-ai .label, .card-kpi-ai-2 .label {
+    -fx-text-fill: white;
+}
+
+
+/* Valor principal con mayor presencia (en caso quieras añadir clase posteriormente) */
+.big-value {
+    -fx-font-size: 36px; /* coincide con FXML pero permite override */
+    -fx-font-weight: bold;
+}
