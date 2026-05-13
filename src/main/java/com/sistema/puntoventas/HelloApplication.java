@@ -70,27 +70,13 @@ public class HelloApplication extends Application {
         */
 
         
-       VentaService ventaService = new VentaService();
+    
 
-
-
-      List<ventaAplicacion> ventas = ventaService.traerTodasLasVentas();
-
-        
-
-        for (ventaAplicacion va : ventas) {
-    System.out.println("idVenta: " + va.getVenta().getIdVenta() + 
-                       " | fecha: " + va.getVenta().getFechaHora() + 
-                       " | total: " + va.getVenta().getTotalVenta());
-
-    for (Producto p : va.getDetalleVentas()) {
-        System.out.println("  -> " + p.getNombre() + " $" + p.getPrecioVenta());
-    }
-    System.out.println("----------");
+    
 }
     
     
 
 
-    }
+    
 }
