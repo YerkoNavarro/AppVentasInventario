@@ -9,9 +9,9 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.moduloProductos.PanelPrincipalProductosController">
+<AnchorPane maxHeight="Infinity" maxWidth="Infinity" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.moduloProductos.PanelPrincipalProductosController">
    <children>
-      <Pane id="panePrinc" fx:id="contenedorTabla" prefHeight="827.0" prefWidth="1675.0" styleClass="panel-root" stylesheets="@css/panel-productos.css">
+      <Pane id="panePrinc" fx:id="contenedorTabla" styleClass="panel-root" stylesheets="@css/panel-productos.css" AnchorPane.topAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0">
          <children>
             <TableView fx:id="tableProductos" layoutX="42.0" layoutY="284.0" prefHeight="456.0" prefWidth="1243.0">
               <columns>
