@@ -115,11 +115,15 @@
                                     <Label layoutX="25.0" layoutY="40.0" text="Top de productos con mayor rotación" textFill="#94a3b8">
                                        <font><Font size="12.0" /></font>
                                     </Label>
-                                    <ScrollPane layoutX="25.0" layoutY="65.0" prefWidth="630.0" prefHeight="110.0" fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
-                                       <content>
-                                          <VBox fx:id="vboxProductosTop" prefWidth="610.0" spacing="8.0" />
-                                       </content>
-                                    </ScrollPane>
+                                    <TableView fx:id="tableRankingProductos" layoutX="25.0" layoutY="65.0" prefHeight="110.0" prefWidth="630.0" stylesheets="@css/panel-productos.css">
+                                       <columnResizePolicy>
+                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                       </columnResizePolicy>
+                                       <columns>
+                                          <TableColumn fx:id="colRankingProducto" prefWidth="470.0" text="Producto" />
+                                          <TableColumn fx:id="colRankingCantidad" prefWidth="160.0" text="Vendidos" />
+                                       </columns>
+                                    </TableView>
                                  </children>
                               </Pane>
                            </children>

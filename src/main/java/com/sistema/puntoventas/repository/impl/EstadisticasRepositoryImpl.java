@@ -1,5 +1,6 @@
 package com.sistema.puntoventas.repository.impl;
 
+import com.sistema.puntoventas.modelo.RankingVendedoresDTO;
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
 
@@ -61,23 +62,27 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-
             pstmt.setInt(1, limite);
-
+            
+            System.out.println("DEBUG: Ejecutando query de ranking con límite: " + limite);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-
                     String nombre = rs.getString("nombreProducto");
                     int cantidad = rs.getInt("totalCantidadVendida");
 
+                    System.out.println("DEBUG RS: " + nombre + " - " + cantidad);
+                    
                     // Construimos el DTO y lo agregamos a la lista
                     RankingProductosDTO productoDTO = new RankingProductosDTO(nombre, cantidad);
                     ranking.add(productoDTO);
                 }
+                System.out.println("Ranking de productos obtenido: " + ranking.size() + " registros");
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener ranking de productos: " + e.getMessage());
+            System.err.println("SQL: " + sql);
+            e.printStackTrace();
         }
 
         return ranking;
@@ -86,8 +91,8 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
     @Override
     public int obtenerVentasUsuario(int idUsuario) {
         int cantidadVentas = 0;
-        String sql = "SELECT COUNT(idVenta) " +
-                     "COALESCE(SUM(totalVenta)) AS TotalVentas " +
+        String sql = "SELECT COUNT(idVenta) AS cantidad, " +
+                     "COALESCE(SUM(totalVenta),0) AS TotalVentas " +
                     "FROM venta " +
                     "WHERE idUsuario = ? AND estado = 1";
 
@@ -205,5 +210,35 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
         }
 
         return 0.0;
+    }
+
+
+    public List<RankingVendedoresDTO> obtenerRankingVendedores(int limite) {
+        List<RankingVendedoresDTO> lista = new ArrayList<>();
+
+        String sql = "SELECT u.nombre || ' ' || u.apellido AS nombreCompleto, COUNT(v.idVenta) AS total " +
+                "FROM usuario u " +
+                "INNER JOIN venta v ON u.id = v.idUsuario " +
+                "WHERE v.estado = 1 " + // Solo ventas válidas
+                "GROUP BY u.id " +
+                "ORDER BY total DESC " +
+                "LIMIT ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, limite);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                lista.add(new RankingVendedoresDTO(
+                        rs.getString("nombreCompleto"),
+                        rs.getInt("total")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en ranking vendedores: " + e.getMessage());
+        }
+        return lista;
     }
 }

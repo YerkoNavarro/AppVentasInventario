@@ -2,6 +2,7 @@ package com.sistema.puntoventas.service;
 
 import com.sistema.puntoventas.modelo.BalanceFinancieroDTO;
 import com.sistema.puntoventas.modelo.PrediccionStock;
+import com.sistema.puntoventas.modelo.RankingVendedoresDTO;
 import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
@@ -76,8 +77,13 @@ public class EstadisticaService {
             return 0;
         }
 
-        int ventas = obtenerVentasPorUsuarios(id);
+        int ventas = estadisticasRepository.obtenerVentasUsuario(id);
         return ventas;
+    }
+
+    public List<RankingVendedoresDTO> obtenerRankingVendedores(int limite) {
+        if (limite <= 0) return new ArrayList<>();
+        return estadisticasRepository.obtenerRankingVendedores(limite);
     }
 
 

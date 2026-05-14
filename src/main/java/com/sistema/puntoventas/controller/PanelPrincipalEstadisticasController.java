@@ -1,7 +1,6 @@
 package com.sistema.puntoventas.controller;
 
-import com.sistema.puntoventas.modelo.BalanceFinancieroDTO;
-import com.sistema.puntoventas.modelo.PrediccionStock;
+import com.sistema.puntoventas.modelo.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
@@ -34,9 +33,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import com.sistema.puntoventas.service.UsuarioService;
-import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
-import com.sistema.puntoventas.modelo.venta;
 
 public class PanelPrincipalEstadisticasController implements Initializable {
 
@@ -53,7 +50,13 @@ public class PanelPrincipalEstadisticasController implements Initializable {
     private Label lblTicketPromedio;
 
     @FXML
-    private VBox vboxProductosTop;
+    private TableView<RankingProductosDTO> tableRankingProductos;
+
+    @FXML
+    private TableColumn<RankingProductosDTO, String> colRankingProducto;
+
+    @FXML
+    private TableColumn<RankingProductosDTO, Integer> colRankingCantidad;
 
     @FXML
     private VBox vboxVentasUsuarios;
@@ -130,6 +133,15 @@ public class PanelPrincipalEstadisticasController implements Initializable {
         colDiasRestantes.setCellValueFactory(new PropertyValueFactory<>("diasParaAgotarse"));
         colIndiceRiesgo.setCellValueFactory(new PropertyValueFactory<>("indiceRiesgo"));
         colSugerenciaCompra.setCellValueFactory(new PropertyValueFactory<>("cantidadSugerida"));
+
+        if (colRankingProducto != null && colRankingCantidad != null) {
+            colRankingProducto.setCellValueFactory(new PropertyValueFactory<>("nombreProducto"));
+            colRankingCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadVendida"));
+        }
+
+        if (tableRankingProductos != null) {
+            tableRankingProductos.setPlaceholder(new Label("No hay ventas registradas aún."));
+        }
     }
 
     private void cargarReporteFinanciero() {
@@ -138,13 +150,13 @@ public class PanelPrincipalEstadisticasController implements Initializable {
         BalanceFinancieroDTO reporte = estadisticaService.obtenerBalance(periodo);
 
         if (lblIngresosTotales != null && lblUtilidadNeta != null && lblPerdidasTotales != null && lblTicketPromedio != null) {
-            lblIngresosTotales.setText(String.format("₡%.2f", reporte.getIngresosTotales()));
-            lblPerdidasTotales.setText(String.format("₡%.2f", reporte.getPerdidasTotales()));
-            lblUtilidadNeta.setText(String.format("₡%.2f", reporte.getUtilidadNeta()));
+            lblIngresosTotales.setText(String.format("$ %.1f", reporte.getIngresosTotales()));
+            lblPerdidasTotales.setText(String.format("$ %.1f", reporte.getPerdidasTotales()));
+            lblUtilidadNeta.setText(String.format("$ %.1f", reporte.getUtilidadNeta()));
             
             // Calcular ticket promedio: ingresos / cantidad de transacciones (estimado)
             double ticketPromedio = reporte.getIngresosTotales() > 0 ? reporte.getIngresosTotales() / 20.0 : 0;
-            lblTicketPromedio.setText(String.format("₡%.2f", ticketPromedio));
+            lblTicketPromedio.setText(String.format("$ %.2f", ticketPromedio));
         }
     }
 
@@ -165,76 +177,33 @@ public class PanelPrincipalEstadisticasController implements Initializable {
     private void cargarVentasUsuarios() {
         vboxVentasUsuarios.getChildren().clear();
 
-        try {
-            UsuarioService usuarioService = new UsuarioService();
-            List<Usuario> usuarios = usuarioService.obtenerUsuarios();
+        List<RankingVendedoresDTO> rankingVendedores = estadisticaService.obtenerRankingVendedores(5);
 
-            VentaRepositoryimpl ventaRepo = new VentaRepositoryimpl();
-            List<venta> ventas = ventaRepo.obtenerVentas();
-
-            // Contabilizar ventas por idUsuario
-            Map<Integer, Integer> ventasPorUsuario = new HashMap<>();
-            for (venta v : ventas) {
-                if (v == null) continue;
-                int idU = v.getIdUsuario();
-                ventasPorUsuario.put(idU, ventasPorUsuario.getOrDefault(idU, 0) + 1);
-            }
-
-            // Ordenar usuarios por cantidad de ventas descendente y mostrar top 5
-            List<Usuario> topUsuarios = usuarios.stream()
-                    .sorted(Comparator.comparingInt((Usuario u) -> ventasPorUsuario.getOrDefault(u.getId(), 0)).reversed())
-                    .limit(5)
-                    .collect(Collectors.toList());
-
-            if (topUsuarios.isEmpty()) {
-                Label lbl = new Label("No hay vendedores o no se han registrado ventas aún.");
-                vboxVentasUsuarios.getChildren().add(lbl);
-                return;
-            }
-
-            for (Usuario u : topUsuarios) {
-                int cantidad = ventasPorUsuario.getOrDefault(u.getId(), 0);
-                Label lbl = new Label(u.getNombre() + " " + u.getApellido() + " — " + cantidad + " ventas");
-                vboxVentasUsuarios.getChildren().add(lbl);
-            }
-
-        } catch (Exception e) {
-            System.err.println("Error al cargar ventas por usuario: " + e.getMessage());
-            Label lbl = new Label("Error al cargar datos de vendedores");
-            vboxVentasUsuarios.getChildren().add(lbl);
-        }
-    }
-
-    private void cargarRankingProductos() {
-        vboxProductosTop.getChildren().clear();
-
-        List<RankingProductosDTO> rankingProductos = estadisticaService.obtenerRankingProductos(10);
-
-        if (rankingProductos == null || rankingProductos.isEmpty()) {
-            Label lblSinDatos = new Label("No hay datos de ventas para mostrar el ranking de productos.");
-            vboxProductosTop.getChildren().add(lblSinDatos);
+        if(rankingVendedores.isEmpty()){
+            vboxVentasUsuarios.getChildren().add(new Label("No hay datos de ventas por usuario para mostrar."));
             return;
         }
 
-        for (int i = 0; i < rankingProductos.size(); i++) {
-            RankingProductosDTO producto = rankingProductos.get(i);
-            
-            HBox hboxProducto = new HBox(15);
-            hboxProducto.setPadding(new Insets(8, 10, 8, 10));
-
-            Label lblPosicion = new Label("#" + (i + 1));
-            lblPosicion.setMinWidth(30);
-
-            Label lblNombre = new Label(producto.getNombreProducto());
-            lblNombre.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(lblNombre, javafx.scene.layout.Priority.ALWAYS);
-
-            Label lblCantidad = new Label("Vendidas: " + producto.getCantidadVendida());
-            lblCantidad.setMinWidth(100);
-
-            hboxProducto.getChildren().addAll(lblPosicion, lblNombre, lblCantidad);
-            vboxProductosTop.getChildren().add(hboxProducto);
+        for (RankingVendedoresDTO vendedor : rankingVendedores){
+            Label lbl = new Label(vendedor.getNombreVendedor() + " — " + vendedor.getCantidadVentas() + " ventas");
+            vboxVentasUsuarios.getChildren().add(lbl);
         }
+
+    }
+
+    private void cargarRankingProductos() {
+        List<RankingProductosDTO> topProductos = estadisticaService.obtenerRankingProductos(5);
+
+        if (tableRankingProductos == null) {
+            return;
+        }
+
+        if (topProductos.isEmpty()) {
+            tableRankingProductos.getItems().clear();
+            return;
+        }
+
+        tableRankingProductos.getItems().setAll(topProductos);
     }
 
     private void cargarHistorialActividad() {
