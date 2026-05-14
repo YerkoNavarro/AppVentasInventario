@@ -136,6 +136,7 @@ public class DbManager {
         crearTablaDetalleVenta();
         crearTablaProductos();
         crearTablaHistorialInventario();
+        crearTablaAuditoria();
         crearTablaPlatillo();
         crearTablaDetallePlatillo();
         System.out.println("Inicialización de todas las tablas completada.");
@@ -214,6 +215,28 @@ public class DbManager {
             System.out.println("Tabla 'detalle_platillo' verificada/creada.");
         } catch (SQLException e) {
             System.err.println("Error al crear tabla detalle_platillo: " + e.getMessage());
+        }
+    }
+
+    public void crearTablaAuditoria() {
+        String sql = "CREATE TABLE IF NOT EXISTS auditoria_eventos ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " fecha TEXT DEFAULT CURRENT_TIMESTAMP,"
+                + " modulo TEXT,"
+                + " entidad TEXT,"
+                + " accion TEXT,"
+                + " idEntidad INTEGER,"
+                + " detalle TEXT,"
+                + " idUsuario INTEGER,"
+                + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
+                + ");";
+
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'auditoria_eventos' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla auditoria_eventos: " + e.getMessage());
         }
     }
 }

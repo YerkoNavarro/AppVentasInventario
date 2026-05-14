@@ -1,17 +1,17 @@
 package com.sistema.puntoventas.controller;
 
 import com.sistema.puntoventas.modelo.*;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.FXCollections;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
@@ -59,10 +59,13 @@ public class PanelPrincipalEstadisticasController implements Initializable {
     private TableColumn<RankingProductosDTO, Integer> colRankingCantidad;
 
     @FXML
-    private VBox vboxVentasUsuarios;
+    private Pane vboxVentasUsuarios;
 
     @FXML
-    private VBox vboxHistorial;
+    private TableView<String> tableActividadReciente;
+
+    @FXML
+    private TableColumn<String, String> colActividadReciente;
 
     @FXML
     private TableView<PrediccionStock> tablePrediccionStock;
@@ -142,6 +145,11 @@ public class PanelPrincipalEstadisticasController implements Initializable {
         if (tableRankingProductos != null) {
             tableRankingProductos.setPlaceholder(new Label("No hay ventas registradas aún."));
         }
+
+        if (tableActividadReciente != null && colActividadReciente != null) {
+            colActividadReciente.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue()));
+            tableActividadReciente.setPlaceholder(new Label("No hay actividad reciente registrada."));
+        }
     }
 
     private void cargarReporteFinanciero() {
@@ -207,24 +215,17 @@ public class PanelPrincipalEstadisticasController implements Initializable {
     }
 
     private void cargarHistorialActividad() {
-        vboxHistorial.getChildren().clear();
+        List<String> actividades = estadisticaService.obtenerUltimasActividades(5);
 
-        for (int i = 1; i <= 5; i++) {
-            HBox hboxActividad = new HBox(15);
-            hboxActividad.setPadding(new Insets(8, 10, 8, 10));
-
-            Label lblFecha = new Label("2026-05-" + String.format("%02d", i) + " 10:30");
-            lblFecha.setMinWidth(150);
-
-            Label lblAccion = new Label("Cambio en precio de Producto " + i);
-            lblAccion.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(lblAccion, javafx.scene.layout.Priority.ALWAYS);
-
-            Label lblTipo = new Label("Modificación");
-            lblTipo.setMinWidth(100);
-
-            hboxActividad.getChildren().addAll(lblFecha, lblAccion, lblTipo);
-            vboxHistorial.getChildren().add(hboxActividad);
+        if (tableActividadReciente == null) {
+            return;
         }
+
+        if (actividades == null || actividades.isEmpty()) {
+            tableActividadReciente.getItems().clear();
+            return;
+        }
+
+        tableActividadReciente.setItems(FXCollections.observableArrayList(actividades));
     }
 }

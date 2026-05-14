@@ -241,4 +241,51 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
         }
         return lista;
     }
+
+    @Override
+    public List<String> obtenerUltimasActividades(int limite) {
+        List<String> actividades = new ArrayList<>();
+
+        String sql = "SELECT fechaOrdenada, modulo, detalle FROM ("
+                + "SELECT v.fechaHora AS fechaOrdenada, "
+                + "'Venta' AS modulo, "
+                + "'Venta #" + "' || v.idVenta || ' por ' || printf('$ %.2f', COALESCE(v.totalVenta, 0)) "
+                + "|| CASE WHEN u.nombre IS NOT NULL THEN ' - ' || u.nombre || ' ' || u.apellido ELSE '' END AS detalle "
+                + "FROM venta v "
+                + "LEFT JOIN usuario u ON u.id = v.idUsuario "
+                + "WHERE v.estado = 1 "
+                + "UNION ALL "
+                + "SELECT h.fecha AS fechaOrdenada, "
+                + "'Inventario' AS modulo, "
+                + "CASE h.tipoMovimiento "
+                + "WHEN 'ENTRADA' THEN 'Entrada de inventario' "
+                + "WHEN 'SALIDA_VENTA' THEN 'Salida por venta' "
+                + "WHEN 'MERMA' THEN 'Merma registrada' "
+                + "WHEN 'AJUSTE' THEN 'Ajuste de stock' "
+                + "ELSE h.tipoMovimiento END "
+                + "|| ' - ' || p.nombre || ' x' || h.cantidad "
+                + "|| CASE WHEN h.motivo IS NOT NULL AND trim(h.motivo) <> '' THEN ' (' || h.motivo || ')' ELSE '' END AS detalle "
+                + "FROM historial_inventario h "
+                + "INNER JOIN producto p ON p.id = h.idProducto) "
+                + "ORDER BY datetime(fechaOrdenada) DESC LIMIT ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, limite);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String fecha = rs.getString("fechaOrdenada");
+                    String modulo = rs.getString("modulo");
+                    String detalle = rs.getString("detalle");
+                    actividades.add("[" + fecha + "] " + modulo + ": " + detalle);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener actividades recientes: " + e.getMessage());
+        }
+
+        return actividades;
+    }
 }

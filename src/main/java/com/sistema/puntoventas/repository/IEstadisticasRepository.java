@@ -13,4 +13,5 @@ public interface IEstadisticasRepository {
     int prepararDatosStockParaIA();
     double obtenerPerdidasTotales(String periodo);
     List<RankingVendedoresDTO> obtenerRankingVendedores(int limite);
+    List<String> obtenerUltimasActividades(int limite);
 }
