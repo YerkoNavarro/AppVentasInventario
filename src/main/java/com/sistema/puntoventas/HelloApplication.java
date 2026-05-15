@@ -1,15 +1,7 @@
 package com.sistema.puntoventas;
 
 import com.sistema.puntoventas.conexion.DbManager;
-import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 
-import com.sistema.puntoventas.modelo.detalleVenta;
-import com.sistema.puntoventas.modelo.venta;
-import com.sistema.puntoventas.modelo.ventaAplicacion;
-import com.sistema.puntoventas.repository.impl.DetalleVentaImpl;
-import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
-import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
-import com.sistema.puntoventas.service.VentaService;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -18,8 +10,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class HelloApplication extends Application {
     @Override
