@@ -1,4 +1,5 @@
 package com.sistema.puntoventas.service;
+import com.sistema.puntoventas.modelo.AuditoriaEvento;
 import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.repository.IUsuarioRepository;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
@@ -8,8 +9,11 @@ import java.util.List;
 
 public class UsuarioService {
     private IUsuarioRepository usuarioRepository;
+    private AuditoriaService auditoriaService;
     public UsuarioService(){
         this.usuarioRepository= new UsuarioRepositoryImpl();
+        this.auditoriaService = new AuditoriaService();
+
 
 
     }
@@ -36,7 +40,22 @@ public class UsuarioService {
         // Registrar el usuario
         boolean registrado = usuarioRepository.registrarUsuario(usuario);
         if (registrado) {
+
+            AuditoriaEvento evento = new AuditoriaEvento();
+            evento.setModulo("Usuarios");
+            evento.setEntidad("Usuario");
+            evento.setAccion("Registro");
+            evento.setDetalle("Se registro un nuevo usuario: " + usuario.getNombre());
+
+            boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+            if (!auditoriaRegistrada) {
+                System.out.println("El producto se registro, pero no se pudo guardar el evento de auditoria.");
+            }
+            System.out.println("Evento registrado"+evento.getAccion()+" para el platillo: " + usuario.getNombre());
+
             return "Usuario registrado exitosamente";
+
+
         } else {
             return "Error al registrar el usuario";
         }

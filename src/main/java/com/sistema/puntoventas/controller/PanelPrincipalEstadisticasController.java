@@ -215,7 +215,7 @@ public class PanelPrincipalEstadisticasController implements Initializable {
     }
 
     private void cargarHistorialActividad() {
-        List<String> actividades = estadisticaService.obtenerUltimasActividades(5);
+        List<String> actividades = estadisticaService.obtenerUltimasActividades(20);
 
         if (tableActividadReciente == null) {
             return;
