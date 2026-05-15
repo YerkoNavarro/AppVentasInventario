@@ -4,6 +4,8 @@ import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
 import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
 import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
 import com.sistema.puntoventas.repository.moduloProductos.IPlatilloRepository;
 
 import java.sql.*;
@@ -343,5 +345,79 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
             System.err.println("Error al verificar asociación con ventas: " + e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * Nuevo método basado en obtenerPlatilloPorNombre que trae la receta completa
+     * y los datos de productos necesarios para el inventario.
+     */
+    @Override
+    public List<Platillo> obtenerPlatillosConRecetaCompleta() {
+        List<Platillo> listaPlatillos = new ArrayList<>();
+        String sql = "SELECT p.*, c.nombreCategoria FROM platillo p " +
+                     "INNER JOIN categoria c ON p.idCategoria = c.id " +
+                     "WHERE p.estado = 1 ORDER BY p.nombre ASC";
+        
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.prepareStatement(sql);
+             var rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Platillo platillo = new Platillo();
+                platillo.setId(rs.getInt("id"));
+                platillo.setNombre(rs.getString("nombre"));
+                platillo.setPrecio(rs.getDouble("precio"));
+                platillo.setEstado(rs.getBoolean("estado"));
+                platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
+                platillo.setStockActual(rs.getInt("stockActual"));
+                platillo.setTipoProducto(TipoProducto.PLATILLO);
+                
+                // Cargamos la categoría correctamente (no null)
+                Categoria cat = new Categoria();
+                cat.setId(rs.getInt("idCategoria"));
+                cat.setNombreCategoria(rs.getString("nombreCategoria"));
+                platillo.setCategoria(cat);
+
+                // Cargamos ingredientes con el nuevo método que trae UnidadMedida
+                platillo.setIngrediente(obtenerIngredientesConUnidadMedida(conn, platillo.getId()));
+                
+                listaPlatillos.add(platillo);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en obtenerPlatillosConRecetaCompleta: " + e.getMessage());
+        }
+        return listaPlatillos;
+    }
+
+    private List<DetallePlatillo> obtenerIngredientesConUnidadMedida(Connection conn, int idPlatillo) throws SQLException {
+        List<DetallePlatillo> ingredientes = new ArrayList<>();
+        String sql = "SELECT d.*, p.nombre, p.stockActual, p.unidadMedida FROM detalle_platillo d " +
+                     "INNER JOIN producto p ON d.idProducto = p.id WHERE d.idPlatillo = ?";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idPlatillo);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    DetallePlatillo detalle = new DetallePlatillo();
+                    detalle.setId(rs.getInt("id"));
+                    detalle.setCantidadIngrediente(rs.getDouble("cantidadIngrediente"));
+
+                    Producto prod = new Producto();
+                    prod.setId(rs.getInt("idProducto"));
+                    prod.setNombre(rs.getString("nombre"));
+                    prod.setStockActual(rs.getInt("stockActual"));
+                    
+                    // EXTRAEMOS LA UNIDAD DE MEDIDA (Lo que necesitas para comparar)
+                    String um = rs.getString("unidadMedida");
+                    if (um != null) {
+                        prod.setUnidadMedida(UnidadMedida.valueOf(um));
+                    }
+
+                    detalle.setProducto(prod);
+                    ingredientes.add(detalle);
+                }
+            }
+        }
+        return ingredientes;
     }
 }

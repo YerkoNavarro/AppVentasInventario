@@ -4,6 +4,7 @@ import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
+import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
 import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
 import com.sistema.puntoventas.modelo.detalleVenta;
 
@@ -160,9 +161,14 @@ public class VentaService {
         System.out.println("[STOCK] Iniciando proceso de descuento de inventario...");
         if (productos != null) {
             for (Producto p : productos) {
-                // Descuenta 1 unidad del stockActual para productos de venta directa
-                System.out.println("[STOCK] Descontando 1 unidad de Producto: " + p.getNombre() + " (ID: " + p.getId() + ")");
-                movimientoRepo.actualizarStockFisico(p.getId(), -1);
+                // Lógica unificada: descontar según Unidad de Medida
+                if (p.getUnidadMedida() == UnidadMedida.UNIDAD) {
+                    System.out.println("[STOCK] Descontando 1 unidad de stockActual: " + p.getNombre());
+                    movimientoRepo.actualizarStockFisico(p.getId(), -1);
+                } else {
+                    System.out.println("[STOCK] Descontando 1.0 de cantidad: " + p.getNombre());
+                    movimientoRepo.actualizarCantidadFisica(p.getId(), -1.0);
+                }
             }
         }
 
@@ -171,12 +177,26 @@ public class VentaService {
                 System.out.println("[INVENTARIO] Procesando receta del Platillo: " + platillo.getNombre());
                 if (platillo.getIngrediente() != null) {
                     for (DetallePlatillo detalle : platillo.getIngrediente()) {
-                        // Descuenta la cantidad del ingrediente del stock del producto correspondiente
-                        int idProductoIngrediente = detalle.getProducto().getId();
-                        int cantidadADescontar = (int) detalle.getCantidadIngrediente();
-                        System.out.println("[DETALLE INGREDIENTE] -> Producto: " + detalle.getProducto().getNombre() 
-                                           + " (ID: " + idProductoIngrediente + ") | Cantidad a descontar: " + cantidadADescontar);
-                        movimientoRepo.actualizarStockFisico(idProductoIngrediente, -cantidadADescontar);
+                        Producto prod = detalle.getProducto();
+                        
+                        // Verifica que el producto y su unidad existan antes de comparar
+                        if (prod == null || prod.getUnidadMedida() == null) {
+                            System.err.println("[ERROR] No se pudo encontrar UnidadMedida para ingrediente de: " + platillo.getNombre());
+                            continue;
+                        }
+
+                        int idProductoIngrediente = prod.getId();
+                        
+                        // Comparación directa con el Enum 
+                        if (prod.getUnidadMedida() == UnidadMedida.UNIDAD) {
+                            int cantidadADescontar = (int) detalle.getCantidadIngrediente();
+                            movimientoRepo.actualizarStockFisico(idProductoIngrediente, -cantidadADescontar);
+                            System.out.println("[STOCK] Descontando " + cantidadADescontar + " unidades de " + prod.getNombre());
+                        } else {
+                            double cantidadADescontar =  detalle.getCantidadIngrediente();
+                            movimientoRepo.actualizarCantidadFisica(idProductoIngrediente, -cantidadADescontar);
+                            System.out.println("[STOCK] Descontando " + cantidadADescontar + " de " + prod.getNombre());
+                        }
                     }
                 }
             }

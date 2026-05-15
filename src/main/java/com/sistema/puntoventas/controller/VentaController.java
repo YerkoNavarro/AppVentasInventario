@@ -116,7 +116,7 @@ public class VentaController {
 
         try {
             platillosDisponibles.clear();
-            platillosDisponibles.addAll(this.platilloService.obtenerPlatillos());
+            platillosDisponibles.addAll(this.platilloService.obtenerPlatillosConRecetaCompleta());
         } catch (Exception e) {
             System.err.println("Error al cargar catálogo de platillos: " + e.getMessage());
         }
@@ -304,6 +304,11 @@ public class VentaController {
                                + productosAgregados.size() + " productos y " + platillosAgregados.size() + " platillos.");
             // Descontamos del inventario los productos y ingredientes de platillos procesados
             ventaService.descontarProductoyPlatillo(productosAgregados, platillosAgregados);
+
+            // Limpiar las listas de seguimiento tras el éxito
+           
+            productosAgregados.clear();
+            platillosAgregados.clear();
 
             System.out.println("[VENTA] Stock actualizado con éxito.");
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Las ventas se han guardado correctamente.");
