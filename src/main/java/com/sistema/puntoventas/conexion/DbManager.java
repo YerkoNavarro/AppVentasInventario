@@ -180,16 +180,16 @@ public class DbManager {
 
     public void crearTablaPlatillo(){
         String sql = "CREATE TABLE IF NOT EXISTS platillo ("
-            + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + " nombre TEXT UNIQUE NOT NULL,"
-            + " precio DOUBLE, "
-            + " idCategoria INTEGER, "    
-            + " estado boolean DEFAULT 1, "
-            + " costoProduccion double DEFAULT 0.0, "
-            + " fabricables INTEGER DEFAULT 0, "
-            + " tipoProducto TEXT DEFAULT 'PLATILLO', "
-            + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
-            + ");";
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + " nombre TEXT UNIQUE NOT NULL,"
+                + " precio DOUBLE, "
+                + " idCategoria INTEGER, "
+                + " estado boolean DEFAULT 1, "
+                + " costoProduccion double DEFAULT 0.0, "
+                + " fabricables INTEGER DEFAULT 0, "
+                + " tipoProducto TEXT DEFAULT 'PLATILLO', "
+                + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+                + ");";
         try(var conn = DriverManager.getConnection(url);
             var stmt = conn.createStatement()){
             stmt.execute(sql);
@@ -202,13 +202,13 @@ public class DbManager {
 
     public void crearTablaDetallePlatillo() {
         String sql = "CREATE TABLE IF NOT EXISTS detalle_platillo ("
-            + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + " idPlatillo INTEGER NOT NULL, "
-            + " idProducto INTEGER NOT NULL, "
-            + " cantidadIngrediente DOUBLE NOT NULL, "
-            + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id) ON DELETE CASCADE, "
-            + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
-            + ");";
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + " idPlatillo INTEGER NOT NULL, "
+                + " idProducto INTEGER NOT NULL, "
+                + " cantidadIngrediente DOUBLE NOT NULL, "
+                + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id) ON DELETE CASCADE, "
+                + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
+                + ");";
         try(var conn = DriverManager.getConnection(url);
             var stmt = conn.createStatement()){
             stmt.execute(sql);
