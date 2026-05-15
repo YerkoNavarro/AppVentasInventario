@@ -56,14 +56,17 @@ public class PanelPrincipalVistaController {
             try {
                 Node vista;
 
-                // Si la vista ya existe en la caché, la usamos para mantener su estado
-                if (vistasCache.containsKey(archivoFxml)) {
+            // Solo aplicamos persistencia (caché) si el archivo es 'panelVentas.fxml'
+            // Esto permite que el VentaController y su vista sigan "activos" en memoria
+            if (archivoFxml.equals("panelVentas.fxml") && vistasCache.containsKey(archivoFxml)) {
                     vista = vistasCache.get(archivoFxml);
                 } else {
-                    // Si es la primera vez que se accede, la cargamos y la guardamos en el mapa
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + archivoFxml));
                     vista = loader.load();
+                
+                if (archivoFxml.equals("panelVentas.fxml")) {
                     vistasCache.put(archivoFxml, vista);
+                }
                 }
 
                 // Reemplazar el contenido del área central por la vista (nueva o recuperada)
