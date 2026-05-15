@@ -9,7 +9,9 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PanelPrincipalVistaController {
 
@@ -31,6 +33,9 @@ public class PanelPrincipalVistaController {
         // Variable para no perder el dashboard original al cambiar de pantallas
         private Node vistaDashboardInicial;
 
+        // Cache para almacenar las vistas ya cargadas y preservar su estado (tablas, textos, etc.)
+        private final Map<String, Node> vistasCache = new HashMap<>();
+
         // 2. MÉTODO DE INICIALIZACIÓN
         @FXML
         public void initialize() {
@@ -49,12 +54,20 @@ public class PanelPrincipalVistaController {
         // 3. SISTEMA DE NAVEGACIÓN DINÁMICA
         private void cargarVistaModulo(String archivoFxml, Button botonActivo) {
             try {
-                // Cargar el archivo FXML del módulo correspondiente
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + archivoFxml));
-                Parent nuevaVista = loader.load();
+                Node vista;
 
-                // Reemplazar el contenido del centro por la nueva vista
-                contentArea.getChildren().setAll(nuevaVista);
+                // Si la vista ya existe en la caché, la usamos para mantener su estado
+                if (vistasCache.containsKey(archivoFxml)) {
+                    vista = vistasCache.get(archivoFxml);
+                } else {
+                    // Si es la primera vez que se accede, la cargamos y la guardamos en el mapa
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + archivoFxml));
+                    vista = loader.load();
+                    vistasCache.put(archivoFxml, vista);
+                }
+
+                // Reemplazar el contenido del área central por la vista (nueva o recuperada)
+                contentArea.getChildren().setAll(vista);
 
                 // Cambiar el color del botón
                 actualizarEstiloBotones(botonActivo);
@@ -102,4 +115,3 @@ public class PanelPrincipalVistaController {
             System.out.println("Clic detectado en una tarjeta del Dashboard!");
         }
     }
-
