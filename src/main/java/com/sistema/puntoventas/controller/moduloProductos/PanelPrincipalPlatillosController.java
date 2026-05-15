@@ -186,7 +186,7 @@ public class PanelPrincipalPlatillosController {
 
             Stage stage = new Stage();
             stage.setTitle("Agregar Platillo");
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root,1000,600));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
             cargarPlatillos();
