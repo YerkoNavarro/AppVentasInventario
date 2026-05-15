@@ -3,10 +3,14 @@ package com.sistema.puntoventas.service;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
+import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
+import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
 import com.sistema.puntoventas.modelo.detalleVenta;
 
 
 import com.sistema.puntoventas.repository.impl.DetalleVentaImpl;
+import com.sistema.puntoventas.repository.impl.MovimientoRepositoryImpl;
 
 import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
 
@@ -24,19 +28,9 @@ public class VentaService {
     DetalleVentaImpl detalleVentaImpl = new DetalleVentaImpl();
     VentaRepositoryimpl ventaRepositoryimpl = new VentaRepositoryimpl();
     ProductoService productoService = new ProductoService();
+    MovimientoRepositoryImpl movimientoRepo = new MovimientoRepositoryImpl();
 
-    public boolean guardarVenta(venta venta, List<Integer> idProductos){
-
-        if (idProductos != null && !idProductos.isEmpty() && venta != null){
-            boolean ventaRegistrada ;
-            ventaRegistrada = ventaRepositoryimpl.registrarVentaCompleta(venta, idProductos);
-            return ventaRegistrada;
-        }
-        else{
-            System.err.println("Error al registrar la venta: idProductos o venta son nulos o vacíos.");
-            return false;
-        }
-    }
+    
 
 
     public List<ventaAplicacion> traerTodasLasVentas(){
@@ -88,46 +82,55 @@ public class VentaService {
     }
 
     /**
-     * Resuelve una cadena de texto con nombres de productos separados por comas
-     * buscando coincidencias en el catálogo.
-     * 
-     * @param input Nombres ingresados por el usuario.
-     * @param catalogo Lista de productos disponibles para comparar.
-     * @return Lista de productos encontrados.
-     * @throws Exception Si algún producto no existe o la entrada es inválida.
+     * Resuelve una cadena de texto buscando coincidencias tanto en el catálogo de productos
+     * como en el de platillos.
      */
-    public List<Producto> resolverProductos(String input, List<Producto> catalogo) throws Exception {
+    public void resolverItemsVenta(String input, List<Producto> catalogoProd, List<Platillo> catalogoPlat, ventaAplicacion ventaApp) throws Exception {
         if (input == null || input.isBlank()) {
-            throw new Exception("El campo de productos no puede estar vacío.");
+            throw new Exception("El campo de productos/platillos no puede estar vacío.");
         }
 
         String[] nombres = input.split(",");
         List<Producto> listaProductos = new ArrayList<>();
+        List<Platillo> listaPlatillos = new ArrayList<>();
         List<String> noEncontrados = new ArrayList<>();
 
         for (String nombre : nombres) {
             String nombreLimpio = nombre.trim();
             if (nombreLimpio.isEmpty()) continue;
 
-            Optional<Producto> encontrado = catalogo.stream()
+            // Intentar encontrar como producto
+            Optional<Producto> prodEncontrado = catalogoProd.stream()
                 .filter(p -> p.getNombre().equalsIgnoreCase(nombreLimpio))
                 .findFirst();
 
-            if (encontrado.isPresent()) {
-                listaProductos.add(encontrado.get());
-            } else {
-                noEncontrados.add(nombreLimpio);
+            if (prodEncontrado.isPresent()) {
+                listaProductos.add(prodEncontrado.get());
+                continue;
             }
+
+            // Intentar encontrar como platillo
+            Optional<Platillo> platEncontrado = catalogoPlat.stream()
+                .filter(pl -> pl.getNombre().equalsIgnoreCase(nombreLimpio))
+                .findFirst();
+
+            if (platEncontrado.isPresent()) {
+                listaPlatillos.add(platEncontrado.get());
+                continue;
+            }
+
+            noEncontrados.add(nombreLimpio);
         }
 
         if (!noEncontrados.isEmpty()) {
-            throw new Exception("No se encontraron los siguientes productos: " + String.join(", ", noEncontrados));
+            throw new Exception("No se encontraron los siguientes ítems: " + String.join(", ", noEncontrados));
         }
 
-        return listaProductos;
+        ventaApp.setDetalleVentas(listaProductos);
+        ventaApp.setDetallePlatillos(listaPlatillos);
     }
 
-    public ventaAplicacion procesarNuevaVentaApp(String totalStr, String fecha, String pago, String desc, List<Producto> productos) throws Exception {
+    public ventaAplicacion procesarNuevaVentaApp(String totalStr, String fecha, String pago, String desc, List<Producto> productos, List<Platillo> platillos) throws Exception {
         double total;
         try {
             total = Double.parseDouble(totalStr);
@@ -144,7 +147,97 @@ public class VentaService {
         ventaAplicacion nuevaVentaApp = new ventaAplicacion();
         nuevaVentaApp.setVenta(v);
         nuevaVentaApp.setDetalleVentas(productos);
+        nuevaVentaApp.setDetallePlatillos(platillos);
         return nuevaVentaApp;
     }
-    
+
+    /**
+     * Descuenta el stock de productos y los ingredientes de los platillos vendidos.
+     * 
+     * @param productos Lista de productos vendidos (descuenta 1 unidad).
+     * @param platillos Lista de platillos vendidos (descuenta según la receta).
+     */
+    public void descontarProductoyPlatillo(List<Producto> productos, List<Platillo> platillos) {
+        System.out.println("[STOCK] Iniciando proceso de descuento de inventario...");
+        if (productos != null) {
+            for (Producto p : productos) {
+                // Lógica unificada: descontar según Unidad de Medida
+                if (p.getUnidadMedida() == UnidadMedida.UNIDAD) {
+                    System.out.println("[STOCK] Descontando 1 unidad de stockActual: " + p.getNombre());
+                    movimientoRepo.actualizarStockFisico(p.getId(), -1);
+                } else {
+                    try {
+                        Producto latestProd = productoService.obtenerProductoPorId(p.getId());
+                        if (latestProd != null) {
+                            double descuento = 1.0;
+                            if (latestProd.getCantidad() - descuento <= 0 && latestProd.getStockActual() > 0) {
+                                movimientoRepo.actualizarStockFisico(p.getId(), -1);
+                                double increment = latestProd.getCantidadDefault() - descuento;
+                                movimientoRepo.actualizarCantidadFisica(p.getId(), increment);
+                                System.out.println("[STOCK] Rollover: Se agotó unidad, abriendo nueva de " + latestProd.getNombre());
+                            } else {
+                                // Si stock es 0, no podemos reponer. Descontamos máximo lo que queda para no quedar en negativo
+                                double descuentoReal = (latestProd.getStockActual() <= 0) 
+                                    ? Math.min(latestProd.getCantidad(), descuento) 
+                                    : descuento;
+                                movimientoRepo.actualizarCantidadFisica(p.getId(), -descuentoReal);
+                                System.out.println("[STOCK] Descontando " + descuentoReal + " de " + p.getNombre() + " (Sin rollover)");
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error al descontar producto bulk: " + e.getMessage());
+                    }
+                }
+            }
+        }
+
+        if (platillos != null) {
+            for (Platillo platillo : platillos) {
+                System.out.println("[INVENTARIO] Procesando receta del Platillo: " + platillo.getNombre());
+                if (platillo.getIngrediente() != null) {
+                    for (DetallePlatillo detalle : platillo.getIngrediente()) {
+                        Producto prod = detalle.getProducto();
+                        
+                        // Verifica que el producto y su unidad existan antes de comparar
+                        if (prod == null || prod.getUnidadMedida() == null) {
+                            System.err.println("[ERROR] No se pudo encontrar UnidadMedida para ingrediente de: " + platillo.getNombre());
+                            continue;
+                        }
+
+                        int idProductoIngrediente = prod.getId();
+                        
+                        if (prod.getUnidadMedida() == UnidadMedida.UNIDAD) {
+                            int cantidadADescontar = (int) detalle.getCantidadIngrediente();
+                            movimientoRepo.actualizarStockFisico(idProductoIngrediente, -cantidadADescontar);
+                            System.out.println("[STOCK] Descontando " + cantidadADescontar + " unidades de " + prod.getNombre());
+                        } else {
+                            try {
+                                Producto latestIng = productoService.obtenerProductoPorId(idProductoIngrediente);
+                                if (latestIng != null) {
+                                    double cantidadADescontar = detalle.getCantidadIngrediente();
+                                    if (latestIng.getCantidad() - cantidadADescontar <= 0 && latestIng.getStockActual() > 0) {
+                                        movimientoRepo.actualizarStockFisico(idProductoIngrediente, -1);
+                                        double increment = latestIng.getCantidadDefault() - cantidadADescontar;
+                                        movimientoRepo.actualizarCantidadFisica(idProductoIngrediente, increment);
+                                        System.out.println("[STOCK] Rollover ingrediente: Nueva unidad abierta para " + prod.getNombre());
+                                    } else {
+                                        // Si no hay stock para reponer, descontamos solo lo disponible
+                                        double descuentoReal = (latestIng.getStockActual() <= 0) 
+                                            ? Math.min(latestIng.getCantidad(), cantidadADescontar) 
+                                            : cantidadADescontar;
+                                        movimientoRepo.actualizarCantidadFisica(idProductoIngrediente, -descuentoReal);
+                                        System.out.println("[STOCK] Descontando " + descuentoReal + " de " + prod.getNombre());
+                                    }
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Error al descontar ingrediente bulk: " + e.getMessage());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println("[STOCK] Proceso de descuento finalizado.");
+    }
+
 }

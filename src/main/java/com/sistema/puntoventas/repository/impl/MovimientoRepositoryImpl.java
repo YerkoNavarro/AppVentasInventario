@@ -59,9 +59,26 @@ public class MovimientoRepositoryImpl implements IMovimientoRepository {
             return filasAfectadas > 0;
 
         } catch (SQLException e) {
-            System.err.println("Error al actualizar stock físico: " + e.getMessage());
+            System.err.println("Error al actualizar stock físico de stockActual: " + e.getMessage());
             return false;
         }
+    }
+    public boolean actualizarCantidadFisica(int idProducto, Double cantidad){
+        String sql = "UPDATE producto SET cantidad = cantidad + ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setDouble(1, cantidad);
+            pstmt.setInt(2, idProducto);
+
+            int filasAfectadas = pstmt.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar stock físico de cantidad: " + e.getMessage());
+            return false;
+        }
+
     }
 
     @Override

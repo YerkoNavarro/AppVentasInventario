@@ -58,6 +58,7 @@ public class DbManager {
                 + " unidadMedida TEXT, "
                 + " cantidad DOUBLE, "
                 + " tipoProducto TEXT,"
+                + " cantidadDefault DOUBLE,"
                 + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
                 + ");";
 
@@ -95,8 +96,10 @@ public class DbManager {
                 + " idDetalle INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + " idVenta INTEGER,"
                 + " idProducto INTEGER,"
+                + " idPlatillo INTEGER,"
                 + " FOREIGN KEY (idVenta) REFERENCES venta(idVenta) ON DELETE CASCADE,"
-                + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
+                + " FOREIGN KEY (idProducto) REFERENCES producto(id),"
+                + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id)"
                 + ");";
         try (var conn = DriverManager.getConnection(url);
              var stmt = conn.createStatement()) {
@@ -218,6 +221,7 @@ public class DbManager {
         }
     }
 
+
     public void crearTablaAuditoria() {
         String sql = "CREATE TABLE IF NOT EXISTS auditoria_eventos ("
                 + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -239,4 +243,5 @@ public class DbManager {
             System.err.println("Error al crear tabla auditoria_eventos: " + e.getMessage());
         }
     }
+
 }

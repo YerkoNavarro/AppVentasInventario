@@ -13,8 +13,9 @@ public class Producto {
     private UnidadMedida unidadMedida;
     private  double cantidad;
     private TipoProducto tipoProducto;
+    private double cantidadDefault;
 
-    public Producto(int id, String nombre, double precioCompra, double precioVenta, Categoria categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, UnidadMedida unidadMedida,double cantidad, TipoProducto tipoProducto) {
+    public Producto(int id, String nombre, double precioCompra, double precioVenta, Categoria categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, UnidadMedida unidadMedida,double cantidad, TipoProducto tipoProducto, double cantidadDefault) {
         this.id = id;
         this.nombre = nombre;
         this.precioCompra = precioCompra;
@@ -27,6 +28,12 @@ public class Producto {
         this.unidadMedida = unidadMedida;
         this.cantidad = cantidad;
         this.tipoProducto = tipoProducto;
+        this.cantidadDefault = cantidadDefault;
+    }
+
+    // Constructor sobrecargado para mantener compatibilidad con pruebas y llamadas existentes de 12 parámetros
+    public Producto(int id, String nombre, double precioCompra, double precioVenta, Categoria categoria, String fechaVenc, int stockActual, int stockMinimo, String imagen, UnidadMedida unidadMedida, double cantidad, TipoProducto tipoProducto) {
+        this(id, nombre, precioCompra, precioVenta, categoria, fechaVenc, stockActual, stockMinimo, imagen, unidadMedida, cantidad, tipoProducto, cantidad);
     }
 
 
@@ -130,6 +137,14 @@ public class Producto {
         this.cantidad = cantidad;
     }
 
+    public double getCantidadDefault() {
+        return cantidadDefault;
+    }
+
+    public void setCantidadDefault(double cantidadDefault) {
+        this.cantidadDefault = cantidadDefault;
+    }
+
     @Override
     public String toString() {
         return "Producto{" +
@@ -141,7 +156,11 @@ public class Producto {
                 ", fechaVenc='" + fechaVenc + '\'' +
                 ", stockActual=" + stockActual +
                 ", stockMinimo=" + stockMinimo +
-                ", imagen='" + imagen + '\'' +
+                ", imagen='" + imagen + '\'' + 
+                ", unidadMedida=" + unidadMedida +
+                ", cantidad=" + cantidad +
+                ", tipoProducto=" + tipoProducto +
+                ", cantidadDefault=" + cantidadDefault +
                 '}';
     }
 }

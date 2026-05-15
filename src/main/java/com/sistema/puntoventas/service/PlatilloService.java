@@ -6,7 +6,6 @@ import com.sistema.puntoventas.repository.impl.PlatilloRepositoryImpl;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 import com.sistema.puntoventas.repository.moduloProductos.IPlatilloRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
-import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
 
 import java.util.List;
 
@@ -76,6 +75,14 @@ public class PlatilloService {
     public List<Producto> obtenerIngredientes() throws Exception{
         return productoRepository.buscarPorTipoProducto(TipoProducto.SOLO_INVENTARIO);
     }
+
+      /**
+     * Recupera la lista de platillos activos incluyendo su receta completa
+     * y los datos detallados de cada ingrediente (Unidad de Medida, etc).
+     */
+    public List<Platillo> obtenerPlatillosConRecetaCompleta() throws Exception {
+        return platilloRepository.obtenerPlatillosConRecetaCompleta();
+    }
     
 
     public void calcularCostoProduccion(Platillo platillo){
@@ -119,10 +126,15 @@ public class PlatilloService {
 
         double totalRequerido = cantidadAcumulada + cantidadNueva;
 
-        if(totalRequerido > ingrediente.getStockActual()){
+        // Determinamos el stock disponible según la unidad de medida
+        double stockDisponible = (ingrediente.getUnidadMedida() == UnidadMedida.UNIDAD) 
+                                 ? ingrediente.getStockActual() 
+                                 : ingrediente.getCantidad();
+
+        if(totalRequerido > stockDisponible){
             throw new Exception("No hay suficiente stock del ingrediente '"
                     + ingrediente.getNombre() + "'. Stock actual: "
-                    + ingrediente.getStockActual() + ", cantidad requerida: " + totalRequerido);
+                    + stockDisponible + ", cantidad requerida: " + totalRequerido);
         }
 
     }
@@ -135,7 +147,9 @@ public class PlatilloService {
             switch (producto.getUnidadMedida()){
                 case GRAMOS:
                 case MILILITROS:
-                    return cantidadIngresada / 1000.0;
+                    //return cantidadIngresada / 1000.0;
+                    return cantidadIngresada;
+                
                 default:
                     return cantidadIngresada;
             }
@@ -168,11 +182,16 @@ public class PlatilloService {
                 throw new Exception("La cantidad requerida del ingrediente '" + ingrediente.getNombre() + "' debe ser mayor a cero.");
             }
 
-            if (ingrediente.getStockActual() < 0) {
+            // Stock real basado en la unidad de medida
+            double stockDisponible = (ingrediente.getUnidadMedida() == UnidadMedida.UNIDAD) 
+                                     ? ingrediente.getStockActual() 
+                                     : ingrediente.getCantidad();
+
+            if (stockDisponible < 0) {
                 throw new Exception("El stock del ingrediente '" + ingrediente.getNombre() + "' no puede ser negativo.");
             }
 
-            int stockPorIngrediente = (int) Math.floor(ingrediente.getStockActual() / cantidadRequerida);
+            int stockPorIngrediente = (int) Math.floor(stockDisponible / cantidadRequerida);
             stockPosible = Math.min(stockPosible, stockPorIngrediente);
         }
 
