@@ -174,8 +174,14 @@ public class VentaService {
                                 movimientoRepo.actualizarStockFisico(p.getId(), -1);
                                 double increment = latestProd.getCantidadDefault() - descuento;
                                 movimientoRepo.actualizarCantidadFisica(p.getId(), increment);
+                                System.out.println("[STOCK] Rollover: Se agotó unidad, abriendo nueva de " + latestProd.getNombre());
                             } else {
-                                movimientoRepo.actualizarCantidadFisica(p.getId(), -descuento);
+                                // Si stock es 0, no podemos reponer. Descontamos máximo lo que queda para no quedar en negativo
+                                double descuentoReal = (latestProd.getStockActual() <= 0) 
+                                    ? Math.min(latestProd.getCantidad(), descuento) 
+                                    : descuento;
+                                movimientoRepo.actualizarCantidadFisica(p.getId(), -descuentoReal);
+                                System.out.println("[STOCK] Descontando " + descuentoReal + " de " + p.getNombre() + " (Sin rollover)");
                             }
                         }
                     } catch (Exception e) {
@@ -213,8 +219,14 @@ public class VentaService {
                                         movimientoRepo.actualizarStockFisico(idProductoIngrediente, -1);
                                         double increment = latestIng.getCantidadDefault() - cantidadADescontar;
                                         movimientoRepo.actualizarCantidadFisica(idProductoIngrediente, increment);
+                                        System.out.println("[STOCK] Rollover ingrediente: Nueva unidad abierta para " + prod.getNombre());
                                     } else {
-                                        movimientoRepo.actualizarCantidadFisica(idProductoIngrediente, -cantidadADescontar);
+                                        // Si no hay stock para reponer, descontamos solo lo disponible
+                                        double descuentoReal = (latestIng.getStockActual() <= 0) 
+                                            ? Math.min(latestIng.getCantidad(), cantidadADescontar) 
+                                            : cantidadADescontar;
+                                        movimientoRepo.actualizarCantidadFisica(idProductoIngrediente, -descuentoReal);
+                                        System.out.println("[STOCK] Descontando " + descuentoReal + " de " + prod.getNombre());
                                     }
                                 }
                             } catch (Exception e) {
