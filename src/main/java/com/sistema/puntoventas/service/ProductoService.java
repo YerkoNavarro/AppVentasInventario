@@ -192,6 +192,15 @@ public class ProductoService {
         return stockRepository.obtenerStockActual(id);
     }
 
+    /**
+     * Obtiene un producto por su ID.
+     * @param id El ID del producto a buscar.
+     * @return El objeto Producto si se encuentra, o null si no existe.
+     */
+    public Producto obtenerProductoPorId(int id) {
+        return productoRepository.obtenerProductoPorId(id);
+    }
+
 
     //------------------------------------------------------------------------------------------------------------------
 

@@ -81,6 +81,7 @@ public class DbManager {
                 + " unidadMedida TEXT, "
                 + " cantidad DOUBLE, "
                 + " tipoProducto TEXT,"
+                + " cantidadDefault DOUBLE,"
                 + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
                 + ");";
 
