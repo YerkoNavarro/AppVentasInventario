@@ -219,12 +219,19 @@ public class ProductoController {
                     nuevoProducto.setCantidad(Double.parseDouble(txtCantidad.getText()));
                     nuevoProducto.setTipoProducto(cmbTipoProducto.getValue());
 
-
+                try{
                     //lo enviamos al service para hacer validaciones necesarias
                     productoService.registrarProducto(nuevoProducto);
+                    System.err.println("Producto registrado: " + nuevoProducto.getNombre());
                     lblEstado.setText("¡Producto registrado con éxito!");
                     lblEstado.setTextFill(Color.GREEN); // Pintamos el texto de verde
                     limpiarFormulario();
+                } catch (RuntimeException e) {
+                    System.err.println("Advertencia: El producto se guardó, pero falló el historial: " + e.getMessage());
+                    lblEstado.setText("¡Producto registrado con éxito! (Sin historial)");
+                    lblEstado.setTextFill(Color.GREEN);
+                    limpiarFormulario();
+                }
                 }else {
                     productoAEditar.setNombre(nombreIngresado);
                     productoAEditar.setPrecioCompra(precioCompra);

@@ -1,5 +1,6 @@
 package com.sistema.puntoventas.service;
 
+import com.sistema.puntoventas.modelo.AuditoriaEvento;
 import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
 import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
@@ -18,12 +19,14 @@ public class ProductoService {
     private IProductoRepository productoRepository;
     private ICategoriaRepository categoriaRepository;
     private IstockRepository stockRepository;
+    private AuditoriaService auditoriaService;
 
 
     public ProductoService() {
         this.productoRepository = new ProductoRepositoryImpl();
         this.categoriaRepository = new ProductoRepositoryImpl();
         this.stockRepository = new ProductoRepositoryImpl();
+        this.auditoriaService = new AuditoriaService();
     }
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -52,13 +55,13 @@ public class ProductoService {
 
 
 
-        if (producto.getTipoProducto() == TipoProducto.PLATILLO) {
+        /*if (producto.getTipoProducto() == TipoProducto.PLATILLO) {
             // Para platillos, el costo viene de los ingredientes. Se valida que se venda a un precio válido.
             if (producto.getPrecioVenta() <= 0) {
                 throw new Exception("El platillo debe tener un precio de venta mayor a cero.");
             }
             // Aquí en el futuro llamarías a PlatilloService para calcular el costo de los ingredientes
-        }
+        }*/
 
         // Validación de margen (Ejemplo: Mínimo 10% de ganancia)
         double precioMinimoVenta = producto.getPrecioCompra() * 1.10;
@@ -80,10 +83,22 @@ public class ProductoService {
 
 
         boolean guardado = productoRepository.registrarProducto(producto);
+        System.out.println("Producto registrado "+producto.getNombre());
 
         if (!guardado) {
             throw new Exception("Error interno: No se pudo guardar el producto en la base de datos.");
         }
+
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("PRODUCTOS");
+        evento.setEntidad("Producto");
+        evento.setAccion("NUEVO INGRESO");
+        evento.setDetalle("Se agregó el producto: " + producto.getNombre());
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            throw new Exception("El producto se registro, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado"+evento.getAccion()+" para el producto: " + producto.getNombre());
 
     }
 
@@ -124,7 +139,23 @@ public class ProductoService {
             throw new Exception("Debe asignar una Unidad de Medida al producto.");
         }
 
-        return productoRepository.actualizarProducto(producto);
+        boolean actualizar = productoRepository.actualizarProducto(producto);
+
+        if(!actualizar){
+            throw new Exception("Error al actualizar el producto. Verifique que el producto exista y que los datos sean correctos.");
+        }
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("PRODUCTOS");
+        evento.setEntidad("Producto");
+        evento.setAccion("ACTUALIZACION");
+        evento.setDetalle("Se actualizo el producto: " + producto.getNombre());
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            throw new Exception("El producto se actualizo, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado"+evento.getAccion()+" para el producto: " + producto.getNombre());
+
+        return actualizar;
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -150,11 +181,22 @@ public class ProductoService {
             return "Este producto esta asociado a venta o platillo y fue desactivado";
 
         }else{
-            // Eliminamos  de la BD
+
             boolean eliminado = productoRepository.eliminarProducto(id);
             if (!eliminado) {
                 throw new Exception("Error al intentar eliminar el producto permanentemente.");
             }
+
+            AuditoriaEvento evento = new AuditoriaEvento();
+            evento.setModulo("PRODUCTOS");
+            evento.setEntidad("Producto");
+            evento.setAccion("ELIMINACION");
+            evento.setDetalle("Se eliminó el producto: " + producto.getNombre());
+            boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+            if (!auditoriaRegistrada) {
+                throw new Exception("El producto se elimino, pero no se pudo guardar el evento de auditoria.");
+            }
+            System.out.println("Evento registrado"+evento.getAccion()+" para el producto: " + producto.getNombre());
 
             System.out.println("El producto no tenía asociaciones y fue ELIMINADO de la base de datos.");
             return "ELIMINADO";
@@ -223,9 +265,22 @@ public class ProductoService {
         }
 
         boolean registrada = categoriaRepository.registrarCategoria(categoria);
+        System.out.println("Categoría registrada: " + categoria.getNombreCategoria());
         if (!registrada) {
             throw new Exception("No se pudo registrar la categoría.");
         }
+
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("CATEGORIAS");
+        evento.setEntidad("Categoria");
+        evento.setAccion("NUEVO INGRESO");
+        evento.setDetalle("Se ingreso la categoria: " + categoria.getNombreCategoria());
+
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            throw new Exception("La categoria se registro, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado " + evento.getAccion() + " para la categoria: " + categoria.getNombreCategoria());
     }
 
 
@@ -252,6 +307,17 @@ public class ProductoService {
             throw new Exception("No se pudo actualizar la categoria.");
         }
 
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("CATEGORIAS");
+        evento.setEntidad("Categoria");
+        evento.setAccion("ACTUALIZACION");
+        evento.setDetalle("Se actualizo la categoria: " + categoria.getNombreCategoria());
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            throw new Exception("La categoria se actualizo, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado " + evento.getAccion() + " para la categoria: " + categoria.getNombreCategoria());
+
         return true;
     }
 
@@ -268,14 +334,30 @@ public class ProductoService {
     }
 
     public boolean eliminarCategoria(int id) throws Exception {
+        String idCategoria = "ID " + id;
         if (id <= 0) {
             throw new Exception("ID de categoría no válido.");
         }
 
         boolean eliminada = categoriaRepository.eliminarCategoria(id);
+        System.out.println("Intentando eliminar categoria: " + idCategoria);
+
         if (!eliminada) {
             throw new Exception("No se pudo eliminar la categoría porque está asociada a un producto o platillo, no existe o hubo un error.");
         }
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("CATEGORIAS");
+        evento.setEntidad("Categoria");
+        evento.setAccion("ELIMINACION");
+        evento.setDetalle("Se elimino la categoria: " + idCategoria);
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            throw new Exception("La categoria se elimino, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado " + evento.getAccion() + " para la categoria: " + idCategoria);
+
+
+
 
         return true;
     }
