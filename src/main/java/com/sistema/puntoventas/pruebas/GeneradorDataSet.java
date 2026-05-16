@@ -291,73 +291,66 @@ public class GeneradorDataSet {
 
     private void generarActividad30Dias(Connection conn, List<Integer> usuarios, List<ProductoSeed> productos, List<Integer> platillos) throws SQLException {
         List<ProductoSeed> vendibles = new ArrayList<>();
-        Map<Integer, Integer> stock = new LinkedHashMap<>();
         for (ProductoSeed p : productos) {
-            stock.put(p.id, p.stock);
             if (p.tipo != TipoProducto.SOLO_INVENTARIO) {
                 vendibles.add(p);
             }
         }
-
         boolean detalleTienePlatillo = existeColumna(conn, "detalle_venta", "idPlatillo");
-        LocalDate inicio = LocalDate.now().minusDays(29);
+        LocalDate inicio = LocalDate.now().minusDays(59); // 60 días de historial
+        int idUsuario = usuarios.get(0);
 
-        for (int d = 0; d < 100; d++) {
-            LocalDateTime fecha = inicio.plusDays(d).atTime(10 + random.nextInt(10), random.nextInt(60));
-            int idUsuario;
-            if (usuarios.size() > 1) {
-                idUsuario = usuarios.get(1 + random.nextInt(usuarios.size() - 1));
+        System.out.println("Generando 60 días de ventas constantes para TODOS los productos...");
+
+        // 1. FORZAR VENTAS DIARIAS: Todos los días vendemos entre 3 y 6 unidades de cada producto
+        // Esto le enseña a la IA que la demanda diaria promedio es de ~4.5 unidades.
+        for (int d = 0; d < 60; d++) {
+            LocalDateTime fecha = inicio.plusDays(d).atTime(12 + random.nextInt(8), random.nextInt(60));
+            double totalVenta = 0;
+            List<ProductoSeed> itemsVenta = new ArrayList<>();
+
+            for (ProductoSeed p : vendibles) {
+                int cantidadComprada = 3 + random.nextInt(4); // 3 a 6 unidades
+                for (int c = 0; c < cantidadComprada; c++) {
+                    itemsVenta.add(p);
+                    totalVenta += p.precioVenta;
+                }
+            }
+
+            int idVenta = insertarVenta(conn, fecha, idUsuario, totalVenta);
+            insertarDetalleVenta(conn, idVenta, itemsVenta, platillos, detalleTienePlatillo);
+
+            // Registrar salidas
+            for (ProductoSeed p : itemsVenta) {
+                insertarMovimiento(conn, p.id, TipoMovimiento.SALIDA_VENTA, 1, fecha, "Venta IA", idUsuario);
+            }
+        }
+
+        System.out.println("Ajustando stock final para mostrar todos los niveles de riesgo...");
+
+        // 2. TRUCO FINAL: Sabiendo que la IA predecirá una demanda de ~5 diarias,
+        // manipulamos el stock actual de los productos para forzar los resultados.
+        for (int i = 0; i < vendibles.size(); i++) {
+            ProductoSeed p = vendibles.get(i);
+            int stockMagico;
+
+            // Dividimos los productos en 5 grupos según su posición en la lista
+            if (i % 5 == 0) {
+                stockMagico = 0; // CRÍTICO: 0 stock
+            } else if (i % 5 == 1) {
+                stockMagico = 10; // ALTO: 10 stock / 5 diarios = 2 días restantes
+            } else if (i % 5 == 2) {
+                stockMagico = 25; // MEDIO: 25 stock / 5 diarios = 5 días restantes
+            } else if (i % 5 == 3) {
+                stockMagico = 50; // PREVENTIVO: 50 stock / 5 diarios = 10 días restantes
             } else {
-                idUsuario = usuarios.get(0);
+                stockMagico = 150; // BAJO: 150 stock / 5 diarios = 30 días restantes
             }
 
-            List<ProductoSeed> items = new ArrayList<>();
-            int cantidadItems = 2 + random.nextInt(3);
-            double total = 0;
-            for (int i = 0; i < cantidadItems; i++) {
-                ProductoSeed item = vendibles.get(random.nextInt(vendibles.size()));
-                if (stock.get(item.id) != null && stock.get(item.id) <= 0) {
-                    continue;
-                }
-                items.add(item);
-                total += item.precioVenta;
-                stock.put(item.id, Math.max(0, stock.get(item.id) - 1));
-            }
-
-            int idVenta = insertarVenta(conn, fecha, idUsuario, total);
-            insertarDetalleVenta(conn, idVenta, items, platillos, detalleTienePlatillo);
-
-            for (ProductoSeed item : items) {
-                actualizarStockProducto(conn, item.id, stock.get(item.id));
-                insertarMovimiento(conn, item.id, TipoMovimiento.SALIDA_VENTA, 1, fecha, "Salida por venta diaria", idUsuario);
-            }
-
-            // Reposicion realista cada 5 dias
-            if (d % 5 == 0) {
-                ProductoSeed rep = productos.get(random.nextInt(productos.size()));
-                int entrada = 8 + random.nextInt(18);
-                int nuevo = stock.get(rep.id) + entrada;
-                stock.put(rep.id, nuevo);
-                actualizarStockProducto(conn, rep.id, nuevo);
-                insertarMovimiento(conn, rep.id, TipoMovimiento.ENTRADA, entrada, fecha.plusHours(1), "Reposicion de proveedor", idUsuario);
-            }
-
-            // Merma controlada semanal
-            if (d % 7 == 0) {
-                ProductoSeed merma = productos.get(random.nextInt(productos.size()));
-                int perdida = 1 + random.nextInt(3);
-                int disponible = stock.get(merma.id);
-                int aplicar = Math.min(perdida, Math.max(0, disponible));
-                if (aplicar > 0) {
-                    int nuevo = disponible - aplicar;
-                    stock.put(merma.id, nuevo);
-                    actualizarStockProducto(conn, merma.id, nuevo);
-                    insertarMovimiento(conn, merma.id, TipoMovimiento.MERMA, aplicar, fecha.plusHours(2), "Producto danado o vencido", idUsuario);
-                }
-            }
-
-            insertarAuditoria(conn, fecha.plusMinutes(5), "VENTAS", "Venta", "REGISTRAR", idVenta,
-                    "Venta diaria generada con " + items.size() + " items", idUsuario);
+            // Actualizar directo a la BD para engañar a la IA
+            actualizarStockProducto(conn, p.id, stockMagico);
+            LocalDateTime fechaFin = inicio.plusDays(59).atTime(23, 59);
+            insertarMovimiento(conn, p.id, TipoMovimiento.ENTRADA, stockMagico, fechaFin, "Ajuste IA", idUsuario);
         }
     }
 

@@ -47,7 +47,20 @@ public class PruebaPrediccionStock {
                 System.out.println("------------------------------------------------------------------");
 
                 for (PrediccionStockDTO p : resultados) {
-                    String riesgoStr = (p.getIndiceRiesgo() >= 0.7) ? "ALTO (!)" : "BAJO";
+                    String riesgoStr;
+                    double riesgo = p.getIndiceRiesgo();
+
+                    if (riesgo >= 1.0) {
+                        riesgoStr = "CRÍTICO (X_X)";
+                    } else if (riesgo >= 0.8) {
+                        riesgoStr = "ALTO (!)";
+                    } else if (riesgo >= 0.5) {
+                        riesgoStr = "MEDIO (-)";
+                    } else if (riesgo >= 0.3) {
+                        riesgoStr = "PREVENTIVO";
+                    } else {
+                        riesgoStr = "BAJO (OK)";
+                    }
 
                     System.out.printf("%-25s | %-15d | %-18d | %-10s%n",
                             p.getNombreProducto(),

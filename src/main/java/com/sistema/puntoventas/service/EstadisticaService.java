@@ -252,12 +252,43 @@ public class EstadisticaService {
                 String nombreProducto = (producto.getNombre() != null && !producto.getNombre().trim().isEmpty())
                         ? producto.getNombre()
                         : "Producto #" + idProducto;
+                int stockMinimo = producto.getStockMinimo();
 
                 // Calculamos los días restantes
-                int diasParaAgotarse = (int) (stockActual / (demandaDiaria == 0 ? 1 : demandaDiaria));
+                int diasParaAgotarse = 0;
+                if(demandaDiaria>0){
+                    diasParaAgotarse = (int) (stockActual / demandaDiaria);
+                }else {
+                    diasParaAgotarse = 999;
+                }
 
-                // Calculamos riesgo (Si se agota en menos de 5 días = Riesgo Alto)
-                double indiceRiesgo = diasParaAgotarse <= 5 ? 0.9 : 0.2;
+                // Calculamos riesgo 
+                double indiceRiesgo;
+
+                if (stockActual <= 0) {
+                    indiceRiesgo = 1.0; // CRÍTICO: Ya no hay stock
+                } else if (stockActual <= stockMinimo) {
+                    indiceRiesgo = 0.9; // ALTO: Ya tocaste el límite mínimo del dueño
+                } else if (diasParaAgotarse <= 3) {
+                    indiceRiesgo = 0.8; // ALTO: Se agota en menos de 3 días
+                } else if (diasParaAgotarse <= 7) {
+                    indiceRiesgo = 0.5; // MEDIO: Te queda una semana
+                } else if (diasParaAgotarse <= 14) {
+                    indiceRiesgo = 0.3; // PREVENTIVO: Te quedan 2 semanas
+                } else {
+                    indiceRiesgo = 0.1; // BAJO: Hay buen stock
+                }
+
+                //Sugerencia de compra inteligente
+                int cantidadSugerida = 0;
+                if (indiceRiesgo >= 0.5) { // Solo sugerimos comprar si hay riesgo medio o mayor
+                    // Rellenar hasta superar el mínimo + lo necesario para 7 días extra
+                    cantidadSugerida = (int) Math.ceil((stockMinimo - stockActual) + (demandaDiaria * 7));
+                    if (cantidadSugerida < 1) {
+                        cantidadSugerida = 1; // Siempre sugerir al menos 1
+                    }
+                }
+
 
                 // Llenamos el DTO
                 PrediccionStockDTO ps = new PrediccionStockDTO();
@@ -265,7 +296,7 @@ public class EstadisticaService {
                 ps.setNombreProducto(nombreProducto);
                 ps.setStockActual(stockActual);
                 ps.setDiasParaAgotarse(diasParaAgotarse);
-                ps.setCantidadSugerida((int) (demandaDiaria * 7)); // Sugerir comprar para 7 días
+                ps.setCantidadSugerida(cantidadSugerida);
                 ps.setIndiceRiesgo(indiceRiesgo);
 
                 predicciones.add(ps);

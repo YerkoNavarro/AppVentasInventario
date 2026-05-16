@@ -15,18 +15,20 @@ def predecir_agotamiento():
         # 2. Obtener lista de productos únicos
         productos = df['id_producto'].unique()
 
+        carpeta_modelos = "modelos_ia"
+        os.makedirs(carpeta_modelos, exist_ok=True)
+
         # 3. Iterar y predecir por cada producto
         for prod_id in productos:
-            # Filtramos solo los datos de este producto en específico
-            df_prod = df[df['id_producto'] == prod_id][['ds', 'y']]
+            df_prod = df[df['id_producto'] == prod_id][['ds', 'y']]  # Filtramos solo los datos de este producto en específico
 
             # Prophet necesita mínimo 2-3 datos históricos para no dar error
             if len(df_prod) < 3:
                 continue
 
-            nombre_archivo_modelo = f"modelo_producto_{prod_id}.json"
+            nombre_archivo_modelo = os.path.join(carpeta_modelos, f"modelo_producto_{prod_id}.json")
 
-            if os.path.exists.nombre(nombre_archivo_modelo):
+            if os.path.exists(nombre_archivo_modelo):
                 with open(nombre_archivo_modelo,'r') as fin:
                     modelo = model_from_json(fin.read())
             else:
