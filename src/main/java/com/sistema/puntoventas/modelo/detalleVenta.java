@@ -20,6 +20,15 @@ public class detalleVenta {
         this.idPlatillo = idPlatillo;
     }
 
+    /**
+     * Constructor sobrecargado para facilitar la creación de detalles sin ID (autoincremental).
+     */
+    public detalleVenta(int idVenta, int idProducto, int idPlatillo) {
+        this.idVenta = idVenta;
+        this.idProducto = idProducto;
+        this.idPlatillo = idPlatillo;
+    }
+
     //getters y setters 
     public int getIdDetalle() {
         return idDetalle;

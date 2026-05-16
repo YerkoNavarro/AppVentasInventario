@@ -82,6 +82,15 @@ public class VentaService {
     }
 
     /**
+     * Registra una venta individual con su lista de productos asociados.
+     * Utilizado principalmente por las suites de pruebas y lógica legacy.
+     */
+    public Boolean guardarVenta(venta v, List<Integer> idProductos) {
+        // Delegamos al repositorio pasando una lista vacía para platillos
+        return ventaRepositoryimpl.registrarVentaCompleta(v, idProductos, new ArrayList<>());
+    }
+
+    /**
      * Resuelve una cadena de texto buscando coincidencias tanto en el catálogo de productos
      * como en el de platillos.
      */
