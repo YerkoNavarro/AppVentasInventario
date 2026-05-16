@@ -240,14 +240,25 @@ public class ProductoService {
 
     //-----------------------------------------------------------------------------------------------------------------
 
-    public boolean actualizarCategoria(int id) throws Exception {
-        if (id <= 0) {
-            throw new Exception("ID de categoría no válido.");
+
+    public boolean actualizarCategoria(Categoria categoria) throws Exception {
+        if (categoria == null || categoria.getId() <= 0) {
+            throw new Exception("Categoria no valida.");
         }
 
-        boolean actualizada = categoriaRepository.actualizarCategoria(id);
+        String nombre = categoria.getNombreCategoria();
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("El nombre de la categoria es obligatorio.");
+        }
+
+        categoria.setNombreCategoria(nombre.trim());
+        if (categoria.getDescripcion() != null) {
+            categoria.setDescripcion(categoria.getDescripcion().trim());
+        }
+
+        boolean actualizada = categoriaRepository.actualizarCategoria(categoria);
         if (!actualizada) {
-            throw new Exception("No se pudo actualizar la categoría.");
+            throw new Exception("No se pudo actualizar la categoria.");
         }
 
         return true;

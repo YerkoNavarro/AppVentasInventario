@@ -1,5 +1,6 @@
 package com.sistema.puntoventas.repository.impl;
 
+import com.sistema.puntoventas.modelo.RankingVendedoresDTO;
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
 
@@ -16,31 +17,31 @@ import java.util.List;
 public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
 
-    @Override
-    public int obtenerIngresosTotales(String periodo) {
+    public double obtenerIngresosTotales(String periodo) {
         if (periodo == null || periodo.trim().isEmpty()) {
-            return 0;
+            return 0.0;
         }
+
 
         String sql = "SELECT COALESCE(SUM(totalVenta), 0) AS total "
                 + "FROM venta "
-                + "WHERE fechaHora LIKE ? AND estado = 1"
-                +"ORDER BY fechaHora DESC" ;
+                + "WHERE fechaHora LIKE ? AND estado = 1";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, "%" + periodo.trim() + "%");
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return (int) Math.round(rs.getDouble("total"));
+                    return rs.getDouble("total"); // Retornamos double limpio
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener ingresos totales: " + e.getMessage());
         }
 
-        return 0;
+        return 0.0;
     }
 
     @Override
@@ -49,35 +50,39 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
 
         String sql = "SELECT " +
                 "p.nombre AS nombreProducto, " +
-                "SUM(d.cantidad) AS totalCantidadVendida " +
-                "FROM detalle_venta d  " +
-                "INNER JOIN venta v ON d.idVenta = v.idVenta  " +
-                "INNER JOIN producto p ON d.idProducto = p.id  " +
-                "WHERE v.estado = 1  " +
-                "GROUP BY p.id, p.nombre  " +
-                "ORDER BY totalCantidadVendida DESC  " +
+                "COUNT(*) AS totalCantidadVendida " +
+                "FROM detalle_venta d " +
+                "INNER JOIN venta v ON d.idVenta = v.idVenta " +
+                "INNER JOIN producto p ON d.idProducto = p.id " +
+                "WHERE v.estado = 1 " +
+                "GROUP BY p.id, p.nombre " +
+                "ORDER BY totalCantidadVendida DESC " +
                 "LIMIT ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-
             pstmt.setInt(1, limite);
-
+            
+            System.out.println("DEBUG: Ejecutando query de ranking con límite: " + limite);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-
                     String nombre = rs.getString("nombreProducto");
                     int cantidad = rs.getInt("totalCantidadVendida");
 
+                    System.out.println("DEBUG RS: " + nombre + " - " + cantidad);
+                    
                     // Construimos el DTO y lo agregamos a la lista
                     RankingProductosDTO productoDTO = new RankingProductosDTO(nombre, cantidad);
                     ranking.add(productoDTO);
                 }
+                System.out.println("Ranking de productos obtenido: " + ranking.size() + " registros");
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener ranking de productos: " + e.getMessage());
+            System.err.println("SQL: " + sql);
+            e.printStackTrace();
         }
 
         return ranking;
@@ -86,8 +91,8 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
     @Override
     public int obtenerVentasUsuario(int idUsuario) {
         int cantidadVentas = 0;
-        String sql = "SELECT COUNT(idVenta) " +
-                     "COALESCE(SUM(totalVenta)) AS TotalVentas " +
+        String sql = "SELECT COUNT(idVenta) AS cantidad, " +
+                     "COALESCE(SUM(totalVenta),0) AS TotalVentas " +
                     "FROM venta " +
                     "WHERE idUsuario = ? AND estado = 1";
 
@@ -176,5 +181,111 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
             throw new RuntimeException("Error al preparar datos de stock para IA: " + e.getMessage(), e);
         }
         return filasExportadas;
+    }
+
+    public double obtenerPerdidasTotales(String periodo) {
+        if (periodo == null || periodo.trim().isEmpty()) {
+            return 0.0;
+        }
+
+        // Unimos historial y producto, y aplicamos el mismo filtro de fecha
+        String sql = "SELECT COALESCE(SUM(h.cantidad * p.precioCompra), 0) AS total "
+                + "FROM historial_inventario h "
+                + "INNER JOIN producto p ON p.id = h.idProducto "
+                + "WHERE h.tipoMovimiento IN ('MERMA', 'AJUSTE') "
+                + "AND h.fecha LIKE ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "%" + periodo.trim() + "%");
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("total");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener perdidas totales: " + e.getMessage());
+        }
+
+        return 0.0;
+    }
+
+
+    public List<RankingVendedoresDTO> obtenerRankingVendedores(int limite) {
+        List<RankingVendedoresDTO> lista = new ArrayList<>();
+
+        String sql = "SELECT u.nombre || ' ' || u.apellido AS nombreCompleto, COUNT(v.idVenta) AS total " +
+                "FROM usuario u " +
+                "INNER JOIN venta v ON u.id = v.idUsuario " +
+                "WHERE v.estado = 1 " + // Solo ventas válidas
+                "GROUP BY u.id " +
+                "ORDER BY total DESC " +
+                "LIMIT ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, limite);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                lista.add(new RankingVendedoresDTO(
+                        rs.getString("nombreCompleto"),
+                        rs.getInt("total")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en ranking vendedores: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    @Override
+    public List<String> obtenerUltimasActividades(int limite) {
+        List<String> actividades = new ArrayList<>();
+
+        String sql = "SELECT fechaOrdenada, modulo, detalle FROM ("
+                + "SELECT v.fechaHora AS fechaOrdenada, "
+                + "'Venta' AS modulo, "
+                + "'Venta #" + "' || v.idVenta || ' por ' || printf('$ %.2f', COALESCE(v.totalVenta, 0)) "
+                + "|| CASE WHEN u.nombre IS NOT NULL THEN ' - ' || u.nombre || ' ' || u.apellido ELSE '' END AS detalle "
+                + "FROM venta v "
+                + "LEFT JOIN usuario u ON u.id = v.idUsuario "
+                + "WHERE v.estado = 1 "
+                + "UNION ALL "
+                + "SELECT h.fecha AS fechaOrdenada, "
+                + "'Inventario' AS modulo, "
+                + "CASE h.tipoMovimiento "
+                + "WHEN 'ENTRADA' THEN 'Entrada de inventario' "
+                + "WHEN 'SALIDA_VENTA' THEN 'Salida por venta' "
+                + "WHEN 'MERMA' THEN 'Merma registrada' "
+                + "WHEN 'AJUSTE' THEN 'Ajuste de stock' "
+                + "ELSE h.tipoMovimiento END "
+                + "|| ' - ' || p.nombre || ' x' || h.cantidad "
+                + "|| CASE WHEN h.motivo IS NOT NULL AND trim(h.motivo) <> '' THEN ' (' || h.motivo || ')' ELSE '' END AS detalle "
+                + "FROM historial_inventario h "
+                + "INNER JOIN producto p ON p.id = h.idProducto) "
+                + "ORDER BY datetime(fechaOrdenada) DESC LIMIT ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, limite);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String fecha = rs.getString("fechaOrdenada");
+                    String modulo = rs.getString("modulo");
+                    String detalle = rs.getString("detalle");
+                    actividades.add("[" + fecha + "] " + modulo + ": " + detalle);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener actividades recientes: " + e.getMessage());
+        }
+
+        return actividades;
     }
 }

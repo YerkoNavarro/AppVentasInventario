@@ -27,6 +27,8 @@ public class PanelPrincipalVistaController {
         @FXML private Button btnVentas;
         @FXML private Button btnInventario;
         @FXML private Button btnPlatillos;
+        @FXML private Button btnEstadisticas;
+        @FXML private Button btnCategorias;
 
         @FXML private StackPane contentArea;
 
@@ -43,11 +45,17 @@ public class PanelPrincipalVistaController {
 
             // Asignamos qué archivo FXML se abrirá al hacer clic en cada botón
             // (Asegúrate de que los nombres de los archivos .fxml coincidan con los tuyos)
-            btnUsuarios.setOnAction(e -> cargarVistaModulo("PanelUsuarios-vista.fxml", btnUsuarios));
+
+            btnUsuarios.setOnAction(e -> cargarVistaModulo("PanelPrincipalUsuarios.fxml", btnUsuarios));
             btnProductos.setOnAction(e -> cargarVistaModulo("PanelPrincipalProductos.fxml", btnProductos));
             btnVentas.setOnAction(e -> cargarVistaModulo("panelVentas.fxml", btnVentas));
-            btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario-vista.fxml", btnInventario));
+            btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario.fxml", btnInventario));
             btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelPrincipalPlatillosVista.fxml", btnPlatillos));
+            btnEstadisticas.setOnAction(e -> cargarVistaModulo("PanelPrincipalEstadisticasVista.fxml", btnEstadisticas));
+            btnCategorias.setOnAction(e -> cargarVistaModulo("PanelPrincipalCategorias.fxml", btnCategorias));
+
+
+
 
         }
 
@@ -92,7 +100,7 @@ public class PanelPrincipalVistaController {
         // 4. CAMBIO DE COLOR DEL BOTÓN (Estado Activo/Inactivo)
         private void actualizarEstiloBotones(Button botonActivo) {
             // Agrupamos los botones en una lista
-            List<Button> botones = Arrays.asList(btnUsuarios, btnProductos, btnVentas, btnInventario);
+            List<Button> botones = Arrays.asList(btnUsuarios, btnProductos, btnVentas, btnInventario, btnPlatillos, btnEstadisticas, btnCategorias);
 
             // A todos les quitamos la clase azul
             for (Button btn : botones) {

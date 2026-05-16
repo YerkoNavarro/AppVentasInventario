@@ -43,11 +43,21 @@
                                         <Label style="-fx-background-color: #f59e0b;" styleClass="icon-circle" text="I" />
                                     </graphic>
                                 </Button>
-                        <Button fx:id="btnPlatillos" layoutX="10.0" layoutY="171.0" maxWidth="Infinity" prefWidth="219.0" styleClass="menu-button" text="Platillos">
-                           <graphic>
-                              <Label style="-fx-background-color: #C11C84;" styleClass="icon-circle" text="I" />
-                           </graphic>
-                        </Button>
+                                <Button fx:id="btnCategorias" maxWidth="Infinity" styleClass="menu-button" text="Categorias">
+                                    <graphic>
+                                        <Label style="-fx-background-color: #10b981;" styleClass="icon-circle" text="C" />
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="btnPlatillos" layoutX="10.0" layoutY="171.0" maxWidth="Infinity" prefWidth="219.0" styleClass="menu-button" text="Platillos">
+                                    <graphic>
+                                        <Label style="-fx-background-color: #C11C84;" styleClass="icon-circle" text="I" />
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="btnEstadisticas" maxWidth="Infinity" styleClass="menu-button" text="Estadísticas">
+                                    <graphic>
+                                        <Label style="-fx-background-color: #8b5cf6;" styleClass="icon-circle" text="E" />
+                                    </graphic>
+                                </Button>
                             </children>
                         </VBox>
 

@@ -1,9 +1,14 @@
 package com.sistema.puntoventas.service;
 
+import com.sistema.puntoventas.modelo.BalanceFinancieroDTO;
 import com.sistema.puntoventas.modelo.PrediccionStock;
+import com.sistema.puntoventas.modelo.RankingVendedoresDTO;
+import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
+import com.sistema.puntoventas.repository.impl.AuditoriaRepositoryImpl;
+import com.sistema.puntoventas.modelo.AuditoriaEvento;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -14,14 +19,16 @@ public class EstadisticaService {
 
     private final IEstadisticasRepository estadisticasRepository;
     private final IProductoRepository productoRepository;
+    private final AuditoriaRepositoryImpl auditoriaRepository;
 
     public EstadisticaService(IEstadisticasRepository estadisticasRepository, IProductoRepository productoRepository) {
         this.estadisticasRepository = estadisticasRepository;
         this.productoRepository = productoRepository;
+        this.auditoriaRepository = new AuditoriaRepositoryImpl();
     }
 
 
-    public int obtenerIngresosTotales(String periodo) {
+    public double obtenerIngresosTotales(String periodo) {
         return estadisticasRepository.obtenerIngresosTotales(periodo);
     }
 
@@ -37,6 +44,90 @@ public class EstadisticaService {
 
         return estadisticasRepository.obtenerRankingProductos(limite);
     }
+
+    public double obtenerPerdidasTotales(String periodo){
+
+        if(estadisticasRepository.obtenerPerdidasTotales(periodo) == 0){
+            System.out.println("No se han registrado pérdidas en el periodo " + periodo);
+        }
+
+        if(estadisticasRepository.obtenerPerdidasTotales(periodo) < 0){
+            System.err.println("Error: Las pérdidas no pueden ser negativas. Revisa los datos.");
+        }
+
+
+        return estadisticasRepository.obtenerPerdidasTotales(periodo);
+    }
+
+
+    public BalanceFinancieroDTO obtenerBalance(String periodo){
+        if(periodo == null || periodo.trim().isEmpty()){
+            return new BalanceFinancieroDTO(periodo, 0.0, 0.0, 0.0);
+        }
+
+       double  perdida = estadisticasRepository.obtenerPerdidasTotales(periodo);
+       double ingreso = estadisticasRepository.obtenerIngresosTotales(periodo);
+       double balance = (ingreso - perdida) ;
+
+
+        return new BalanceFinancieroDTO(periodo, ingreso, perdida, balance);
+    }
+
+
+
+    public int obtenerVentasPorUsuarios(int id){
+        if(id == 0 || id < 0){
+            System.err.println("ID de usuario no valido");
+            return 0;
+        }
+
+        int ventas = estadisticasRepository.obtenerVentasUsuario(id);
+        return ventas;
+    }
+
+    public List<RankingVendedoresDTO> obtenerRankingVendedores(int limite) {
+        if (limite <= 0) return new ArrayList<>();
+        return estadisticasRepository.obtenerRankingVendedores(limite);
+    }
+
+    public List<String> obtenerUltimasActividades(int limite) {
+        if (limite <= 0) {
+            return new ArrayList<>();
+        }
+        if (limite > 50) {
+            limite = 50;
+        }
+        // Combinar actividades existentes (ventas + inventario) con auditoría general
+        List<String> res = new ArrayList<>();
+        try {
+            // primero, obtener las actividades ya implementadas
+            List<String> actividades = estadisticasRepository.obtenerUltimasActividades(limite);
+            if (actividades != null) res.addAll(actividades);
+
+            // luego, obtener eventos de auditoría y convertir a String
+            List<AuditoriaEvento> eventos = auditoriaRepository.obtenerUltimosEventos(limite);
+            if (eventos != null) {
+                for (AuditoriaEvento ev : eventos) {
+                    String detalle = String.format("[%s] %s: %s %s", ev.getFecha(), ev.getModulo(), ev.getAccion(), ev.getDetalle() == null ? "" : ev.getDetalle());
+                    res.add(detalle);
+                }
+            }
+
+            // ordenar por fecha descendente si tenemos mezcla
+            res.sort((a, b) -> b.compareTo(a));
+        } catch (Exception e) {
+            System.err.println("Error al combinar actividades y auditoría: " + e.getMessage());
+            // fallback a solo actividades existentes
+            return estadisticasRepository.obtenerUltimasActividades(limite);
+        }
+
+        // Limitar resultado
+        if (res.size() > limite) {
+            return res.subList(0, limite);
+        }
+        return res;
+    }
+
 
     public boolean prepararDatosParaIA(){
         int filasExportadas = estadisticasRepository.prepararDatosParaIA();

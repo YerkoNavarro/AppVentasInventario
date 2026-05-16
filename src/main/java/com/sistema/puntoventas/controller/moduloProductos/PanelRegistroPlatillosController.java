@@ -232,6 +232,8 @@ public class PanelRegistroPlatillosController {
             lblEstado.setTextFill(Color.GREEN);
             limpiarFormulario(); // Tu método de limpieza
 
+            // (remove) cierre automatico del modal
+
         } catch (NumberFormatException e) {
             lblEstado.setText("Error: El precio debe ser un número válido.");
             lblEstado.setTextFill(Color.RED);
@@ -282,6 +284,9 @@ public class PanelRegistroPlatillosController {
 
             lblEstado.setText("¡Platillo actualizado con éxito!");
             lblEstado.setTextFill(Color.GREEN);
+
+            // (remove) cierre automatico del modal
+
         } catch (NumberFormatException e) {
             lblEstado.setText("Error: El precio debe ser un número válido.");
             lblEstado.setTextFill(Color.RED);

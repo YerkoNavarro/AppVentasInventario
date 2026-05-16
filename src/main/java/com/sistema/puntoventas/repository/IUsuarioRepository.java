@@ -12,5 +12,6 @@ public interface IUsuarioRepository {
 
     Usuario iniciarSesion (String rut, String contraseña);
     Usuario eliminarUsuario(String rut);
+    boolean actualizarUsuario(Usuario usuario);
 
 }
