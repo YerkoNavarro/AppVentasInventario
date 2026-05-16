@@ -170,32 +170,36 @@ public class VentaService {
         System.out.println("[STOCK] Iniciando proceso de descuento de inventario...");
         if (productos != null) {
             for (Producto p : productos) {
-                // Lógica unificada: descontar según Unidad de Medida
-                if (p.getUnidadMedida() == UnidadMedida.UNIDAD) {
-                    System.out.println("[STOCK] Descontando 1 unidad de stockActual: " + p.getNombre());
-                    movimientoRepo.actualizarStockFisico(p.getId(), -1);
-                } else {
-                    try {
-                        Producto latestProd = productoService.obtenerProductoPorId(p.getId());
-                        if (latestProd != null) {
-                            double descuento = 1.0;
-                            if (latestProd.getCantidad() - descuento <= 0 && latestProd.getStockActual() > 0) {
-                                movimientoRepo.actualizarStockFisico(p.getId(), -1);
-                                double increment = latestProd.getCantidadDefault() - descuento;
-                                movimientoRepo.actualizarCantidadFisica(p.getId(), increment);
-                                System.out.println("[STOCK] Rollover: Se agotó unidad, abriendo nueva de " + latestProd.getNombre());
-                            } else {
-                                // Si stock es 0, no podemos reponer. Descontamos máximo lo que queda para no quedar en negativo
-                                double descuentoReal = (latestProd.getStockActual() <= 0) 
-                                    ? Math.min(latestProd.getCantidad(), descuento) 
-                                    : descuento;
+                try {
+                    Producto latestProd = productoService.obtenerProductoPorId(p.getId());
+                    if (latestProd == null) continue;
+
+                    // Lógica unificada: descontar según Unidad de Medida
+                    if (latestProd.getUnidadMedida() == UnidadMedida.UNIDAD) {
+                        if (latestProd.getStockActual() > 0) {
+                            System.out.println("[STOCK] Descontando 1 unidad de stockActual: " + p.getNombre());
+                            movimientoRepo.actualizarStockFisico(p.getId(), -1);
+                        } else {
+                            System.err.println("[STOCK] Stock insuficiente para: " + p.getNombre() + ". Omitiendo descuento.");
+                        }
+                    } else {
+                        double descuento = 1.0;
+                        if (latestProd.getCantidad() - descuento <= 0 && latestProd.getStockActual() > 0) {
+                            movimientoRepo.actualizarStockFisico(p.getId(), -1);
+                            double increment = latestProd.getCantidadDefault() - descuento;
+                            movimientoRepo.actualizarCantidadFisica(p.getId(), increment);
+                            System.out.println("[STOCK] Rollover: Se agotó unidad, abriendo nueva de " + latestProd.getNombre());
+                        } else {
+                            // Asegurar que el descuento no deje la cantidad en negativo
+                            double descuentoReal = Math.min(latestProd.getCantidad(), descuento);
+                            if (descuentoReal > 0) {
                                 movimientoRepo.actualizarCantidadFisica(p.getId(), -descuentoReal);
-                                System.out.println("[STOCK] Descontando " + descuentoReal + " de " + p.getNombre() + " (Sin rollover)");
+                                System.out.println("[STOCK] Descontando " + descuentoReal + " de " + p.getNombre());
                             }
                         }
-                    } catch (Exception e) {
-                        System.err.println("Error al descontar producto bulk: " + e.getMessage());
                     }
+                } catch (Exception e) {
+                    System.err.println("Error al descontar producto: " + e.getMessage());
                 }
             }
         }
@@ -206,23 +210,26 @@ public class VentaService {
                 if (platillo.getIngrediente() != null) {
                     for (DetallePlatillo detalle : platillo.getIngrediente()) {
                         Producto prod = detalle.getProducto();
-                        
-                        // Verifica que el producto y su unidad existan antes de comparar
-                        if (prod == null || prod.getUnidadMedida() == null) {
-                            System.err.println("[ERROR] No se pudo encontrar UnidadMedida para ingrediente de: " + platillo.getNombre());
-                            continue;
-                        }
+                        if (prod == null) continue;
 
-                        int idProductoIngrediente = prod.getId();
+                        try {
+                            int idProductoIngrediente = prod.getId();
+                            Producto latestIng = productoService.obtenerProductoPorId(idProductoIngrediente);
                         
-                        if (prod.getUnidadMedida() == UnidadMedida.UNIDAD) {
-                            int cantidadADescontar = (int) detalle.getCantidadIngrediente();
-                            movimientoRepo.actualizarStockFisico(idProductoIngrediente, -cantidadADescontar);
-                            System.out.println("[STOCK] Descontando " + cantidadADescontar + " unidades de " + prod.getNombre());
-                        } else {
-                            try {
-                                Producto latestIng = productoService.obtenerProductoPorId(idProductoIngrediente);
-                                if (latestIng != null) {
+                            if (latestIng == null || latestIng.getUnidadMedida() == null) {
+                                System.err.println("[ERROR] Datos de ingrediente incompletos para: " + prod.getNombre());
+                                continue;
+                            }
+
+                            if (latestIng.getUnidadMedida() == UnidadMedida.UNIDAD) {
+                                int cantidadADescontar = (int) detalle.getCantidadIngrediente();
+                                if (latestIng.getStockActual() >= cantidadADescontar) {
+                                    movimientoRepo.actualizarStockFisico(idProductoIngrediente, -cantidadADescontar);
+                                    System.out.println("[STOCK] Descontando " + cantidadADescontar + " unidades de " + prod.getNombre());
+                                } else {
+                                    System.err.println("[STOCK] Stock insuficiente para ingrediente: " + prod.getNombre());
+                                }
+                            } else {
                                     double cantidadADescontar = detalle.getCantidadIngrediente();
                                     if (latestIng.getCantidad() - cantidadADescontar <= 0 && latestIng.getStockActual() > 0) {
                                         movimientoRepo.actualizarStockFisico(idProductoIngrediente, -1);
@@ -230,17 +237,13 @@ public class VentaService {
                                         movimientoRepo.actualizarCantidadFisica(idProductoIngrediente, increment);
                                         System.out.println("[STOCK] Rollover ingrediente: Nueva unidad abierta para " + prod.getNombre());
                                     } else {
-                                        // Si no hay stock para reponer, descontamos solo lo disponible
-                                        double descuentoReal = (latestIng.getStockActual() <= 0) 
-                                            ? Math.min(latestIng.getCantidad(), cantidadADescontar) 
-                                            : cantidadADescontar;
+                                    double descuentoReal = Math.min(latestIng.getCantidad(), cantidadADescontar);
                                         movimientoRepo.actualizarCantidadFisica(idProductoIngrediente, -descuentoReal);
                                         System.out.println("[STOCK] Descontando " + descuentoReal + " de " + prod.getNombre());
                                     }
-                                }
-                            } catch (Exception e) {
-                                System.err.println("Error al descontar ingrediente bulk: " + e.getMessage());
-                            }
+                        }
+                        } catch (Exception e) {
+                            System.err.println("Error al descontar ingrediente: " + e.getMessage());
                         }
                     }
                 }

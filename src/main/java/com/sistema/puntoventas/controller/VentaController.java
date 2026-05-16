@@ -293,7 +293,7 @@ public class VentaController {
      */
     @FXML
     void guardarTablaEnBD(ActionEvent event) {
-        if (idTablaVentas.getItems().isEmpty()) {
+        if (idTablaVentas.getItems().isEmpty() || productosAgregados.isEmpty() && platillosAgregados.isEmpty()){
             mostrarAlerta(Alert.AlertType.WARNING, "Tabla vacía", "No hay datos para guardar.");
             return;
         }
@@ -328,5 +328,13 @@ public class VentaController {
         textfieldDescripcion.clear();
         textfieldTipoPago.clear();
         textfieldTotal.clear();
+    }
+
+
+
+     @FXML
+    void recargarSugerenciaProductos(ActionEvent event) { //boton recargar sugerencias
+        cargarCatalogos();
+
     }
 }

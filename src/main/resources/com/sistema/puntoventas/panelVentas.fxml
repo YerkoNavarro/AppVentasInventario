@@ -60,6 +60,7 @@
                         <TextField fx:id="textfieldTipoPago" layoutX="259.0" layoutY="244.0" styleClass="field" AnchorPane.leftAnchor="259.0" />
                         <TextField fx:id="textfieldTotal" layoutX="259.0" layoutY="303.0" styleClass="field" AnchorPane.leftAnchor="259.0" />
                         <TextField fx:id="textfieldDescripcion" layoutX="259.0" layoutY="359.0" styleClass="field" AnchorPane.leftAnchor="259.0" />
+                        <Button layoutX="461.0" layoutY="191.0" mnemonicParsing="false" onAction="#recargarSugerenciaProductos" text="recargar" />
                      </children>
                   </AnchorPane>
             </content>
