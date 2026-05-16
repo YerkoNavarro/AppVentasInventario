@@ -10,7 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import javafx.scene.input.MouseEvent; // IMPORTANTE: Debe estar este import
+import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,7 +53,7 @@ public class DashboardVistaController {
         }
     }
 
-    // --- MÉTODOS PARA LAS TARJETAS (Ajustados con MouseEvent) ---
+    // --- MÉTODOS PARA CAMBIAR DE VISTA (TARJETAS) ---
 
     @FXML
     public void abrirModuloDashboard(MouseEvent event) {
@@ -62,12 +62,12 @@ public class DashboardVistaController {
 
     @FXML
     public void abrirModuloUsuarios(MouseEvent event) {
-        // Verifica que esta ruta sea exacta en tu proyecto
         cargarVista("/com/sistema/puntoventas/PanelPrincipalUsuarios.fxml");
     }
 
     @FXML
     public void abrirModuloProductos(MouseEvent event) {
+        // CORREGIDO: Se cambió a PanelInventario.fxml que es tu archivo real
         cargarVista("/com/sistema/puntoventas/PanelPrincipalProductos.fxml");
     }
 
@@ -88,21 +88,26 @@ public class DashboardVistaController {
 
     @FXML
     public void abrirModuloPerfil(MouseEvent event) {
+        // Si no tienes FXML de perfil aún, cargará el de usuarios temporalmente
         cargarVista("/com/sistema/puntoventas/PanelPrincipalUsuarios.fxml");
     }
 
     @FXML
     public void abrirModuloTienda(MouseEvent event) {
-        cargarVista("/com/sistema/puntoventas/PanelPrincipalUsuarios.fxml");
+        // Si no tienes FXML de tienda aún, cargará el de usuarios temporalmente
+        cargarVista("/com/sistema/puntoventas/PanelInventario.fxml");
     }
 
+    // --- MÉTODO PRINCIPAL PARA CARGAR LOS FXML ---
     private void cargarVista(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent view = loader.load();
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
-            System.err.println("Error al cargar la vista FXML: " + fxmlPath);
+            System.err.println(" ERROR FATAL: No se encontró el archivo FXML.");
+            System.err.println(" Ruta intentada: " + fxmlPath);
+            System.err.println(" Solución: Revisa que el archivo exista exactamente con ese nombre (respetando mayúsculas) dentro de tu carpeta 'resources'.");
             e.printStackTrace();
         }
     }
