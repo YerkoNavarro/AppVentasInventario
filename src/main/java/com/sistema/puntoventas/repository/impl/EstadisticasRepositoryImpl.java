@@ -12,7 +12,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
+import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
+import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 
 public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
@@ -151,7 +157,7 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
 
         // Extraemos: Fecha, Cantidad Vendida, ID del Producto
         String sql = "SELECT DATE(v.fechaHora) AS ds, " +
-                "SUM(d.cantidad) AS y, " +
+                "COUNT(*) AS y, " +
                 "d.idProducto " +
                 "FROM venta v " +
                 "INNER JOIN detalle_venta d ON v.idVenta = d.idVenta " +
@@ -287,5 +293,91 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
         }
 
         return actividades;
+    }
+
+    /**
+     * Obtiene múltiples productos en una sola consulta batch.
+     * Utiliza SQL IN para evitar consultas N+1.
+     * 
+     * @param ids Lista de IDs de productos
+     * @return Map<idProducto, Producto> para acceso rápido por ID
+     */
+    public Map<Integer, Producto> obtenerProductosPorIds(List<Integer> ids) {
+        Map<Integer, Producto> resultado = new HashMap<>();
+
+        if (ids == null || ids.isEmpty()) {
+            return resultado;
+        }
+
+        // Construir cláusula IN (?, ?, ...) dinámicamente
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < ids.size(); i++) {
+            placeholders.append("?");
+            if (i < ids.size() - 1) placeholders.append(",");
+        }
+
+        String sql = "SELECT id, nombre, precioVenta, precioCompra, stockActual, stockMinimo, " +
+                     "fechaVenc, imagen, unidadMedida, cantidad, tipoProducto " +
+                     "FROM producto WHERE id IN (" + placeholders + ")";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Asignar IDs a los placeholders
+            for (int i = 0; i < ids.size(); i++) {
+                pstmt.setInt(i + 1, ids.get(i));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Producto producto = new Producto();
+                    producto.setId(rs.getInt("id"));
+                    producto.setNombre(rs.getString("nombre"));
+                    producto.setPrecioVenta(rs.getDouble("precioVenta"));
+                    producto.setPrecioCompra(rs.getDouble("precioCompra"));
+                    producto.setStockActual(rs.getInt("stockActual"));
+                    producto.setStockMinimo(rs.getInt("stockMinimo"));
+                    producto.setFechaVenc(rs.getString("fechaVenc"));
+                    producto.setImagen(rs.getString("imagen"));
+                    producto.setUnidadMedida(mapUnidadMedida(rs.getString("unidadMedida")));
+                    producto.setCantidad(rs.getDouble("cantidad"));
+                    producto.setTipoProducto(mapTipoProducto(rs.getString("tipoProducto")));
+
+                    resultado.put(producto.getId(), producto);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos por batch: " + e.getMessage());
+        }
+
+        return resultado;
+    }
+
+    /**
+     * Mapea string de UnidadMedida a enum
+     */
+    private UnidadMedida mapUnidadMedida(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        try {
+            return UnidadMedida.valueOf(valor.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Mapea string de TipoProducto a enum
+     */
+    private TipoProducto mapTipoProducto(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        try {
+            return TipoProducto.valueOf(valor.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

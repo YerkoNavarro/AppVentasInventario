@@ -97,6 +97,7 @@ public class DbManager {
                 + " idProducto INTEGER,"
                 + " FOREIGN KEY (idVenta) REFERENCES venta(idVenta) ON DELETE CASCADE,"
                 + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
+                + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id)"
                 + ");";
         try (var conn = DriverManager.getConnection(url);
              var stmt = conn.createStatement()) {

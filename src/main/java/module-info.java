@@ -17,6 +17,7 @@ module com.sistema.puntoventas {
 
     // Otros
     requires jdk.jdi;
+    requires net.datafaker;
 
     // --- CONFIGURACIÓN DE ACCESOS Y PERMISOS ---
 

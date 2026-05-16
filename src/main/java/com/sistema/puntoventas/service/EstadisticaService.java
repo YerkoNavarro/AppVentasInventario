@@ -1,19 +1,21 @@
 package com.sistema.puntoventas.service;
 
 import com.sistema.puntoventas.modelo.BalanceFinancieroDTO;
-import com.sistema.puntoventas.modelo.PrediccionStock;
+import com.sistema.puntoventas.modelo.PrediccionStockDTO;
 import com.sistema.puntoventas.modelo.RankingVendedoresDTO;
-import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
 import com.sistema.puntoventas.repository.impl.AuditoriaRepositoryImpl;
 import com.sistema.puntoventas.modelo.AuditoriaEvento;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EstadisticaService {
 
@@ -196,14 +198,13 @@ public class EstadisticaService {
 
 
 
-    public List<PrediccionStock> ejecutarPrediccionStock() {
-        List<PrediccionStock> predicciones = new ArrayList<>();
+    public List<PrediccionStockDTO> ejecutarPrediccionStock() {
+        List<PrediccionStockDTO> predicciones = new ArrayList<>();
 
         if (!prepararDatosStockParaIA()) {
             return predicciones; // retornamos una lista vacía si no hay datos suficientes
         }
 
-        estadisticasRepository.prepararDatosStockParaIA();
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("python", "src/main/java/com/sistema/puntoventas/prediccion_stock.py");
@@ -213,34 +214,64 @@ public class EstadisticaService {
             BufferedReader reader = new BufferedReader(new InputStreamReader(procesoPython.getInputStream()));
             String linea;
 
+            // ===== PASO 1: Recopilar IDs y demandas del script Python =====
+            Map<Integer, Double> demandaPorProducto = new HashMap<>();
             while ((linea = reader.readLine()) != null) {
                 if(linea.contains("ERROR")) continue;
 
                 String[] partes = linea.split(",");
                 if(partes.length == 2) {
-                    int idProducto = Integer.parseInt(partes[0]);
-                    double demandaDiaria = Double.parseDouble(partes[1]);
-
-
-                    int stockActual = productoRepository.obtenerStockActual(idProducto);
-
-                    // 2. Calculamos los días restantes
-                    int diasParaAgotarse = (int) (stockActual / (demandaDiaria == 0 ? 1 : demandaDiaria));
-
-                    // 3. Calculamos riesgo (Si se agota en menos de 5 días = Riesgo Alto)
-                    double indiceRiesgo = diasParaAgotarse <= 5 ? 0.9 : 0.2;
-
-                    // 4. Llenamos tu objeto PrediccionStock
-                    PrediccionStock ps = new PrediccionStock();
-                    ps.setIdProducto(idProducto);
-                    ps.setDiasParaAgotarse(diasParaAgotarse);
-                    ps.setCantidadSugerida((int) (demandaDiaria * 7)); // Sugerir comprar para 7 días
-                    ps.setIndiceRiesgo(indiceRiesgo);
-
-                    predicciones.add(ps);
+                    try {
+                        int idProducto = Integer.parseInt(partes[0]);
+                        double demandaDiaria = Double.parseDouble(partes[1]);
+                        demandaPorProducto.put(idProducto, demandaDiaria);
+                    } catch (NumberFormatException e) {
+                        System.err.println("Error parseando línea Python: " + linea);
+                    }
                 }
             }
             procesoPython.waitFor();
+
+            // ===== PASO 2: Obtener TODOS los productos en UNA sola consulta batch =====
+            Map<Integer, Producto> productosMap = estadisticasRepository.obtenerProductosPorIds(
+                new ArrayList<>(demandaPorProducto.keySet())
+            );
+
+            // ===== PASO 3: Construir DTOs sin más consultas por producto =====
+            for (Map.Entry<Integer, Double> entry : demandaPorProducto.entrySet()) {
+                int idProducto = entry.getKey();
+                double demandaDiaria = entry.getValue();
+
+                Producto producto = productosMap.get(idProducto);
+                if (producto == null) {
+                    System.err.println("Advertencia: No se encontraron datos para producto ID " + idProducto);
+                    continue;
+                }
+
+                int stockActual = producto.getStockActual();
+                String nombreProducto = (producto.getNombre() != null && !producto.getNombre().trim().isEmpty())
+                        ? producto.getNombre()
+                        : "Producto #" + idProducto;
+
+                // Calculamos los días restantes
+                int diasParaAgotarse = (int) (stockActual / (demandaDiaria == 0 ? 1 : demandaDiaria));
+
+                // Calculamos riesgo (Si se agota en menos de 5 días = Riesgo Alto)
+                double indiceRiesgo = diasParaAgotarse <= 5 ? 0.9 : 0.2;
+
+                // Llenamos el DTO
+                PrediccionStockDTO ps = new PrediccionStockDTO();
+                ps.setIdProducto(idProducto);
+                ps.setNombreProducto(nombreProducto);
+                ps.setStockActual(stockActual);
+                ps.setDiasParaAgotarse(diasParaAgotarse);
+                ps.setCantidadSugerida((int) (demandaDiaria * 7)); // Sugerir comprar para 7 días
+                ps.setIndiceRiesgo(indiceRiesgo);
+
+                predicciones.add(ps);
+            }
+
+            System.out.println("DEBUG PREDICCION: " + predicciones.size() + " predicciones generadas con consulta batch.");
 
         } catch (Exception e) {
             System.err.println("Error en IA: " + e.getMessage());

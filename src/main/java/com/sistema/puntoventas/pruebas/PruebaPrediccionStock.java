@@ -1,6 +1,6 @@
 package com.sistema.puntoventas.pruebas;
 
-import com.sistema.puntoventas.modelo.PrediccionStock;
+import com.sistema.puntoventas.modelo.PrediccionStockDTO;
 import com.sistema.puntoventas.repository.impl.EstadisticasRepositoryImpl;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 import com.sistema.puntoventas.service.EstadisticaService;
@@ -32,7 +32,7 @@ public class PruebaPrediccionStock {
         try {
             // 2. Ejecutar la predicción
             // Este método ya incluye internamente la preparación de datos
-            List<PrediccionStock> resultados = service.ejecutarPrediccionStock();
+            List<PrediccionStockDTO> resultados = service.ejecutarPrediccionStock();
 
             // 3. Mostrar resultados
             if (resultados == null || resultados.isEmpty()) {
@@ -42,15 +42,15 @@ public class PruebaPrediccionStock {
                 System.out.println("--------------------------------------------------");
             } else {
                 System.out.println("================ RESULTADOS ENCONTRADOS ==============");
-                System.out.printf("%-12s | %-15s | %-18s | %-10s%n",
-                        "ID PRODUCTO", "DÍAS RESTANTES", "SUGERENCIA COMPRA", "RIESGO");
+                System.out.printf("%-20s | %-15s | %-18s | %-10s%n",
+                        "NOMBRE PRODUCTO", "DÍAS RESTANTES", "SUGERENCIA COMPRA", "RIESGO");
                 System.out.println("------------------------------------------------------------------");
 
-                for (PrediccionStock p : resultados) {
+                for (PrediccionStockDTO p : resultados) {
                     String riesgoStr = (p.getIndiceRiesgo() >= 0.7) ? "ALTO (!)" : "BAJO";
 
-                    System.out.printf("%-12d | %-15d | %-18d | %-10s%n",
-                            p.getIdProducto(),
+                    System.out.printf("%-25s | %-15d | %-18d | %-10s%n",
+                            p.getNombreProducto(),
                             p.getDiasParaAgotarse(),
                             p.getCantidadSugerida(),
                             riesgoStr);

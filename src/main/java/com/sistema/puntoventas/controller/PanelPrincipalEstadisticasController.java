@@ -8,6 +8,7 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -23,17 +24,10 @@ import com.sistema.puntoventas.service.EstadisticaService;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Comparator;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-
-import com.sistema.puntoventas.service.UsuarioService;
-import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
+import javafx.concurrent.Task;
+import javafx.application.Platform;
 
 public class PanelPrincipalEstadisticasController implements Initializable {
 
@@ -68,22 +62,22 @@ public class PanelPrincipalEstadisticasController implements Initializable {
     private TableColumn<String, String> colActividadReciente;
 
     @FXML
-    private TableView<PrediccionStock> tablePrediccionStock;
+    private TableView<PrediccionStockDTO> tablePrediccionStock;
 
     @FXML
-    private TableColumn<PrediccionStock, String> colNombre;
+    private TableColumn<PrediccionStockDTO, String> colNombre;
 
     @FXML
-    private TableColumn<PrediccionStock, Integer> colStockActual;
+    private TableColumn<PrediccionStockDTO, Integer> colStockActual;
 
     @FXML
-    private TableColumn<PrediccionStock, Integer> colDiasRestantes;
+    private TableColumn<PrediccionStockDTO, Integer> colDiasRestantes;
 
     @FXML
-    private TableColumn<PrediccionStock, Double> colIndiceRiesgo;
+    private TableColumn<PrediccionStockDTO, Double> colIndiceRiesgo;
 
     @FXML
-    private TableColumn<PrediccionStock, String> colSugerenciaCompra;
+    private TableColumn<PrediccionStockDTO, Integer> colSugerenciaCompra;
 
     private EstadisticaService estadisticaService;
     private Timeline actualizacionAutomatica;
@@ -135,7 +129,28 @@ public class PanelPrincipalEstadisticasController implements Initializable {
         colStockActual.setCellValueFactory(new PropertyValueFactory<>("stockActual"));
         colDiasRestantes.setCellValueFactory(new PropertyValueFactory<>("diasParaAgotarse"));
         colIndiceRiesgo.setCellValueFactory(new PropertyValueFactory<>("indiceRiesgo"));
+        colIndiceRiesgo.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                } else {
+                    if (value >= 0.7) setText("ALTO");
+                    else if (value >= 0.4) setText("MEDIO");
+                    else setText("BAJO");
+                }
+            }
+        });
+
         colSugerenciaCompra.setCellValueFactory(new PropertyValueFactory<>("cantidadSugerida"));
+        colSugerenciaCompra.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer value, boolean empty) {
+                super.updateItem(value, empty);
+                setText((empty || value == null) ? null : "Comprar " + value + " u.");
+            }
+        });
 
         if (colRankingProducto != null && colRankingCantidad != null) {
             colRankingProducto.setCellValueFactory(new PropertyValueFactory<>("nombreProducto"));
@@ -161,7 +176,7 @@ public class PanelPrincipalEstadisticasController implements Initializable {
             lblIngresosTotales.setText(String.format("$ %.1f", reporte.getIngresosTotales()));
             lblPerdidasTotales.setText(String.format("$ %.1f", reporte.getPerdidasTotales()));
             lblUtilidadNeta.setText(String.format("$ %.1f", reporte.getUtilidadNeta()));
-            
+
             // Calcular ticket promedio: ingresos / cantidad de transacciones (estimado)
             double ticketPromedio = reporte.getIngresosTotales() > 0 ? reporte.getIngresosTotales() / 20.0 : 0;
             lblTicketPromedio.setText(String.format("$ %.2f", ticketPromedio));
@@ -169,17 +184,33 @@ public class PanelPrincipalEstadisticasController implements Initializable {
     }
 
     private void cargarPrediccionStock() {
-        try {
-            List<PrediccionStock> predicciones = estadisticaService.ejecutarPrediccionStock();
-
-            if (predicciones != null && !predicciones.isEmpty()) {
-                tablePrediccionStock.getItems().setAll(predicciones);
-            } else {
-                tablePrediccionStock.getItems().clear();
+        // Ejecutar la predicción en background para no bloquear el hilo de la UI
+        Task<List<PrediccionStockDTO>> task = new Task<>() {
+            @Override
+            protected List<PrediccionStockDTO> call() throws Exception {
+                return estadisticaService.ejecutarPrediccionStock();
             }
-        } catch (Exception e) {
-            System.err.println("Error al cargar predicción de stock: " + e.getMessage());
-        }
+        };
+
+        task.setOnSucceeded(evt -> {
+            List<PrediccionStockDTO> predicciones = task.getValue();
+            Platform.runLater(() -> {
+                if (predicciones != null && !predicciones.isEmpty()) {
+                    tablePrediccionStock.getItems().setAll(predicciones);
+                } else {
+                    tablePrediccionStock.getItems().clear();
+                }
+            });
+        });
+
+        task.setOnFailed(evt -> {
+            Throwable ex = task.getException();
+            System.err.println("Error al cargar predicción de stock: " + (ex != null ? ex.getMessage() : "unknown"));
+        });
+
+        Thread th = new Thread(task, "Prediccion-Worker");
+        th.setDaemon(true);
+        th.start();
     }
 
     private void cargarVentasUsuarios() {
