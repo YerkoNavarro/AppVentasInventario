@@ -91,6 +91,7 @@ public class PlatilloService {
 
                 }
             }
+            costoTotal = Math.round(costoTotal * 10.0)/10.0;
             
             platillo.setCostoProduccion(costoTotal);
         }

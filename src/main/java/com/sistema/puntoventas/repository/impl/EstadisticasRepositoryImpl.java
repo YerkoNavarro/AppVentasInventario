@@ -156,14 +156,32 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
         String rutaArchivo = "datos_stock.csv";
 
         // Extraemos: Fecha, Cantidad Vendida, ID del Producto
-        String sql = "SELECT DATE(v.fechaHora) AS ds, " +
-                "COUNT(*) AS y, " +
-                "d.idProducto " +
-                "FROM venta v " +
-                "INNER JOIN detalle_venta d ON v.idVenta = d.idVenta " +
-                "WHERE v.estado = 1 " +
-                "GROUP BY DATE(v.fechaHora), d.idProducto " +
-                "ORDER BY DATE(v.fechaHora) ASC";
+        String sql = "SELECT idProducto, ds, SUM(cantidad_total) AS y " +
+                "FROM (" +
+
+                "    SELECT " +
+                "        dv.idProducto AS idProducto, " +
+                "        DATE(v.fechaHora) AS ds, " +
+                "        1 AS cantidad_total " +
+                "    FROM detalle_venta dv " +
+                "    INNER JOIN venta v ON dv.idVenta = v.idVenta " +
+                "    WHERE v.estado = 1 AND dv.idProducto IS NOT NULL " +
+
+                "    UNION ALL " +
+
+                // Consumo indirecto
+                "    SELECT " +
+                "        dp.idProducto AS idProducto, " +
+                "        DATE(v.fechaHora) AS ds, " +
+                "        dp.cantidadIngrediente AS cantidad_total " +
+                "    FROM detalle_venta dv " +
+                "    INNER JOIN venta v ON dv.idVenta = v.idVenta " +
+                "    INNER JOIN detalle_platillo dp ON dv.idPlatillo = dv.idPlatillo " +
+                "    WHERE v.estado = 1 AND dv.idPlatillo IS NOT NULL" +
+                ") AS consumo_global " +
+                "WHERE idProducto IS NOT NULL " +
+                "GROUP BY idProducto, ds " +
+                "ORDER BY idProducto, ds ASC";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql);

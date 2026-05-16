@@ -1,5 +1,7 @@
 import pandas as pd
 from prophet import Prophet
+from prophet.serialize import model_to_json, model_from_json
+import os
 import sys
 import logging
 
@@ -22,8 +24,17 @@ def predecir_agotamiento():
             if len(df_prod) < 3:
                 continue
 
-            modelo = Prophet(weekly_seasonality=True, yearly_seasonality=False, daily_seasonality=False)
-            modelo.fit(df_prod)
+            nombre_archivo_modelo = f"modelo_producto_{prod_id}.json"
+
+            if os.path.exists.nombre(nombre_archivo_modelo):
+                with open(nombre_archivo_modelo,'r') as fin:
+                    modelo = model_from_json(fin.read())
+            else:
+
+                modelo = Prophet(weekly_seasonality=True, yearly_seasonality=False, daily_seasonality=False)
+                modelo.fit(df_prod)
+                with open(nombre_archivo_modelo, 'w') as fout:
+                    fout.write(model_to_json(modelo))
 
             # Predecir los próximos 7 días de este producto
             futuro = modelo.make_future_dataframe(periods=7)

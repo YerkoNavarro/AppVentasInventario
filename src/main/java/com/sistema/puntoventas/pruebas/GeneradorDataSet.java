@@ -76,7 +76,7 @@ public class GeneradorDataSet {
             generarActividad30Dias(conn, usuarios, productos, platillos);
 
             conn.commit();
-            System.out.println("Dataset generado correctamente: 30 dias de actividad realista.");
+            System.out.println("Dataset generado correctamente");
         } catch (Exception e) {
             System.err.println("Error al generar dataset: " + e.getMessage());
             e.printStackTrace();
@@ -166,42 +166,50 @@ public class GeneradorDataSet {
                 "Harina Panadera", "Azucar Blanca", "Aceite Vegetal", "Leche Entera", "Cafe Molido",
                 "Bebida Cola", "Agua Mineral", "Jugo Naranja", "Pan Hamburguesa", "Pan HotDog",
                 "Pollo Desmenuzado", "Carne Molida", "Queso Mozzarella", "Lechuga Fresca", "Tomate",
-                "Salsa Tomate", "Papas Fritas Bolsa", "Empanada Lista", "Hamburguesa Lista", "Brownie"
+                "Salsa Tomate", "Papas Fritas Bolsa"
         );
 
         for (int i = 0; i < nombres.size(); i++) {
             TipoProducto tipo;
+            double precioVenta;
+            double cantidadDefault;
+            
             if (i < 5) {
+                // Primeros 5: SOLO_INVENTARIO
                 tipo = TipoProducto.SOLO_INVENTARIO;
-            } else if (i < 17) {
-                tipo = TipoProducto.DIRECTO;
+                precioVenta = 1; // Sin precio de venta
+                cantidadDefault = 1000; // Gramos por default
             } else {
-                tipo = TipoProducto.PLATILLO;
+                // Resto: DIRECTO
+                tipo = TipoProducto.DIRECTO;
+                double compra = 700 + random.nextInt(5500);
+                precioVenta = compra * (1.35 + (random.nextDouble() * 0.5));
+                cantidadDefault = 1; // Cantidad default = 1
             }
 
             UnidadMedida unidad = (i % 3 == 0) ? UnidadMedida.UNIDAD : (i % 3 == 1 ? UnidadMedida.GRAMOS : UnidadMedida.MILILITROS);
             int stock = 60 + random.nextInt(180);
             int stockMin = 15 + random.nextInt(30);
             double compra = 700 + random.nextInt(5500);
-            double venta = compra * (1.35 + (random.nextDouble() * 0.5));
             LocalDate venc = LocalDate.now().plusDays(45 + random.nextInt(120));
 
             try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, nombres.get(i));
                 ps.setDouble(2, redondear(compra));
-                ps.setDouble(3, redondear(venta));
+                ps.setDouble(3, tipo == TipoProducto.SOLO_INVENTARIO ? 0 : redondear(precioVenta));
                 ps.setInt(4, categorias.get(i % categorias.size()));
                 ps.setString(5, venc.toString());
                 ps.setInt(6, stock);
                 ps.setInt(7, stockMin);
                 ps.setString(8, "img_producto_" + (i + 1) + ".png");
                 ps.setString(9, unidad.name());
-                ps.setDouble(10, unidad == UnidadMedida.UNIDAD ? 1 : 1000);
+                ps.setDouble(10, cantidadDefault);
                 ps.setString(11, tipo.name());
                 ps.executeUpdate();
 
                 int id = leerGeneratedKey(ps);
-                list.add(new ProductoSeed(id, nombres.get(i), redondear(compra), redondear(venta), tipo, stock));
+                list.add(new ProductoSeed(id, nombres.get(i), redondear(compra), 
+                        tipo == TipoProducto.SOLO_INVENTARIO ? 0 : redondear(precioVenta), tipo, stock));
             }
         }
 
@@ -294,7 +302,7 @@ public class GeneradorDataSet {
         boolean detalleTienePlatillo = existeColumna(conn, "detalle_venta", "idPlatillo");
         LocalDate inicio = LocalDate.now().minusDays(29);
 
-        for (int d = 0; d < 30; d++) {
+        for (int d = 0; d < 100; d++) {
             LocalDateTime fecha = inicio.plusDays(d).atTime(10 + random.nextInt(10), random.nextInt(60));
             int idUsuario;
             if (usuarios.size() > 1) {
