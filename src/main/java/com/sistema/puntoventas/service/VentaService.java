@@ -174,30 +174,16 @@ public class VentaService {
                     Producto latestProd = productoService.obtenerProductoPorId(p.getId());
                     if (latestProd == null) continue;
 
-                    // Lógica unificada: descontar según Unidad de Medida
-                    if (latestProd.getUnidadMedida() == UnidadMedida.UNIDAD) {
-                        if (latestProd.getStockActual() > 0) {
-                            System.out.println("[STOCK] Descontando 1 unidad de stockActual: " + p.getNombre());
-                            movimientoRepo.actualizarStockFisico(p.getId(), -1);
-                        } else {
-                            System.err.println("[STOCK] Stock insuficiente para: " + p.getNombre() + ". Omitiendo descuento.");
-                        }
+                    // descontar, se asume que es unidad por defecto
+                    
+                    if (latestProd.getStockActual() > 0) { // verifica no descontar negativo
+
+                        System.out.println("[STOCK] Descontando 1 unidad de stockActual: " + p.getNombre());
+                        movimientoRepo.actualizarStockFisico(p.getId(), -1);
                     } else {
-                        double descuento = 1.0;
-                        if (latestProd.getCantidad() - descuento <= 0 && latestProd.getStockActual() > 0) {
-                            movimientoRepo.actualizarStockFisico(p.getId(), -1);
-                            double increment = latestProd.getCantidadDefault() - descuento;
-                            movimientoRepo.actualizarCantidadFisica(p.getId(), increment);
-                            System.out.println("[STOCK] Rollover: Se agotó unidad, abriendo nueva de " + latestProd.getNombre());
-                        } else {
-                            // Asegurar que el descuento no deje la cantidad en negativo
-                            double descuentoReal = Math.min(latestProd.getCantidad(), descuento);
-                            if (descuentoReal > 0) {
-                                movimientoRepo.actualizarCantidadFisica(p.getId(), -descuentoReal);
-                                System.out.println("[STOCK] Descontando " + descuentoReal + " de " + p.getNombre());
-                            }
-                        }
+                        System.err.println("[STOCK] Stock insuficiente para: " + p.getNombre() + ". Omitiendo descuento.");
                     }
+                    
                 } catch (Exception e) {
                     System.err.println("Error al descontar producto: " + e.getMessage());
                 }
