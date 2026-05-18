@@ -130,6 +130,44 @@ public class VentaService {
         ventaApp.setDetallePlatillos(listaPlatillos);
     }
 
+    /**
+     * Calcula la suma total de los precios basándose en los nombres de productos o platillos
+     * proporcionados en una cadena separada por comas.
+     */
+    public double calcularTotal(String input, List<Producto> catalogoProd, List<Platillo> catalogoPlat) {
+        if (input == null || input.isBlank()) {
+            return 0.0;
+        }
+
+        String[] nombres = input.split(",");
+        double total = 0.0;
+
+        for (String nombre : nombres) {
+            final String nombreLimpio = nombre.trim();
+            if (nombreLimpio.isEmpty()) continue;
+
+            // Buscar en catálogo de productos
+            Optional<Producto> prodEncontrado = (catalogoProd == null) ? Optional.empty() : catalogoProd.stream()
+                .filter(p -> p.getNombre().equalsIgnoreCase(nombreLimpio))
+                .findFirst();
+
+            if (prodEncontrado.isPresent()) {
+                total += prodEncontrado.get().getPrecioVenta();
+                continue;
+            }
+
+            // Buscar en catálogo de platillos
+            Optional<Platillo> platEncontrado = (catalogoPlat == null) ? Optional.empty() : catalogoPlat.stream()
+                .filter(pl -> pl.getNombre().equalsIgnoreCase(nombreLimpio))
+                .findFirst();
+
+            if (platEncontrado.isPresent()) {
+                total += platEncontrado.get().getPrecio();
+            }
+        }
+        return total;
+    }
+
     public ventaAplicacion procesarNuevaVentaApp(String totalStr, String fecha, String pago, String desc, List<Producto> productos, List<Platillo> platillos) throws Exception {
         double total;
         try {
