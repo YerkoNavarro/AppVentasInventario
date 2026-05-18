@@ -9,68 +9,65 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.moduloProductos.PanelPrincipalCategoriasController">
+<AnchorPane maxHeight="Infinity" maxWidth="Infinity" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.moduloProductos.PanelPrincipalCategoriasController">
     <children>
-        <Pane id="panePrinc" fx:id="contenedorTabla" prefHeight="827.0" prefWidth="1675.0" styleClass="panel-root" stylesheets="@css/panel-productos.css" AnchorPane.leftAnchor="0.0">
+        <HBox spacing="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
             <children>
-                <TableView fx:id="tableProductos" layoutX="42.0" layoutY="284.0" prefHeight="456.0" prefWidth="621.0">
-                    <columns>
-                        <TableColumn fx:id="colId" prefWidth="100.79998397827148" text="ID" />
-                        <TableColumn fx:id="colCategoria" prefWidth="0.0" text="categoria" visible="false" />
-                        <TableColumn fx:id="colNombre" prefWidth="179.9999542236328" text="nombre" />
-                        <TableColumn fx:id="colDescripcion" prefWidth="186.4000244140625" text="descripción" />
-                        <TableColumn fx:id="colActiva" prefWidth="172.0" text="activa" />
-                    </columns>
-                </TableView>
-                <HBox layoutX="42.0" layoutY="24.0" prefHeight="132.0" prefWidth="936.0" spacing="40.0">
+                <Pane fx:id="CardProductos" prefHeight="132.0" prefWidth="200.0" styleClass="card-kpi-blue" stylesheets="@css/PanelPrincipalVista.css" HBox.hgrow="ALWAYS">
                     <children>
-                        <Pane fx:id="CardProductos" prefHeight="200.0" prefWidth="200.0" styleClass="card-kpi-blue" stylesheets="@css/PanelPrincipalVista.css">
-                            <children>
-                                <Label layoutX="40.0" layoutY="30.0" text="Productos activos" textFill="#f7f4f4">
-                                    <font>
-                                        <Font name="Arial Black" size="12.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="lblProductosActivos" layoutX="69.0" layoutY="66.0" styleClass="label-metrica" stylesheets="@css/panel-productos.css" />
-                            </children>
-                        </Pane>
-                        <Pane fx:id="CardCategorias" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" styleClass="card-kpi-green" stylesheets="@css/PanelPrincipalVista.css">
-                            <children>
-                                <Label layoutX="38.0" layoutY="29.0" text="Categorias activas" textFill="WHITE">
-                                    <font>
-                                        <Font name="Arial Black" size="12.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="lblCategoriasActivas" layoutX="70.0" layoutY="66.0" styleClass="label-metrica" />
-                            </children>
-                        </Pane>
-                        <Pane fx:id="CardActivos" layoutX="210.0" layoutY="10.0" prefHeight="132.0" prefWidth="206.0" styleClass="card-kpi-yellow" stylesheets="@css/PanelPrincipalVista.css">
-                            <children>
-                                <Label layoutX="47.0" layoutY="32.0" text="Platillos activos" textFill="WHITE">
-                                    <font>
-                                        <Font name="Arial Black" size="12.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="lblPlatillosActivos" layoutX="73.0" layoutY="66.0" styleClass="label-metrica" />
-                            </children>
-                        </Pane>
-                        <Pane fx:id="CardBajoStock" layoutX="490.0" layoutY="10.0" prefHeight="132.0" prefWidth="206.0" styleClass="card-kpi-red" stylesheets="@css/PanelPrincipalVista.css">
-                            <children>
-                                <Label fx:id="cardBajoStock" layoutX="33.0" layoutY="32.0" text="Productos bajo Stock" textFill="WHITE">
-                                    <font>
-                                        <Font name="Arial Black" size="12.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="lblBajoStock" layoutX="73.0" layoutY="66.0" styleClass="label-metrica" />
-                            </children>
-                        </Pane>
+                        <Label layoutX="40.0" layoutY="30.0" text="Productos activos" textFill="#f7f4f4">
+                            <font><Font name="Arial Black" size="12.0" /></font>
+                        </Label>
+                        <Label fx:id="lblProductosActivos" layoutX="69.0" layoutY="66.0" styleClass="label-metrica" stylesheets="@css/panel-productos.css" />
                     </children>
-                </HBox>
-                <Button fx:id="btnEditarProducto" layoutX="281.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Editar Categoria" />
-                <Button fx:id="btnEliminarProducto" layoutX="520.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Eliminar Categoria" />
-                <Button id="btnAgregarProducto" fx:id="btnAgregarProducto" layoutX="42.0" layoutY="224.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Agregar Categoria" />
-                <Button fx:id="btnVerPlatillos" layoutX="775.0" layoutY="224.0" managed="false" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Ver platillos" visible="false" />
+                </Pane>
+                <Pane fx:id="CardCategorias" prefHeight="132.0" prefWidth="200.0" styleClass="card-kpi-green" stylesheets="@css/PanelPrincipalVista.css" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label layoutX="38.0" layoutY="29.0" text="Categorias activas" textFill="WHITE">
+                            <font><Font name="Arial Black" size="12.0" /></font>
+                        </Label>
+                        <Label fx:id="lblCategoriasActivas" layoutX="70.0" layoutY="66.0" styleClass="label-metrica" />
+                    </children>
+                </Pane>
+                <Pane fx:id="CardActivos" prefHeight="132.0" prefWidth="200.0" styleClass="card-kpi-yellow" stylesheets="@css/PanelPrincipalVista.css" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label layoutX="47.0" layoutY="32.0" text="Platillos activos" textFill="WHITE">
+                            <font><Font name="Arial Black" size="12.0" /></font>
+                        </Label>
+                        <Label fx:id="lblPlatillosActivos" layoutX="73.0" layoutY="66.0" styleClass="label-metrica" />
+                    </children>
+                </Pane>
+                <Pane fx:id="CardBajoStock" prefHeight="132.0" prefWidth="200.0" styleClass="card-kpi-red" stylesheets="@css/PanelPrincipalVista.css" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label fx:id="cardBajoStock" layoutX="33.0" layoutY="32.0" text="Productos bajo Stock" textFill="WHITE">
+                            <font><Font name="Arial Black" size="12.0" /></font>
+                        </Label>
+                        <Label fx:id="lblBajoStock" layoutX="73.0" layoutY="66.0" styleClass="label-metrica" />
+                    </children>
+                </Pane>
             </children>
-        </Pane>
+        </HBox>
+
+        <HBox spacing="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="170.0">
+            <children>
+                <Button id="btnAgregarProducto" fx:id="btnAgregarProducto" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Agregar Categoria" />
+                <Button fx:id="btnEditarProducto" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Editar Categoria" />
+                <Button fx:id="btnEliminarProducto" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Eliminar Categoria" />
+
+                <Pane HBox.hgrow="ALWAYS" />
+
+                <Button fx:id="btnVerPlatillos" managed="false" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Ver platillos" visible="false" />
+            </children>
+        </HBox>
+
+        <TableView fx:id="tableProductos" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="220.0">
+            <columns>
+                <TableColumn fx:id="colId" prefWidth="100.0" text="ID" />
+                <TableColumn fx:id="colCategoria" prefWidth="0.0" text="categoria" visible="false" />
+                <TableColumn fx:id="colNombre" prefWidth="180.0" text="nombre" />
+                <TableColumn fx:id="colDescripcion" prefWidth="250.0" text="descripción" />
+                <TableColumn fx:id="colActiva" prefWidth="170.0" text="activa" />
+            </columns>
+        </TableView>
     </children>
 </AnchorPane>
