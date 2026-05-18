@@ -80,6 +80,7 @@ public class VentaController {
         inicializarFechaActual();
         cargarCatalogos();
         configurarAutoComplete();
+        configurarCalculoTotal();
     }
 
     /**
@@ -222,6 +223,21 @@ public class VentaController {
 
         textFieldProducto.focusedProperty().addListener((obs, oldVal, isFocused) -> {
             if (!isFocused) contextMenu.hide();
+        });
+    }
+
+    /**
+     * Agrega un listener al campo de productos para calcular automáticamente el total
+     * basándose en los precios de los productos y platillos ingresados.
+     */
+    private void configurarCalculoTotal() {
+        textFieldProducto.textProperty().addListener((obs, oldVal, newVal) -> {
+            try {
+                double total = ventaService.calcularTotal(newVal, productosDisponibles, platillosDisponibles);
+                textfieldTotal.setText(String.valueOf((int) total));
+            } catch (Exception e) {
+                textfieldTotal.setText("0");
+            }
         });
     }
 
