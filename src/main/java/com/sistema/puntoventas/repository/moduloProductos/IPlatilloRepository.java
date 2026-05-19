@@ -14,4 +14,5 @@ public interface IPlatilloRepository {
     boolean existeNombre(String nombre, int id);
     Platillo obtenerPlatilloPorId(int id);
     boolean estaAsociadoVenta(int id);
+    List<Platillo> obtenerPlatillosConRecetaCompleta();
 }

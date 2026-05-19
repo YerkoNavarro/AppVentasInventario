@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="Infinity" maxWidth="Infinity" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.moduloProductos.PanelPrincipalPlatillosController">
+<AnchorPane maxHeight="Infinity" maxWidth="Infinity" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.moduloProductos.PanelPrincipalCategoriasController">
     <children>
         <HBox spacing="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
             <children>
@@ -50,25 +50,23 @@
 
         <HBox spacing="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="170.0">
             <children>
-                <Button id="btnAgregarProducto" fx:id="btnAgregarPlatillo" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Agregar Platillo" />
-                <Button fx:id="btnEditarPlatillo" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Editar Platillo" />
-                <Button fx:id="btnEliminarPlatillo" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Eliminar Platillo" />
+                <Button id="btnAgregarProducto" fx:id="btnAgregarProducto" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Agregar Categoria" />
+                <Button fx:id="btnEditarProducto" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Editar Categoria" />
+                <Button fx:id="btnEliminarProducto" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Eliminar Categoria" />
 
                 <Pane HBox.hgrow="ALWAYS" />
 
-                <Button fx:id="btnVerPlatillos" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Ver platillos" />
+                <Button fx:id="btnVerPlatillos" managed="false" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Ver platillos" visible="false" />
             </children>
         </HBox>
 
-        <TableView fx:id="tablePlatillos" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="220.0">
+        <TableView fx:id="tableProductos" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="220.0">
             <columns>
-                <TableColumn fx:id="colId" prefWidth="65.0" text="id" />
+                <TableColumn fx:id="colId" prefWidth="100.0" text="ID" />
+                <TableColumn fx:id="colCategoria" prefWidth="0.0" text="categoria" visible="false" />
                 <TableColumn fx:id="colNombre" prefWidth="180.0" text="nombre" />
-                <TableColumn fx:id="colCategoria" prefWidth="150.0" text="categoria" />
-                <TableColumn fx:id="colPrecio" prefWidth="120.0" text="precio venta" />
-                <TableColumn fx:id="colCostoProduccion" prefWidth="140.0" text="costo producción" />
-                <TableColumn fx:id="colEstado" prefWidth="100.0" text="estado" />
-                <TableColumn fx:id="colStockActual" prefWidth="100.0" text="stock actual" />
+                <TableColumn fx:id="colDescripcion" prefWidth="250.0" text="descripción" />
+                <TableColumn fx:id="colActiva" prefWidth="170.0" text="activa" />
             </columns>
         </TableView>
     </children>

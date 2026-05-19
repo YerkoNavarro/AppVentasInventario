@@ -18,32 +18,9 @@ public class DbManager {
     }
 
 
-/* 
-    public void crearTablaProductos(){
-        // SQL statement for creating a new table
-        String sql = "CREATE TABLE IF NOT EXISTS producto ("
-                + " id INTEGER PRIMARY KEY ,"
-                + " nombre TEXT NOT NULL,"
-                + " precioCompra REAL,"
-                + " precioVenta REAL,"
-                + " categoria TEXT,"
-                + " fechaVenc TEXT,"
-                + " stockActual INTEGER,"
-                + " stockMinimo INTEGER,"
-                + " imagen TEXT,"
-                + " unidadMedida TEXT"
-                + ");";
 
-        try (var conn = DriverManager.getConnection(url);
-             var stmt = conn.createStatement()) {
-            // create a new table
-            stmt.execute(sql);
-            System.out.println("Tabla productos creada correctamente");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-*/
+
+
     public void crearTablaUsuario(){
 
         // SQL statement for creating a new table
@@ -81,6 +58,7 @@ public class DbManager {
                 + " unidadMedida TEXT, "
                 + " cantidad DOUBLE, "
                 + " tipoProducto TEXT,"
+                + " cantidadDefault DOUBLE,"
                 + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
                 + ");";
 
@@ -118,8 +96,10 @@ public class DbManager {
                 + " idDetalle INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + " idVenta INTEGER,"
                 + " idProducto INTEGER,"
+                + " idPlatillo INTEGER,"
                 + " FOREIGN KEY (idVenta) REFERENCES venta(idVenta) ON DELETE CASCADE,"
-                + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
+                + " FOREIGN KEY (idProducto) REFERENCES producto(id),"
+                + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id)"
                 + ");";
         try (var conn = DriverManager.getConnection(url);
              var stmt = conn.createStatement()) {
@@ -159,6 +139,7 @@ public class DbManager {
         crearTablaDetalleVenta();
         crearTablaProductos();
         crearTablaHistorialInventario();
+        crearTablaAuditoria();
         crearTablaPlatillo();
         crearTablaDetallePlatillo();
         System.out.println("Inicialización de todas las tablas completada.");
@@ -208,7 +189,7 @@ public class DbManager {
             + " idCategoria INTEGER, "    
             + " estado boolean DEFAULT 1, "
             + " costoProduccion double DEFAULT 0.0, "
-            + " stockActual INTEGER DEFAULT 0, "
+            + " fabricables INTEGER DEFAULT 0, "
             + " tipoProducto TEXT DEFAULT 'PLATILLO', "
             + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
             + ");";
@@ -226,7 +207,7 @@ public class DbManager {
         String sql = "CREATE TABLE IF NOT EXISTS detalle_platillo ("
             + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
             + " idPlatillo INTEGER NOT NULL, "
-            + " idProducto INTEGER NOT NULL, " // idProducto asume que el ingrediente es un producto del inventario
+            + " idProducto INTEGER NOT NULL, "
             + " cantidadIngrediente DOUBLE NOT NULL, "
             + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id) ON DELETE CASCADE, "
             + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
@@ -237,6 +218,28 @@ public class DbManager {
             System.out.println("Tabla 'detalle_platillo' verificada/creada.");
         } catch (SQLException e) {
             System.err.println("Error al crear tabla detalle_platillo: " + e.getMessage());
+        }
+    }
+
+    public void crearTablaAuditoria() {
+        String sql = "CREATE TABLE IF NOT EXISTS auditoria_eventos ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " fecha TEXT DEFAULT CURRENT_TIMESTAMP,"
+                + " modulo TEXT,"
+                + " entidad TEXT,"
+                + " accion TEXT,"
+                + " idEntidad INTEGER,"
+                + " detalle TEXT,"
+                + " idUsuario INTEGER,"
+                + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
+                + ");";
+
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'auditoria_eventos' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla auditoria_eventos: " + e.getMessage());
         }
     }
 }

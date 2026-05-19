@@ -27,7 +27,7 @@ public class UsuarioRepositoryImpl implements IUsuarioRepository {
             ps.setString(5, usuario.getTelefono());
             // Conversión de Enum Role a String para la base de datos
             ps.setString(6, usuario.getRol().name());
-            // Uso de setBoolean para el tipo de dato correcto[cite: 1]
+            // Uso de setBoolean para el tipo de dato correcto
             ps.setBoolean(7, usuario.getEstado());
 
             int rowsInserted = ps.executeUpdate();
@@ -40,7 +40,7 @@ public class UsuarioRepositoryImpl implements IUsuarioRepository {
 
     @Override
     public Usuario iniciarSesion(String rut, String contraseña) {
-        // Se utiliza 'password' para la consulta SQL[cite: 2]
+        // Se utiliza 'password' para la consulta SQL
         String sql = "SELECT * FROM Usuario WHERE rut = ? AND password = ?";
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -112,21 +112,26 @@ public class UsuarioRepositoryImpl implements IUsuarioRepository {
         }
     }
 
-    // Método auxiliar para mapear los resultados respetando los tipos del modelo[cite: 1]
+    // Método auxiliar para mapear los resultados respetando los tipos del modelo
     private Usuario mapearUsuario(ResultSet rs) throws SQLException {
         Usuario user = new Usuario();
+
+        // === AQUÍ ESTÁ LA LÍNEA AGREGADA PARA EL ID ===
+        user.setId(rs.getInt("id"));
+
         user.setNombre(rs.getString("nombre"));
         user.setApellido(rs.getString("apellido"));
         user.setRut(rs.getString("rut"));
-        // Se lee la columna 'password' de la DB[cite: 2]
+        // Se lee la columna 'password' de la DB
         user.setContraseña(rs.getString("password"));
         user.setTelefono(rs.getString("telefono"));
-        // Conversión del String de la DB al Enum Role[cite: 1]
+        // Conversión del String de la DB al Enum Role
         user.setRol(Role.valueOf(rs.getString("rol")));
-        // Uso de getBoolean para el estado[cite: 1]
+        // Uso de getBoolean para el estado
         user.setEstado(rs.getBoolean("estado"));
         return user;
     }
+
     @Override
     public boolean actualizarUsuario(Usuario usuario) {
         // El RUT no se cambia (es el WHERE), actualizamos el resto

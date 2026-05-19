@@ -98,24 +98,7 @@ public class PanelRegistroPlatillosController {
                 }
             });
 
-            // Configurar columnas de la tabla de ingredientes
-            colNombre.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getProducto().getNombre()));
-            colTipoProducto.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getCantidadIngrediente()).asObject());
-            colTipoProducto.setText("Cantidad"); // Para reflejar el uso real
-            
-            colUnidadMedida.setCellValueFactory(cellData -> {
-                var unidad = cellData.getValue().getProducto().getUnidadMedida();
-                return new SimpleStringProperty(unidad != null ? unidad.name() : "");
-            });
-            colUnidadMedida.setText("Unidad Medida");
-            
-            colCostoProduccion.setCellValueFactory(cellData -> {
-                double costoUnitario = cellData.getValue().getProducto().getPrecioCompra();
-                double cantidad = cellData.getValue().getCantidadIngrediente();
-                return new SimpleDoubleProperty(costoUnitario * cantidad).asObject();
-            });
-            colCostoProduccion.setText("Costo Total");
-            
+            configurarColumnasTabla();
             tableProductos.setItems(listaIngredientesTemporal);
 
         } catch (Exception e) {
@@ -129,6 +112,33 @@ public class PanelRegistroPlatillosController {
         if(btnRegistrarPlatillo != null){
             btnRegistrarPlatillo.setOnAction(this::registrarPlatillo);
         }
+    }
+
+    private void configurarColumnasTabla() {
+        // Responsividad
+        colNombre.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.40));
+        colTipoProducto.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.20));
+        colUnidadMedida.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.20));
+        colCostoProduccion.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.20));
+
+        // CellValueFactories
+        colNombre.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getProducto().getNombre()));
+        
+        colTipoProducto.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getCantidadIngrediente()).asObject());
+        colTipoProducto.setText("Cantidad");
+        
+        colUnidadMedida.setCellValueFactory(cellData -> {
+            var unidad = cellData.getValue().getProducto().getUnidadMedida();
+            return new SimpleStringProperty(unidad != null ? unidad.name() : "");
+        });
+        colUnidadMedida.setText("Unidad Medida");
+        
+        colCostoProduccion.setCellValueFactory(cellData -> {
+            double costoUnitario = cellData.getValue().getProducto().getPrecioCompra();
+            double cantidad = cellData.getValue().getCantidadIngrediente();
+            return new SimpleDoubleProperty(costoUnitario * cantidad).asObject();
+        });
+        colCostoProduccion.setText("Costo Total");
     }
 
     @FXML

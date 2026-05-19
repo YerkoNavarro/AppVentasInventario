@@ -1,4 +1,5 @@
-package com.sistema.puntoventas.controller.moduloProductos;
+package com.sistema.puntoventas.controller;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -9,94 +10,96 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PanelPrincipalVistaController {
 
+    @FXML private Button btnDashboard; // <--- NUEVO
+    @FXML private Button btnUsuarios;
+    @FXML private Button btnProductos;
+    @FXML private Button btnVentas;
+    @FXML private Button btnInventario;
+    @FXML private Button btnPlatillos;
+    @FXML private Button btnEstadisticas;
+    @FXML private Button btnCategorias;
 
-
-
-
-
-
-        // 1. CONEXIÓN CON LOS ELEMENTOS DEL FXML
-        @FXML private Button btnUsuarios;
-        @FXML private Button btnProductos;
-        @FXML private Button btnVentas;
-        @FXML private Button btnInventario;
-
-        @FXML private StackPane contentArea;
+    @FXML private StackPane contentArea;
 
         // Variable para no perder el dashboard original al cambiar de pantallas
         private Node vistaDashboardInicial;
+
+        // Cache para almacenar las vistas ya cargadas y preservar su estado (tablas, textos, etc.)
+        private final Map<String, Node> vistasCache = new HashMap<>();
 
         // 2. MÉTODO DE INICIALIZACIÓN
         @FXML
         public void initialize() {
             cargarVistaMódulo("DashboardVista.fxml", null);
 
-            // Asignamos qué archivo FXML se abrirá al hacer clic en cada botón
-            // (Asegúrate de que los nombres de los archivos .fxml coincidan con los tuyos)
-            btnUsuarios.setOnAction(e -> cargarVistaMódulo("PanelUsuarios-vista.fxml", btnUsuarios));
-            btnProductos.setOnAction(e -> cargarVistaMódulo("PanelRegistrarProductosvista.fxml", btnProductos));
-            btnVentas.setOnAction(e -> cargarVistaMódulo("panelVentas.fxml", btnVentas));
-            btnInventario.setOnAction(e -> cargarVistaMódulo("PanelInventario-vista.fxml", btnInventario));
-        }
+        // Acción para el nuevo botón Inicio
+        btnDashboard.setOnAction(e -> cargarVistaModulo("DashboardVista.fxml", btnDashboard));
+
+        btnUsuarios.setOnAction(e -> cargarVistaModulo("PanelPrincipalUsuarios.fxml", btnUsuarios));
+        btnProductos.setOnAction(e -> cargarVistaModulo("PanelPrincipalProductos.fxml", btnProductos));
+        btnVentas.setOnAction(e -> cargarVistaModulo("panelVentas.fxml", btnVentas));
+        btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario.fxml", btnInventario));
+        btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelPrincipalPlatillosVista.fxml", btnPlatillos));
+        btnEstadisticas.setOnAction(e -> cargarVistaModulo("PanelPrincipalEstadisticasVista.fxml", btnEstadisticas));
+        btnCategorias.setOnAction(e -> cargarVistaModulo("PanelPrincipalCategorias.fxml", btnCategorias));
+    }
 
         // 3. SISTEMA DE NAVEGACIÓN DINÁMICA
         private void cargarVistaMódulo(String archivoFxml, Button botonActivo) {
             try {
-                // Cargar el archivo FXML del módulo correspondiente
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + archivoFxml));
-                Parent nuevaVista = loader.load();
+                Node vista;
 
-                // Reemplazar el contenido del centro por la nueva vista
-                contentArea.getChildren().setAll(nuevaVista);
-
-                // Cambiar el color del botón
-                actualizarEstiloBotones(botonActivo);
-
-            } catch (IOException e) {
-                System.err.println("Error al cargar la vista: " + archivoFxml);
-                e.printStackTrace();
-            }
-        }
-
-        // Método extra: Para poder volver al Dashboard desde el código
-        private void volverAlDashboard(Button botonActivo) {
-            if (vistaDashboardInicial != null) {
-                contentArea.getChildren().setAll(vistaDashboardInicial);
-                actualizarEstiloBotones(botonActivo);
-            }
-        }
-
-        // 4. CAMBIO DE COLOR DEL BOTÓN (Estado Activo/Inactivo)
-        private void actualizarEstiloBotones(Button botonActivo) {
-            // Agrupamos los botones en una lista
-            List<Button> botones = Arrays.asList(btnUsuarios, btnProductos, btnVentas, btnInventario);
-
-            // A todos les quitamos la clase azul
-            for (Button btn : botones) {
-                if (btn != null) {
-                    btn.getStyleClass().remove("menu-button-active");
+            // Solo aplicamos persistencia (caché) si el archivo es 'panelVentas.fxml'
+            // Esto permite que el VentaController y su vista sigan "activos" en memoria
+            if (archivoFxml.equals("panelVentas.fxml") && vistasCache.containsKey(archivoFxml)) {
+                    vista = vistasCache.get(archivoFxml);
+                } else {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + archivoFxml));
+                    vista = loader.load();
+                
+                if (archivoFxml.equals("panelVentas.fxml")) {
+                    vistasCache.put(archivoFxml, vista);
                 }
-            }
+                }
 
-            // Solo al que presionamos le ponemos la clase azul
-            if (botonActivo != null) {
-                botonActivo.getStyleClass().add("menu-button-active");
-            }
-        }
+                // Reemplazar el contenido del área central por la vista (nueva o recuperada)
+                contentArea.getChildren().setAll(vista);
 
-        // 5. EVENTOS DE LAS TARJETAS DEL DASHBOARD
-        // En tu FXML pusiste 'onMouseClicked="#handleNavegacion"' en las VBox del centro
-        @FXML
-        public void handleNavegacion(MouseEvent event) {
-        /* Aquí puedes detectar en qué tarjeta se hizo clic.
-           Por ejemplo, si hacen clic en la tarjeta "Productos",
-           podrías llamar a cargarVistaMódulo("PanelRegistrarProductosvista.fxml", btnProductos);
-        */
-            System.out.println("Clic detectado en una tarjeta del Dashboard!");
+            // Actualizar estilo de los botones para que el seleccionado se vea azul
+            actualizarEstiloBotones(botonActivo);
+
+        } catch (IOException e) {
+            System.err.println("Error al cargar la vista: " + archivoFxml);
+            e.printStackTrace();
         }
     }
 
+    private void actualizarEstiloBotones(Button botonActivo) {
+        // Agregamos btnDashboard a la lista para que también se limpie su estilo
+        List<Button> botones = Arrays.asList(
+                btnDashboard, btnUsuarios, btnProductos, btnVentas,
+                btnInventario, btnPlatillos, btnEstadisticas, btnCategorias
+        );
+
+        for (Button btn : botones) {
+            if (btn != null) {
+                btn.getStyleClass().remove("menu-button-active");
+            }
+        }
+
+        if (botonActivo != null) {
+            botonActivo.getStyleClass().add("menu-button-active");
+        }
+    }
+
+    @FXML
+    public void handleNavegacion(MouseEvent event) {
+        System.out.println("Clic detectado en una tarjeta del Dashboard!");
+    }
+}

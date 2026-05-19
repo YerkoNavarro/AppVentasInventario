@@ -1,11 +1,11 @@
 package com.sistema.puntoventas.service;
 
+import com.sistema.puntoventas.modelo.AuditoriaEvento;
 import com.sistema.puntoventas.modelo.moduloProducto.*;
 import com.sistema.puntoventas.repository.impl.PlatilloRepositoryImpl;
 import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 import com.sistema.puntoventas.repository.moduloProductos.IPlatilloRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
-import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
 
 import java.util.List;
 
@@ -13,10 +13,12 @@ public class PlatilloService {
 
     private IPlatilloRepository platilloRepository;
     private IProductoRepository productoRepository;
+    private AuditoriaService auditoriaService;
 
     public PlatilloService(){
         this.platilloRepository = new PlatilloRepositoryImpl();
         this.productoRepository = new ProductoRepositoryImpl();
+        this.auditoriaService = new AuditoriaService();
     }
 
 
@@ -44,6 +46,20 @@ public class PlatilloService {
        if(platillo.getTipoProducto() == TipoProducto.PLATILLO) {
            platilloRepository.registrarPlatillo(platillo);
            System.out.println("Platillo registrado exitosamente: " + platillo.getNombre());
+
+           AuditoriaEvento evento = new AuditoriaEvento();
+           evento.setModulo("PLATILLOS");
+           evento.setEntidad("PRODUCTOS");
+           evento.setAccion("NUEVO INGRESO");
+           evento.setDetalle("Se agregó el platillo: " + platillo.getNombre());
+
+           boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+           if (!auditoriaRegistrada) {
+               throw new Exception("El producto se registro, pero no se pudo guardar el evento de auditoria.");
+           }
+           System.out.println("Evento registrado"+evento.getAccion()+" para el platillo: " + platillo.getNombre());
+
+
        } else {
            throw new Exception("El tipo de producto debe ser PLATILLO para registrar un platillo.");
        }
@@ -58,6 +74,14 @@ public class PlatilloService {
 
     public List<Producto> obtenerIngredientes() throws Exception{
         return productoRepository.buscarPorTipoProducto(TipoProducto.SOLO_INVENTARIO);
+    }
+
+      /**
+     * Recupera la lista de platillos activos incluyendo su receta completa
+     * y los datos detallados de cada ingrediente (Unidad de Medida, etc).
+     */
+    public List<Platillo> obtenerPlatillosConRecetaCompleta() throws Exception {
+        return platilloRepository.obtenerPlatillosConRecetaCompleta();
     }
     
 
@@ -74,6 +98,7 @@ public class PlatilloService {
 
                 }
             }
+            costoTotal = Math.round(costoTotal * 10.0)/10.0;
             
             platillo.setCostoProduccion(costoTotal);
         }
@@ -102,10 +127,15 @@ public class PlatilloService {
 
         double totalRequerido = cantidadAcumulada + cantidadNueva;
 
-        if(totalRequerido > ingrediente.getStockActual()){
+        // Determinamos el stock disponible según la unidad de medida
+        double stockDisponible = (ingrediente.getUnidadMedida() == UnidadMedida.UNIDAD) 
+                                 ? ingrediente.getStockActual() 
+                                 : ingrediente.getCantidad();
+
+        if(totalRequerido > stockDisponible){
             throw new Exception("No hay suficiente stock del ingrediente '"
                     + ingrediente.getNombre() + "'. Stock actual: "
-                    + ingrediente.getStockActual() + ", cantidad requerida: " + totalRequerido);
+                    + stockDisponible + ", cantidad requerida: " + totalRequerido);
         }
 
     }
@@ -118,7 +148,9 @@ public class PlatilloService {
             switch (producto.getUnidadMedida()){
                 case GRAMOS:
                 case MILILITROS:
-                    return cantidadIngresada / 1000.0;
+                    //return cantidadIngresada / 1000.0;
+                    return cantidadIngresada;
+                
                 default:
                     return cantidadIngresada;
             }
@@ -151,11 +183,16 @@ public class PlatilloService {
                 throw new Exception("La cantidad requerida del ingrediente '" + ingrediente.getNombre() + "' debe ser mayor a cero.");
             }
 
-            if (ingrediente.getStockActual() < 0) {
+            // Stock real basado en la unidad de medida
+            double stockDisponible = (ingrediente.getUnidadMedida() == UnidadMedida.UNIDAD) 
+                                     ? ingrediente.getStockActual() 
+                                     : ingrediente.getCantidad();
+
+            if (stockDisponible < 0) {
                 throw new Exception("El stock del ingrediente '" + ingrediente.getNombre() + "' no puede ser negativo.");
             }
 
-            int stockPorIngrediente = (int) Math.floor(ingrediente.getStockActual() / cantidadRequerida);
+            int stockPorIngrediente = (int) Math.floor(stockDisponible / cantidadRequerida);
             stockPosible = Math.min(stockPosible, stockPorIngrediente);
         }
 
@@ -196,9 +233,26 @@ public class PlatilloService {
         calcularCostoProduccion(platillo);
 
         boolean actualizado = platilloRepository.actualizarPlatillo(platillo);
+        System.out.println("Platillo actualizado" +platillo.getNombre());
+
         if (!actualizado) {
             throw new Exception("No se pudo actualizar el platillo en la base de datos.");
         }
+
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("PLATILLOS");
+        evento.setEntidad("Platillo");
+        evento.setAccion("ACTUALIZACION");
+        evento.setDetalle("Se actualizo el platillo: " + platillo.getNombre());
+
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            throw new Exception("El producto se registro, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado"+evento.getAccion()+" para el platillo: " + platillo.getNombre());
+
+
+
 
         return true;
     }
@@ -223,9 +277,23 @@ public class PlatilloService {
         }
 
         boolean eliminado = platilloRepository.eliminarPlatillo(id);
+        System.out.println("Platillo eliminado"+platillo.getNombre());
         if (!eliminado) {
             throw new Exception("Error al eliminar el platillo.");
         }
+
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("PLATILLOS");
+        evento.setEntidad("Platillo");
+        evento.setAccion("ELIMINACION");
+        evento.setDetalle("Se actualizó el platillo: " + platillo.getNombre());
+
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            throw new Exception("El producto se registro, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado"+evento.getAccion()+" para el platillo: " + platillo.getNombre());
+
 
         return "ELIMINADO";
     }
@@ -244,6 +312,18 @@ public class PlatilloService {
         if (!desactivado) {
             throw new Exception("No se pudo desactivar el platillo.");
         }
+
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("PLATILLOS");
+        evento.setEntidad("Platillo");
+        evento.setAccion("DESACTIVACION");
+        evento.setDetalle("Se desactivo el platillo: " + platillo.getNombre());
+
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            throw new Exception("El platillo se desactivo, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado"+evento.getAccion()+" para el platillo: " + platillo.getNombre());
 
         return true;
     }

@@ -21,8 +21,8 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
 
     private static final String SQL_INSERT =
             "INSERT INTO producto (nombre, precioCompra, precioVenta, idcategoria, " +
-                    "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida, cantidad,  tipoProducto) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
+                    "fechaVenc, stockActual, stockMinimo, imagen, unidadMedida, cantidad, tipoProducto, cantidadDefault) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
 
@@ -42,6 +42,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
             pstmt.setString(9, obtenerUnidadMedida(producto));
             pstmt.setDouble(10, producto.getCantidad());
             pstmt.setString(11, producto.getTipoProducto().name());
+            pstmt.setDouble(12, producto.getCantidad()); // cantidadDefault toma el valor inicial de cantidad
             int rowsInserted = pstmt.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
@@ -83,6 +84,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                 producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
                 producto.setCantidad(rs.getDouble(11));
                 producto.setTipoProducto(TipoProducto.valueOf(rs.getString(12)));
+                producto.setCantidadDefault(rs.getDouble(13));
                 // Agregamos el producto armado a nuestra lista
                 listaProductos.add(producto);
                 System.out.println(listaProductos);
@@ -120,6 +122,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                     producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
                     producto.setCantidad(rs.getDouble(11));
                     producto.setTipoProducto(TipoProducto.valueOf(rs.getString(12)));
+                    producto.setCantidadDefault(rs.getDouble(13));
 
                     // Agregamos el producto armado a nuestra lista
                     listaProductos.add(producto);
@@ -137,7 +140,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     @Override
     public boolean actualizarProducto(Producto producto) {
         String sql = "UPDATE producto SET nombre = ?, precioCompra = ?, precioVenta = ?, idcategoria = ?, " +
-                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ?, cantidad = ?, tipoProducto = ? WHERE id = ?";
+                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ?, cantidad = ?, tipoProducto = ?, cantidadDefault = ? WHERE id = ?";
 
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
@@ -152,7 +155,8 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
             pstmt.setString(9, obtenerUnidadMedida(producto));
             pstmt.setDouble(10, producto.getCantidad());
             pstmt.setString(11, producto.getTipoProducto().name());
-            pstmt.setInt(12, producto.getId());
+            pstmt.setDouble(12, producto.getCantidadDefault());
+            pstmt.setInt(13, producto.getId());
             pstmt.executeUpdate();
             System.out.println("producto actualizado correctamente");
 
@@ -230,6 +234,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                     producto.setUnidadMedida(mapUnidadMedida(rs.getString(10)));
                     producto.setCantidad(rs.getDouble(11));
                     producto.setTipoProducto(TipoProducto.valueOf(rs.getString(12)));
+                    producto.setCantidadDefault(rs.getDouble(13));
 
                     // Agregamos el producto armado a nuestra lista
                     System.out.println("producto encontrado correctamente");
@@ -296,6 +301,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                 producto.setUnidadMedida(mapUnidadMedida(rs.getString("unidadMedida")));
                 producto.setCantidad(rs.getDouble("cantidad"));
                 producto.setTipoProducto(TipoProducto.valueOf(rs.getString("tipoProducto")));
+                producto.setCantidadDefault(rs.getDouble("cantidadDefault"));
                 productosStockCritico.add(producto);
             }
             if (productosStockCritico.isEmpty()) {
@@ -395,19 +401,22 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     }
 
     @Override
-    public boolean actualizarCategoria(int id) {
-        if (id <= 0) {
+    public boolean actualizarCategoria(Categoria categoria) {
+        if (categoria == null || categoria.getId() <= 0) {
             return false;
         }
 
-        String sql = "UPDATE categoria SET activa = CASE WHEN activa = 1 THEN 0 ELSE 1 END WHERE id = ?";
+        String sql = "UPDATE categoria SET nombreCategoria = ?, descripcion = ?, activa = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setString(1, categoria.getNombreCategoria());
+            pstmt.setString(2, categoria.getDescripcion());
+            pstmt.setBoolean(3, categoria.isActiva());
+            pstmt.setInt(4, categoria.getId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error al actualizar categoría: " + e.getMessage());
+            System.err.println("Error al actualizar categoria: " + e.getMessage());
             return false;
         }
     }
@@ -481,6 +490,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                     producto.setUnidadMedida(mapUnidadMedida(rs.getString("unidadMedida")));
                     producto.setCantidad(rs.getDouble("cantidad"));
                     producto.setTipoProducto(TipoProducto.valueOf(rs.getString("tipoProducto")));
+                    producto.setCantidadDefault(rs.getDouble("cantidadDefault"));
                     productosPorTipo.add(producto);
                 }
             }
