@@ -36,7 +36,7 @@ public class PanelPrincipalVistaController {
         // 2. MÉTODO DE INICIALIZACIÓN
         @FXML
         public void initialize() {
-            cargarVistaMódulo("DashboardVista.fxml", null);
+            cargarVistaModulo("DashboardVista.fxml", null);
 
         // Acción para el nuevo botón Inicio
         btnDashboard.setOnAction(e -> cargarVistaModulo("DashboardVista.fxml", btnDashboard));
@@ -51,7 +51,7 @@ public class PanelPrincipalVistaController {
     }
 
         // 3. SISTEMA DE NAVEGACIÓN DINÁMICA
-        private void cargarVistaMódulo(String archivoFxml, Button botonActivo) {
+        private void cargarVistaModulo(String archivoFxml, Button botonActivo) {
             try {
                 Node vista;
 
