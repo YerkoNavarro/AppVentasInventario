@@ -18,7 +18,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean registrarPlatillo(Platillo platillo) {
-        String sqlPlatillo = "INSERT INTO platillo (nombre, precio, idCategoria, estado, costoProduccion, stockActual, tipoProducto) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sqlPlatillo = "INSERT INTO platillo (nombre, precio, idCategoria, estado, costoProduccion, tipoProducto) VALUES (?, ?, ?, ?, ?, ?)";
         String sqlDetalle = "INSERT INTO detalle_platillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
         
         try(Connection conn = DriverManager.getConnection(url)) {
@@ -31,8 +31,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 stmtPlatillo.setInt(3, platillo.getCategoria().getId());
                 stmtPlatillo.setBoolean(4, platillo.isEstado());
                 stmtPlatillo.setDouble(5, platillo.getCostoProduccion());
-                stmtPlatillo.setInt(6, platillo.getStockActual());
-                stmtPlatillo.setString(7, "PLATILLO");
+                stmtPlatillo.setString(6, "PLATILLO");
 
                 int affectedRows = stmtPlatillo.executeUpdate();
 
@@ -107,7 +106,6 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 }
                 
                 platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
-                platillo.setStockActual(rs.getInt("stockActual"));
                 platillo.setIngrediente(obtenerIngredientesPorPlatillo(conn, platillo.getId()));
                 listaPlatillos.add(platillo);
                 System.out.println("Platillo encontrados: " + listaPlatillos);
@@ -173,7 +171,6 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                     platillo.setCategoria(null);
                     platillo.setEstado(rs.getBoolean("estado"));
                     platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
-                    platillo.setStockActual(rs.getInt("stockActual"));
                     listaPlatillos.add(platillo);
                     System.out.println("Platillo encontrado por nombre: " + platillo.getNombre());
                 }
@@ -189,7 +186,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     @Override
     public boolean actualizarPlatillo(Platillo platillo) {
-        String sqlUpdatePlatillo = "UPDATE platillo SET nombre = ?, precio = ?, idCategoria = ?, estado = ?, costoProduccion = ?, stockActual = ?, tipoProducto = ? WHERE id = ?";
+        String sqlUpdatePlatillo = "UPDATE platillo SET nombre = ?, precio = ?, idCategoria = ?, estado = ?, costoProduccion = ?, tipoProducto = ? WHERE id = ?";
         String sqlDeleteDetalle = "DELETE FROM detalle_platillo WHERE idPlatillo = ?";
         String sqlInsertDetalle = "INSERT INTO detalle_platillo (idPlatillo, idProducto, cantidadIngrediente) VALUES (?, ?, ?)";
 
@@ -202,9 +199,8 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 stmtPlatillo.setInt(3, platillo.getCategoria().getId());
                 stmtPlatillo.setBoolean(4, platillo.isEstado());
                 stmtPlatillo.setDouble(5, platillo.getCostoProduccion());
-                stmtPlatillo.setInt(6, platillo.getStockActual());
-                stmtPlatillo.setString(7, "PLATILLO");
-                stmtPlatillo.setInt(8, platillo.getId());
+                stmtPlatillo.setString(6, "PLATILLO");
+                stmtPlatillo.setInt(7, platillo.getId());
 
                 int affectedRows = stmtPlatillo.executeUpdate();
                 if (affectedRows == 0) {
@@ -369,7 +365,6 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 platillo.setPrecio(rs.getDouble("precio"));
                 platillo.setEstado(rs.getBoolean("estado"));
                 platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
-                platillo.setStockActual(rs.getInt("stockActual"));
                 platillo.setTipoProducto(TipoProducto.PLATILLO);
                 
                 // Cargamos la categoría correctamente (no null)
