@@ -23,6 +23,11 @@
 
                         <VBox spacing="5.0">
                             <children>
+                                <Button fx:id="btnDashboard" maxWidth="Infinity" styleClass="menu-button" text="Inicio">
+                                    <graphic>
+                                        <Label style="-fx-background-color: #64748b;" styleClass="icon-circle" text="🏠" />
+                                    </graphic>
+                                </Button>
                                 <Button fx:id="btnUsuarios" maxWidth="Infinity" styleClass="menu-button" text="Usuarios">
                                     <graphic>
                                         <Label style="-fx-background-color: #6366f1;" styleClass="icon-circle" text="U" />
@@ -78,10 +83,4 @@
 
         </BorderPane>
     </children>
-    <Button fx:id="btnDashboard" maxWidth="Infinity" layoutX="20.5" layoutY="496.0" styleClass="menu-button" text="Inicio">
-        <graphic>
-            <Label style="-fx-background-color: #64748b;" styleClass="icon-circle" text="🏠" />
-        </graphic>
-    </Button>
-
 </AnchorPane>
