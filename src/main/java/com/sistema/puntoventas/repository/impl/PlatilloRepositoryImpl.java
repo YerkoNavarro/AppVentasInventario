@@ -93,6 +93,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 platillo.setPrecio(rs.getDouble("precio"));
                 platillo.setEstado(rs.getBoolean("estado"));
                 platillo.setTipoProducto(TipoProducto.PLATILLO);
+                platillo.setStockActual(rs.getInt("fabricables"));
                 
                 // Cargar la categoría si existe
                 int catId = rs.getInt("catId");
@@ -171,6 +172,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                     platillo.setCategoria(null);
                     platillo.setEstado(rs.getBoolean("estado"));
                     platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
+                    platillo.setStockActual(rs.getInt("fabricables"));
                     listaPlatillos.add(platillo);
                     System.out.println("Platillo encontrado por nombre: " + platillo.getNombre());
                 }
@@ -313,6 +315,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                     platillo.setId(rs.getInt("id"));
                     platillo.setNombre(rs.getString("nombre"));
                     platillo.setPrecio(rs.getDouble("precio"));
+                    platillo.setStockActual(rs.getInt("fabricables"));
                     // Aquí podrías cargar la categoría y los ingredientes si lo deseas
                     return platillo;
                 }
@@ -365,6 +368,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                 platillo.setPrecio(rs.getDouble("precio"));
                 platillo.setEstado(rs.getBoolean("estado"));
                 platillo.setCostoProduccion(rs.getDouble("costoProduccion"));
+                platillo.setStockActual(rs.getInt("fabricables"));
                 platillo.setTipoProducto(TipoProducto.PLATILLO);
                 
                 // Cargamos la categoría correctamente (no null)
