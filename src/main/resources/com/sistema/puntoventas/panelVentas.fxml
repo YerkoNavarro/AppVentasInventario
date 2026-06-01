@@ -49,7 +49,7 @@
             <content>
               <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                      <children>
-                        <AnchorPane layoutX="137.0" layoutY="48.0" prefHeight="495.0" prefWidth="623.0" style="-fx-border-color: black; -fx-border-radius: 20;">
+                        <AnchorPane layoutX="194.0" layoutY="101.0" prefHeight="495.0" prefWidth="623.0" style="-fx-background-color: #dce6f6; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 20; -fx-background-radius: 20;">
                            <children>
                               <Text layoutX="120.0" layoutY="70.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="label" text="Fecha" />
                               <Text layoutX="120.0" layoutY="135.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="label" text="Productos" wrappingWidth="100.0" />
@@ -57,11 +57,11 @@
                               <Text layoutX="120.0" layoutY="265.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="label" text="Total" />
                               <Text layoutX="120.0" layoutY="330.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="label" text="Descripción" />
                               <Button layoutX="272.0" layoutY="407.0" mnemonicParsing="false" onAction="#agregarVenta" styleClass="btn-primary" text="Agregar" />
-                              <TextField fx:id="textfieldFecha" layoutX="250.0" layoutY="50.0" prefWidth="200.0" styleClass="field" />
-                              <TextField fx:id="textFieldProducto" layoutX="250.0" layoutY="115.0" prefWidth="200.0" styleClass="field" />
-                              <TextField fx:id="textfieldTipoPago" layoutX="250.0" layoutY="180.0" prefWidth="200.0" styleClass="field" />
-                              <TextField fx:id="textfieldTotal" layoutX="250.0" layoutY="245.0" prefWidth="200.0" styleClass="field" />
-                              <TextField fx:id="textfieldDescripcion" layoutX="250.0" layoutY="310.0" prefWidth="200.0" styleClass="field" />
+                              <TextField fx:id="textfieldFecha" layoutX="250.0" layoutY="50.0" prefWidth="200.0" style="-fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 5; -fx-background-radius: 5;" styleClass="field" />
+                              <TextField fx:id="textFieldProducto" layoutX="250.0" layoutY="115.0" prefWidth="200.0" style="-fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 5; -fx-background-radius: 5;" styleClass="field" />
+                              <TextField fx:id="textfieldTipoPago" layoutX="250.0" layoutY="180.0" prefWidth="200.0" style="-fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 5; -fx-background-radius: 5;" styleClass="field" />
+                              <TextField fx:id="textfieldTotal" layoutX="250.0" layoutY="245.0" prefWidth="200.0" style="-fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 5; -fx-background-radius: 5;" styleClass="field" />
+                              <TextField fx:id="textfieldDescripcion" layoutX="250.0" layoutY="310.0" prefWidth="200.0" style="-fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 5; -fx-background-radius: 5;" styleClass="field" />
                               <Button layoutX="465.0" layoutY="122.0" mnemonicParsing="false" onAction="#recargarSugerenciaProductos" text="🔄" />
                            </children>
                         </AnchorPane>
