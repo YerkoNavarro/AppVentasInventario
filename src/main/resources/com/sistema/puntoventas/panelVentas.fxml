@@ -20,7 +20,7 @@
             <content>
               <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                      <children>
-                        <TableView id="idTableView" fx:id="idTablaVentas" editable="true" layoutX="43.0" layoutY="103.33403753389665" prefHeight="412.0" prefWidth="809.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="103.0">
+                        <TableView id="idTableView" fx:id="idTablaVentas" editable="true" layoutX="43.0" layoutY="103.33403753389665" prefHeight="412.0" prefWidth="809.0" stylesheets="@css/panel-productos.css" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="103.0">
                           <columns>
                             <TableColumn fx:id="ColFecha" sortable="false" text="fecha" />
                             <TableColumn fx:id="ColProductos" sortable="false" text="Productos" />
@@ -39,8 +39,8 @@
                             </Menu>
                           </menus>
                         </MenuBar>
-                        <Button layoutX="775.0" layoutY="61.0" mnemonicParsing="false" onAction="#eliminarVenta" styleClass="field" text="eliminar" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="61.0" />
-                        <Button layoutX="43.0" layoutY="61.0" mnemonicParsing="false" onAction="#guardarTablaEnBD" styleClass="field" text="Guardar" AnchorPane.leftAnchor="43.0" AnchorPane.topAnchor="61.0" />
+                        <Button layoutX="775.0" layoutY="61.0" mnemonicParsing="false" onAction="#eliminarVenta" styleClass="btn-primary" text="eliminar" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="61.0" />
+                        <Button layoutX="43.0" layoutY="61.0" mnemonicParsing="false" onAction="#guardarTablaEnBD" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Guardar" AnchorPane.leftAnchor="43.0" AnchorPane.topAnchor="61.0" />
                      </children>
                   </AnchorPane>
             </content>
