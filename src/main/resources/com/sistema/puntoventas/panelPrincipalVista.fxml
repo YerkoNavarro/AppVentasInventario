@@ -78,4 +78,10 @@
 
         </BorderPane>
     </children>
+    <Button fx:id="btnDashboard" maxWidth="Infinity" layoutX="20.5" layoutY="496.0" styleClass="menu-button" text="Inicio">
+        <graphic>
+            <Label style="-fx-background-color: #64748b;" styleClass="icon-circle" text="🏠" />
+        </graphic>
+    </Button>
+
 </AnchorPane>

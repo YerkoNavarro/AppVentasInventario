@@ -80,6 +80,7 @@ public class VentaController {
         inicializarFechaActual();
         cargarCatalogos();
         configurarAutoComplete();
+        configurarCalculoTotal();
     }
 
     /**
@@ -226,6 +227,21 @@ public class VentaController {
     }
 
     /**
+     * Agrega un listener al campo de productos para calcular automáticamente el total
+     * basándose en los precios de los productos y platillos ingresados.
+     */
+    private void configurarCalculoTotal() {
+        textFieldProducto.textProperty().addListener((obs, oldVal, newVal) -> {
+            try {
+                double total = ventaService.calcularTotal(newVal, productosDisponibles, platillosDisponibles);
+                textfieldTotal.setText(String.valueOf((int) total));
+            } catch (Exception e) {
+                textfieldTotal.setText("0");
+            }
+        });
+    }
+
+    /**
      * Abre el diálogo para cargar ventas históricas filtradas por fecha.
      */
     @FXML
@@ -293,7 +309,7 @@ public class VentaController {
      */
     @FXML
     void guardarTablaEnBD(ActionEvent event) {
-        if (idTablaVentas.getItems().isEmpty()) {
+        if (idTablaVentas.getItems().isEmpty() || productosAgregados.isEmpty() && platillosAgregados.isEmpty()){
             mostrarAlerta(Alert.AlertType.WARNING, "Tabla vacía", "No hay datos para guardar.");
             return;
         }
@@ -328,5 +344,13 @@ public class VentaController {
         textfieldDescripcion.clear();
         textfieldTipoPago.clear();
         textfieldTotal.clear();
+    }
+
+
+
+     @FXML
+    void recargarSugerenciaProductos(ActionEvent event) { //boton recargar sugerencias
+        cargarCatalogos();
+
     }
 }

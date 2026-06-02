@@ -15,6 +15,10 @@ target/
 
 DBventasInventario.db
 datos_ventas.csv
+*.json
+.json
+/modelos_ia
+*.csv
 
 ### Eclipse ###
 .apt_generated

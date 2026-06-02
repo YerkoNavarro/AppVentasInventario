@@ -23,26 +23,26 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.setResizable(true);
         stage.setMaximized(true);
-        
+
         // Listener para controlar la posición cuando se restaura la ventana
         stage.maximizedProperty().addListener((obs, wasMaximized, isMaximized) -> {
             if (!isMaximized) {
                 // Al restaurar, centrar la ventana en la pantalla
                 double screenWidth = javafx.stage.Screen.getPrimary().getBounds().getWidth();
                 double screenHeight = javafx.stage.Screen.getPrimary().getBounds().getHeight();
-                
+
                 double x = (screenWidth - stage.getWidth()) / 2;
                 double y = (screenHeight - stage.getHeight()) / 2;
-                
+
                 // Asegurar que la ventana no quede fuera de pantalla
                 if (y < 0) y = 20;
                 if (x < 0) x = 20;
-                
+
                 stage.setX(x);
                 stage.setY(y);
             }
         });
-        
+
         stage.show();
 
         DbManager dbManager = new DbManager();
@@ -51,8 +51,8 @@ public class HelloApplication extends Application {
         dbManager.crearUsuarioAdmin();
 
 
-    
-    
+
+
 
 
     }

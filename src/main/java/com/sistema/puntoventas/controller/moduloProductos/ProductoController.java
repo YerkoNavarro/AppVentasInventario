@@ -76,7 +76,6 @@ public class ProductoController {
             productoService = new ProductoService();
             cmbUnidadMedida.getItems().setAll(UnidadMedida.values());
             cmbTipoProducto.getItems().setAll(
-                    TipoProducto.PLATILLO,
                     TipoProducto.DIRECTO,
                     TipoProducto.SOLO_INVENTARIO
             );
@@ -188,7 +187,17 @@ public class ProductoController {
        public  void registrarProducto(ActionEvent event) {
             try{
 
-                String nombreIngresado = txtNombre.getText();
+                String nombreIngresado = txtNombre.getText().trim().toUpperCase();
+
+
+
+                if(nombreIngresado.isEmpty()){
+                    lblEstado.setText("Error: El nombre del producto no puede estar vacío.");
+                    lblEstado.setTextFill(Color.RED);
+                    return;
+                }
+
+
 
                 // Si estamos editando, ignoramos su propio ID. Si es nuevo, pasamos 0.
                 int idAExcluir = (productoAEditar != null) ? productoAEditar.getId() : 0;
@@ -198,16 +207,69 @@ public class ProductoController {
                     lblEstado.setTextFill(Color.RED);
                     return;
                 }
-                
+
+                if(cmbUnidadMedida.getValue() == null){
+                    lblEstado.setText("Error: Debe seleccionar una unidad de medida.");
+                    lblEstado.setTextFill(Color.RED);
+                    return;
+                }
+
+                if(cmbTipoProducto.getValue() == null){
+                    lblEstado.setText("Error: Debe seleccionar un tipo de producto.");
+                    lblEstado.setTextFill(Color.RED);
+                    return;
+                }
+
+                if (txtPrecioCompra.getText().trim().isEmpty() ||
+                        txtStockActual.getText().trim().isEmpty() ||
+                        txtStockMinimo.getText().trim().isEmpty() ||
+                        txtCantidad.getText().trim().isEmpty()) {
+
+                    lblEstado.setText("Error: Los precios, stocks y cantidad son campos obligatorios.");
+                    lblEstado.setTextFill(Color.RED);
+                    return;
+                }
+
+
                 double precioCompra = Double.parseDouble(txtPrecioCompra.getText());
                 double precioVenta = Double.parseDouble(txtPrecioVenta.getText().isEmpty() ? "0" : txtPrecioVenta.getText());
                 int stockActual = Integer.parseInt(txtStockActual.getText());
                 int stockMinimo = Integer.parseInt(txtStockMinimo.getText());
+                
+
+                if(precioCompra <=0){
+                    lblEstado.setText("Error: El precio de compra debe ser mayor a 0.");
+                    lblEstado.setTextFill(Color.RED);
+                    return;
+                }
+
+                double margen = precioCompra * 0.1;
+                if(precioVenta < margen){
+                    lblEstado.setText("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
+                    lblEstado.setTextFill(Color.RED);
+                    return;
+                }
+
+
+
+                if(stockActual <=0 ){
+                    lblEstado.setText("Error: El stock actual debe ser mayor a 0.");
+                    lblEstado.setTextFill(Color.RED);
+                    return;
+                }
+
+                if(stockMinimo <=0){
+                    lblEstado.setText("Error: El stock mínimo debe ser mayor a 0.");
+                    lblEstado.setTextFill(Color.RED);
+                    return;
+                }
+
+
 
                 if(productoAEditar == null) {
 
                     Producto nuevoProducto = new Producto();
-                    nuevoProducto.setNombre(txtNombre.getText());
+                    nuevoProducto.setNombre(nombreIngresado);
                     nuevoProducto.setPrecioCompra(precioCompra);
                     nuevoProducto.setPrecioVenta(precioVenta);
                     nuevoProducto.setStockActual(stockActual);
@@ -218,6 +280,7 @@ public class ProductoController {
                     nuevoProducto.setUnidadMedida(cmbUnidadMedida.getValue());
                     nuevoProducto.setCantidad(Double.parseDouble(txtCantidad.getText()));
                     nuevoProducto.setTipoProducto(cmbTipoProducto.getValue());
+                    lblEstado.setText("");
 
                 try{
                     //lo enviamos al service para hacer validaciones necesarias

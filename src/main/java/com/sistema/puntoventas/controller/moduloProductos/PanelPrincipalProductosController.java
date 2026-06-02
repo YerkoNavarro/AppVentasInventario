@@ -161,7 +161,7 @@ public class PanelPrincipalProductosController {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Registrar producto");
-            stage.setScene(new Scene(root,1000,600));
+            stage.setScene(new Scene(root,900,600));
             stage.showAndWait();
             obtenerProductos();
             actualizarMetricas();

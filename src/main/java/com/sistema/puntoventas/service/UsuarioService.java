@@ -49,9 +49,9 @@ public class UsuarioService {
 
             boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
             if (!auditoriaRegistrada) {
-                System.out.println("El producto se registro, pero no se pudo guardar el evento de auditoria.");
+                System.out.println("El usuario se registro, pero no se pudo guardar el evento de auditoria.");
             }
-            System.out.println("Evento registrado"+evento.getAccion()+" para el platillo: " + usuario.getNombre());
+            System.out.println("Evento registrado"+evento.getAccion()+" para el usuario: " + usuario.getNombre());
 
             return "Usuario registrado exitosamente";
 
@@ -83,7 +83,24 @@ public class UsuarioService {
         if (rut == null || rut.isEmpty()) {
             return null;
         }
-        return usuarioRepository.eliminarUsuario(rut);
+
+        Usuario usuarioEliminado = usuarioRepository.eliminarUsuario(rut);
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("Usuarios");
+        evento.setEntidad("Usuario");
+        evento.setAccion("Eliminación");
+        evento.setDetalle("Se eliminó un nuevo usuario: " + usuarioEliminado.getNombre());
+
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            System.out.println("El usuario se eliminó, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado"+evento.getAccion()+" para el usuario: " + usuarioEliminado.getNombre());
+
+        return usuarioEliminado;
+
+
+
     }
     public String actualizarUsuario(Usuario usuario) {
         if (usuario == null || usuario.getRut() == null || usuario.getRut().isEmpty()) {
@@ -91,6 +108,18 @@ public class UsuarioService {
         }
 
         boolean actualizado = usuarioRepository.actualizarUsuario(usuario);
+
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("Usuarios");
+        evento.setEntidad("Usuario");
+        evento.setAccion("Actualización");
+        evento.setDetalle("Se actualizo un  usuario: " + usuario.getNombre());
+
+        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+        if (!auditoriaRegistrada) {
+            System.out.println("El usuario se actualizo, pero no se pudo guardar el evento de auditoria.");
+        }
+        System.out.println("Evento registrado"+evento.getAccion()+" para el usuario: " + usuario.getNombre());
 
         if (actualizado) {
             return "Usuario actualizado exitosamente";
