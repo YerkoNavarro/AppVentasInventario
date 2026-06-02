@@ -56,6 +56,8 @@ public class ProductoService {
             throw new Exception("El stock mínimo debe ser mayor a cero") ;
         }
 
+
+
         List<Producto> nombreproducto = productoRepository.obtenerProductoPorNombre(producto.getNombre().trim());
         if (!nombreproducto.isEmpty()) {
             for (Producto p : nombreproducto) {
