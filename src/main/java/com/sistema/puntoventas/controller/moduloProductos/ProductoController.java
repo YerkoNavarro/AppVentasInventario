@@ -5,6 +5,7 @@ import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
 import com.sistema.puntoventas.service.ProductoService;
+import com.sistema.puntoventas.util.AlertaCamposVacios;
 import com.sistema.puntoventas.util.MensajesAlerta;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
@@ -73,10 +74,29 @@ public class ProductoController {
 
         @FXML
         public void initialize() throws Exception {
+            AlertaCamposVacios.resaltarSiVacio(txtNombre, txtPrecioCompra,txtStockActual,txtStockMinimo);
+            AlertaCamposVacios.configurarValidacionAutomatica(txtNombre, txtPrecioCompra,txtStockActual,txtStockMinimo);
+
+            cmbTipoProducto.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == TipoProducto.DIRECTO) { //si es directo resaltar en rojo el textfield precio
+                    AlertaCamposVacios.resaltarSiVacio(txtPrecioVenta);
+                    AlertaCamposVacios.configurarValidacionAutomatica(txtPrecioVenta);
+                }
+            });
+
+            cmbUnidadMedida.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != UnidadMedida.UNIDAD) { 
+                    AlertaCamposVacios.resaltarSiVacio(txtCantidad);
+                    AlertaCamposVacios.configurarValidacionAutomatica(txtCantidad);
+                }
+            });
+
+
+
             productoService = new ProductoService();
             cmbUnidadMedida.getItems().setAll(UnidadMedida.values());
             cmbTipoProducto.getItems().setAll(
-                    TipoProducto.PLATILLO,
+                    
                     TipoProducto.DIRECTO,
                     TipoProducto.SOLO_INVENTARIO
             );
@@ -84,6 +104,9 @@ public class ProductoController {
             try {
                 List<Categoria>categorias = productoService.obtenerCategorias();
                 cmbCategoria.getItems().setAll(categorias);
+                if (!cmbCategoria.getItems().isEmpty()) {
+                    cmbCategoria.getSelectionModel().selectFirst();
+                }
             }catch (Exception e){
                 MensajesAlerta.mostrarMensaje("Aviso ","No hay categorias, se recomienda agregar una", Alert.AlertType.INFORMATION);
             }
