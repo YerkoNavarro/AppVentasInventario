@@ -102,7 +102,7 @@ public class ProductoService {
         evento.setDetalle("Se agregó el producto: " + producto.getNombre());
         boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
         if (!auditoriaRegistrada) {
-            throw new Exception("El producto se registro, pero no se pudo guardar el evento de auditoria.");
+            System.err.println("El producto se registro, pero no se pudo guardar el evento de auditoria.");
         }
         System.out.println("Evento registrado"+evento.getAccion()+" para el producto: " + producto.getNombre());
 
