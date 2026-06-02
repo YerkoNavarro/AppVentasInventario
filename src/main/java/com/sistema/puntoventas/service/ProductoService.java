@@ -1,10 +1,7 @@
 package com.sistema.puntoventas.service;
 
 import com.sistema.puntoventas.modelo.AuditoriaEvento;
-import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
-import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
-import com.sistema.puntoventas.modelo.moduloProducto.Producto;
-import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
+import com.sistema.puntoventas.modelo.moduloProducto.*;
 import com.sistema.puntoventas.repository.moduloProductos.ICategoriaRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IstockRepository;
@@ -32,6 +29,7 @@ public class ProductoService {
     //-----------------------------------------------------------------------------------------------------------------
 
     public void registrarProducto(Producto producto) throws Exception{
+        UnidadMedida unidad = producto.getUnidadMedida();
         if (producto == null){
             throw new Exception("El producto no puede ser nulo");
         }
@@ -42,6 +40,20 @@ public class ProductoService {
 
         if(producto.getPrecioCompra() <= 0){
             throw new Exception("El precio de compra debe ser mayor a cero") ;
+        }
+
+        if(unidad == UnidadMedida.GRAMOS || unidad == UnidadMedida.MILILITROS){
+            if(producto.getCantidad() <= 0){
+                throw new Exception("La cantidad debe ser mayor a cero para unidades de medida en gramos o mililitros.");
+            }
+        }
+
+        if(producto.getStockActual() <= 0 ){
+            throw new Exception("El stock actual debe ser mayor a cero") ;
+        }
+
+        if(producto.getStockMinimo() <= 0){
+            throw new Exception("El stock mínimo debe ser mayor a cero") ;
         }
 
         List<Producto> nombreproducto = productoRepository.obtenerProductoPorNombre(producto.getNombre().trim());
@@ -55,15 +67,9 @@ public class ProductoService {
 
 
 
-        /*if (producto.getTipoProducto() == TipoProducto.PLATILLO) {
-            // Para platillos, el costo viene de los ingredientes. Se valida que se venda a un precio válido.
-            if (producto.getPrecioVenta() <= 0) {
-                throw new Exception("El platillo debe tener un precio de venta mayor a cero.");
-            }
-            // Aquí en el futuro llamarías a PlatilloService para calcular el costo de los ingredientes
-        }*/
 
-        // Validación de margen (Ejemplo: Mínimo 10% de ganancia)
+
+        // Validación de margen (Mínimo 10% de ganancia)
         double precioMinimoVenta = producto.getPrecioCompra() * 1.10;
 
         if(producto.getTipoProducto() == TipoProducto.SOLO_INVENTARIO){
