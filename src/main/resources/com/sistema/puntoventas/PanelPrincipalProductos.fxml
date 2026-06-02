@@ -55,8 +55,6 @@
             <Button fx:id="btnEliminarProducto" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Eliminar Producto" />
 
             <Pane HBox.hgrow="ALWAYS" />
-
-            <Button fx:id="btnVerPlatillos" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Ver platillos" />
          </children>
       </HBox>
 
