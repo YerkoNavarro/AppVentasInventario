@@ -216,6 +216,7 @@ public class PlatilloService {
             stockPosible = Math.min(stockPosible, stockPorIngrediente);
         }
 
+        System.out.println("Stock posible para el platillo '" + platillo.getNombre() + "': " + stockPosible);
         return Math.max(stockPosible, 0);
     }
 
