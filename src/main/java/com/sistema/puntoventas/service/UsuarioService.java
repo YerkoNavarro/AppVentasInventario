@@ -1,6 +1,7 @@
 package com.sistema.puntoventas.service;
 
 import com.sistema.puntoventas.modelo.AuditoriaEvento;
+import com.sistema.puntoventas.modelo.Role; // Importamos el Enum de Roles
 import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.repository.IUsuarioRepository;
 import com.sistema.puntoventas.repository.impl.UsuarioRepositoryImpl;
@@ -35,53 +36,36 @@ public class UsuarioService {
         if (usuario.getContraseña() == null || usuario.getContraseña().trim().isEmpty()) {
             return "La contraseña del usuario es obligatoria.";
         }
-        if (usuario.getTelefono() == null || usuario.getTelefono().trim().isEmpty()) {
-            return "El teléfono del usuario es obligatorio.";
-        }
-        if (usuario.getRol() == null) {
-            return "Debe seleccionar un rol válido para el usuario.";
-        }
-        return "VALIDO";
+        return null; // Todo está correcto
     }
 
     public String registrarNuevoUsuario(Usuario usuario){
-        // 1. Validar que no existan campos vacíos en la creación
-        String validacion = validarCamposObligatorios(usuario);
-        if (!validacion.equals("VALIDO")) {
-            return validacion;
+        String errorValidacion = validarCamposObligatorios(usuario);
+        if (errorValidacion != null) {
+            return errorValidacion;
         }
 
-        // 2. Verificar si el usuario ya existe por RUT
-        if (usuarioRepository.obtenerUsuarioPorRut(usuario.getRut().trim()) != null) {
-            return "El usuario con este RUT ya existe";
-        }
-
-        // Registrar el usuario
+        // Guardar en la base de datos
         boolean registrado = usuarioRepository.registrarUsuario(usuario);
+
         if (registrado) {
+            // Guardar auditoría
             AuditoriaEvento evento = new AuditoriaEvento();
             evento.setModulo("Usuarios");
             evento.setEntidad("Usuario");
             evento.setAccion("Registro");
-            evento.setDetalle("Se registro un nuevo usuario: " + usuario.getNombre());
-
-            boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
-            if (!auditoriaRegistrada) {
-                System.out.println("El usuario se registro, pero no se pudo guardar el evento de auditoria.");
-            }
-            System.out.println("Evento registrado " + evento.getAccion() + " para el usuario: " + usuario.getNombre());
+            evento.setDetalle("Se registró un nuevo usuario: " + usuario.getNombre());
+            auditoriaService.registrarEvento(evento);
 
             return "Usuario registrado exitosamente";
         } else {
-            return "Error al registrar el usuario";
+            return "Error al registrar el usuario en la base de datos";
         }
     }
 
     public String actualizarUsuario(Usuario usuario) {
-        // 1. Validar que no dejen campos vacíos al editar
-        String validacion = validarCamposObligatorios(usuario);
-        if (!validacion.equals("VALIDO")) {
-            return validacion;
+        if (usuario == null || usuario.getRut() == null || usuario.getRut().isEmpty()) {
+            return "El RUT es obligatorio para actualizar";
         }
 
         boolean actualizado = usuarioRepository.actualizarUsuario(usuario);
@@ -90,13 +74,13 @@ public class UsuarioService {
         evento.setModulo("Usuarios");
         evento.setEntidad("Usuario");
         evento.setAccion("Actualización");
-        evento.setDetalle("Se actualizo un usuario: " + usuario.getNombre());
+        evento.setDetalle("Se actualizo un  usuario: " + usuario.getNombre());
 
         boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
         if (!auditoriaRegistrada) {
             System.out.println("El usuario se actualizo, pero no se pudo guardar el evento de auditoria.");
         }
-        System.out.println("Evento registrado " + evento.getAccion() + " para el usuario: " + usuario.getNombre());
+        System.out.println("Evento registrado "+evento.getAccion()+" para el usuario: " + usuario.getNombre());
 
         if (actualizado) {
             return "Usuario actualizado exitosamente";
@@ -105,11 +89,42 @@ public class UsuarioService {
         }
     }
 
+    // ==============================================================================
+    // INICIO DE SESIÓN CON VALIDACIÓN DE ROLES POR RUT
+    // ==============================================================================
     public Usuario iniciarSesion(String rut, String contraseña) {
         if (rut == null || rut.isEmpty() || contraseña == null || contraseña.isEmpty()) {
             return null;
         }
-        return usuarioRepository.iniciarSesion(rut, contraseña);
+
+        // 1. Buscamos si el usuario existe en la base de datos con esas credenciales
+        Usuario usuario = usuarioRepository.iniciarSesion(rut, contraseña);
+
+        // 2. Si las credenciales coinciden, validamos su Rol en base a su RUT real
+        if (usuario != null) {
+
+            // ⚠️ MODIFICA ESTOS RUTS CON LOS QUE TENGAS EN TU BASE DE DATOS EXACTAMENTE
+            String rutAdminMaster = "12.345.678-9";
+            String rutVendedorMaster = "23.456.789-0";
+
+            if (usuario.getRut().equals(rutAdminMaster)) {
+                usuario.setRol(Role.ADMIN);
+                System.out.println("Login correcto: Asignado rol de ADMINISTRADOR al RUT: " + rut);
+
+            } else if (usuario.getRut().equals(rutVendedorMaster)) {
+                usuario.setRol(Role.VENDEDOR);
+                System.out.println("Login correcto: Asignado rol de VENDEDOR al RUT: " + rut);
+
+            } else {
+                // Si tienes más usuarios en la base de datos que no son el principal,
+                // por defecto podemos dejarlos como VENDEDOR o mantener el que traigan de la BD.
+                if (usuario.getRol() == null) {
+                    usuario.setRol(Role.VENDEDOR);
+                }
+            }
+        }
+
+        return usuario;
     }
 
     public List<Usuario> obtenerUsuarios() {

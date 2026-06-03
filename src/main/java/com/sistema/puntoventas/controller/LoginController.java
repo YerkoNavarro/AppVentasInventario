@@ -1,6 +1,5 @@
 package com.sistema.puntoventas.controller;
 
-import com.sistema.puntoventas.controller.moduloProductos.ProductoController;
 import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.service.ProductoService;
@@ -10,11 +9,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Pane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 public class LoginController {
@@ -40,7 +37,7 @@ public class LoginController {
     public static Usuario usuarioLogueado;
 
     private UsuarioService usuarioService = new UsuarioService();
-    private ProductoService productoService = new ProductoService(); // Servicio para las métricas
+    private ProductoService productoService = new ProductoService();
 
     @FXML
     public void handleLogin() {
@@ -55,15 +52,38 @@ public class LoginController {
         Usuario usuario = usuarioService.iniciarSesion(rut, password);
 
         if (usuario != null) {
-            // ==============================================================================
-            // REGISTRO DE SESIÓN: Guardamos al usuario antes de proceder a la interfaz principal
-            // ==============================================================================
+            // 1. Guardamos al usuario antes de proceder
             usuarioLogueado = usuario;
 
             mostrarMensaje("Éxito", "Bienvenido " + usuario.getNombre(), Alert.AlertType.INFORMATION);
 
-            // Ejecuta el cálculo automático de métricas en la interfaz
-            actualizarMetricas();
+            // ==============================================================================
+            // NUEVO: REDIRECCIÓN AL DASHBOARD PRINCIPAL
+            // ==============================================================================
+            try {
+                // Cargar el archivo FXML del Dashboard Principal
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/panelPrincipalVista.fxml"));
+                Parent root = loader.load();
+
+                // Crear una nueva escena con la vista del Dashboard
+                Scene scene = new Scene(root);
+
+                // Obtener el Stage (ventana) actual utilizando el botón "Continuar"
+                Stage stageActual = (Stage) continuarButton.getScene().getWindow();
+
+                // Configurar el nuevo diseño en la ventana principal
+                stageActual.setScene(scene);
+                stageActual.setTitle("Sistema Punto de Ventas - Panel Principal");
+                stageActual.centerOnScreen(); // Centra la nueva ventana en la pantalla
+                // stageActual.setMaximized(true); // Opcional: Descomenta esta línea si deseas que abra en pantalla completa
+
+                stageActual.show();
+
+            } catch (IOException e) {
+                System.err.println(" Error al cargar DashboardVista.fxml: " + e.getMessage());
+                e.printStackTrace();
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de Navegación", "No se pudo cargar el Panel Principal.");
+            }
 
         } else {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "RUT o contraseña incorrectos");
@@ -75,7 +95,6 @@ public class LoginController {
      */
     private void actualizarMetricas() {
         try {
-            // Obtenemos la lista desde el servicio de productos
             List<Producto> lista = productoService.obtenerProductos();
 
             if (lista == null) {
@@ -98,11 +117,6 @@ public class LoginController {
                     .filter(p -> p.getStockActual() <= p.getStockMinimo())
                     .count();
 
-            long noBajoStock = lista.stream()
-                    .filter(p -> p.getStockActual() > p.getStockMinimo())
-                    .count();
-
-            // Seteamos los textos de forma segura verificando que las etiquetas existan
             if (lblProductosActivos != null) lblProductosActivos.setText(String.valueOf(totalProductos));
             if (lblPlatillosActivos != null) lblPlatillosActivos.setText(String.valueOf(totalPlatillos));
             if (lblCategoriasActivas != null) lblCategoriasActivas.setText(String.valueOf(totalCategorias));
@@ -120,8 +134,6 @@ public class LoginController {
             mostrarMensaje("Error", "No se pudieron actualizar las métricas", Alert.AlertType.ERROR);
         }
     }
-
-    // --- MÉTODOS AUXILIARES PARA ALERTAS (Mantienen tus firmas originales) ---
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String contenido) {
         Alert alerta = new Alert(tipo);

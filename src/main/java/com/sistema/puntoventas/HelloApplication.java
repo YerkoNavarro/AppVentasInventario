@@ -49,6 +49,7 @@ public class HelloApplication extends Application {
         dbManager.conectarBD();
         dbManager.crearTodasLasTablas();
         dbManager.crearUsuarioAdmin();
+        dbManager.crearUsuarioVendedor();
 
 
 

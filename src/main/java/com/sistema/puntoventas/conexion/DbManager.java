@@ -163,6 +163,26 @@ public class DbManager {
         }
     }
 
+    public void crearUsuarioVendedor() {
+        String sql = "INSERT OR IGNORE INTO usuario (nombre, apellido, rut, password, telefono, rol, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "Vendedor");
+            pstmt.setString(2, "Juan");
+            pstmt.setString(3, "98765432-1"); // RUT de ejemplo para el vendedor
+            pstmt.setString(4, "vendedor123");  // Contraseña de acceso
+            pstmt.setString(5, "88888888");
+            pstmt.setString(6, "VENDEDOR");    // Rol configurado exactamente como tu Enum (Role.VENDEDOR)
+            pstmt.setInt(7, 1);                // Estado Activo (1)
+
+            pstmt.executeUpdate();
+            System.out.println("Usuario vendedor verificado/creado con éxito.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear vendedor por defecto: " + e.getMessage());
+        }
+    }
+
 
     public void crearTablaCategoria() {
         String sql = "CREATE TABLE IF NOT EXISTS categoria ("
