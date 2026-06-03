@@ -56,6 +56,10 @@ public class ProductoService {
             throw new Exception("El stock mínimo debe ser mayor a cero") ;
         }
 
+        if(producto.getCategoria() == null){
+            throw new Exception("El producto debe tener una categoría asignada") ;
+        }
+
 
 
         List<Producto> nombreproducto = productoRepository.obtenerProductoPorNombre(producto.getNombre().trim());
@@ -138,6 +142,11 @@ public class ProductoService {
         if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
             throw new Exception("El nombre del producto es obligatorio.");
         }
+
+        if(productoRepository.existeNombre(producto.getNombre(), producto.getId())){
+            throw new Exception("Ya existe un producto con el nombre '" + producto.getNombre() + "'.");
+        }
+
 
         if(producto.getPrecioCompra() <= 0){
             return false;

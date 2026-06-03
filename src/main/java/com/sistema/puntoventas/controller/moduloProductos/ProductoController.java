@@ -259,7 +259,7 @@ public class ProductoController {
                 double precioVenta = Double.parseDouble(txtPrecioVenta.getText().isEmpty() ? "0" : txtPrecioVenta.getText());
                 int stockActual = Integer.parseInt(txtStockActual.getText());
                 int stockMinimo = Integer.parseInt(txtStockMinimo.getText());
-                
+
 
                 if(precioCompra <=0){
                     lblEstado.setText("Error: El precio de compra debe ser mayor a 0.");
@@ -267,13 +267,21 @@ public class ProductoController {
                     return;
                 }
 
-                double margen = precioCompra * 0.1;
-                if(precioVenta < margen){
-                    lblEstado.setText("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
-                    lblEstado.setTextFill(Color.RED);
-                    return;
+                if (cmbTipoProducto.getValue() == TipoProducto.SOLO_INVENTARIO) {
+                    precioVenta = 0.0;
                 }
 
+
+
+                if (cmbTipoProducto.getValue() != TipoProducto.SOLO_INVENTARIO) {
+                    double precioMinimoVenta = precioCompra * 1.10; // Costo + 10% mínimo
+
+                    if (precioVenta < precioMinimoVenta) {
+                        lblEstado.setText("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.");
+                        lblEstado.setTextFill(Color.RED);
+                        return;
+                    }
+                }
 
 
                 if(stockActual <=0 ){
@@ -336,6 +344,8 @@ public class ProductoController {
                     productoService.actualizarProducto(productoAEditar); // Llama al UPDATE
                     lblEstado.setText("¡Producto actualizado con éxito!");
                     lblEstado.setTextFill(Color.GREEN);
+                    limpiarFormulario();
+                    productoAEditar = null;
                 }
 
             } catch (NumberFormatException e) {
@@ -349,7 +359,7 @@ public class ProductoController {
 
         }
 
-
+    //Solo sirve para cargar los datos en el formulario para actualizar producto
     public void ActualizarProducto(Producto producto) {
         this.productoAEditar = producto;
 

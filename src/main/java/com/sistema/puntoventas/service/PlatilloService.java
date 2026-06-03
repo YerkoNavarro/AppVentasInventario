@@ -21,6 +21,10 @@ public class PlatilloService {
         this.auditoriaService = new AuditoriaService();
     }
 
+    public boolean existeNomre(String nombre, int id){
+        return platilloRepository.existeNombre(nombre, id);
+    }
+
 
 
     public void registrarPlatillo(Platillo platillo) throws Exception {

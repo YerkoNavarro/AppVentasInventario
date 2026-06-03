@@ -195,11 +195,22 @@ public class PanelRegistroPlatillosController {
                 return;
             }
 
+            double precio = Double.parseDouble(txtPrecio.getText().trim());
+            if(precio <= 0){
+                lblEstado.setText("Error: Precio debe ser mayor a cero");
+                lblEstado.setTextFill(Color.RED);
+                return;
+            }
+
+
+
             if (cmbCategoria.getValue() == null) {
                 lblEstado.setText("Error: Debes seleccionar una categoría.");
                 lblEstado.setTextFill(Color.RED);
                 return;
             }
+
+
 
             // 2. Construir el objeto PLATILLO
             Platillo nuevoPlatillo = new Platillo();
