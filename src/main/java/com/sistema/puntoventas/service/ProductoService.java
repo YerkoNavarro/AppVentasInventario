@@ -365,6 +365,12 @@ public class ProductoService {
             throw new Exception("ID de categoría no válido.");
         }
 
+        boolean categoriaEnUso = categoriaRepository.tieneProductosAsociados(id);
+
+        if(categoriaEnUso){
+            throw new Exception("No se puede eliminar la categoria");
+        }
+
         boolean eliminada = categoriaRepository.eliminarCategoria(id);
         System.out.println("Intentando eliminar categoria: " + idCategoria);
 

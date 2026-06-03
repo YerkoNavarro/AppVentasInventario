@@ -390,7 +390,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
 
     private List<DetallePlatillo> obtenerIngredientesConUnidadMedida(Connection conn, int idPlatillo) throws SQLException {
         List<DetallePlatillo> ingredientes = new ArrayList<>();
-        String sql = "SELECT d.*, p.nombre, p.stockActual, p.unidadMedida, p.cantidad FROM detalle_platillo d " +
+        String sql = "SELECT d.*, p.nombre, p.stockActual, p.unidadMedida, p.cantidad, p.precioCompra FROM detalle_platillo d " +
                      "INNER JOIN producto p ON d.idProducto = p.id WHERE d.idPlatillo = ?";
         
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -412,6 +412,7 @@ public class PlatilloRepositoryImpl implements IPlatilloRepository {
                         prod.setUnidadMedida(UnidadMedida.valueOf(um));
                     }
                     prod.setCantidad(rs.getDouble("cantidad"));
+                    prod.setPrecioCompra(rs.getDouble("precioCompra"));
 
                     detalle.setProducto(prod);
                     ingredientes.add(detalle);

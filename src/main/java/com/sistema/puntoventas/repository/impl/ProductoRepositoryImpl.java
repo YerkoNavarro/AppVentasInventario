@@ -350,6 +350,28 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
         }
     }
 
+
+    public boolean tieneProductosAsociados(int id){
+        String sql = "SELECT COUNT(*) FROM producto WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Si el conteo es mayor a 0, significa que SÍ tiene productos asociados
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar asociaciones de categoría: " + e.getMessage());
+        }
+        return false;
+    }
+
+
     @Override
     public boolean existeCategoria(String nombre) {
         String sql = "SELECT 1 FROM categoria WHERE nombreCategoria = ? LIMIT 1";

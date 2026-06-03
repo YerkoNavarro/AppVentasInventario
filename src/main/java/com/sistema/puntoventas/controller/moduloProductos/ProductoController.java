@@ -211,7 +211,7 @@ public class ProductoController {
        public  void registrarProducto(ActionEvent event) {
             try{
 
-                String nombreIngresado = txtNombre.getText().trim().toUpperCase();
+                String nombreIngresado = txtNombre.getText().trim().toLowerCase();
 
 
 
@@ -363,6 +363,10 @@ public class ProductoController {
     public void ActualizarProducto(Producto producto) {
         this.productoAEditar = producto;
 
+        cmbCategoria.setValue(producto.getCategoria());
+        cmbUnidadMedida.setValue(producto.getUnidadMedida());
+        cmbTipoProducto.setValue(producto.getTipoProducto());
+        txtCantidad.setText(String.valueOf(producto.getCantidad()));
 
         txtNombre.setText(producto.getNombre());
         txtPrecioCompra.setText(String.valueOf(producto.getPrecioCompra()));
@@ -373,12 +377,6 @@ public class ProductoController {
        // txtImagen.setText(producto.getImagen());
 
 
-        cmbCategoria.setValue(producto.getCategoria());
-        cmbUnidadMedida.setValue(producto.getUnidadMedida());
-        cmbTipoProducto.setValue(producto.getTipoProducto());
-        txtCantidad.setText(String.valueOf(producto.getCantidad()));
-
-        // Cambiamos el texto del botón para que diga "Actualizar" en lugar de "Registrar"
         btnRegistrar.setText("Actualizar Producto");
     }
 
