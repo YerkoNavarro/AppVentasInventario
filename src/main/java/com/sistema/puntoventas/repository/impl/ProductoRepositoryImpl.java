@@ -191,7 +191,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
 
     @Override
     public boolean desactivarProducto(int id) {
-        String sql = "UPDATE producto SET estado = 'INACTIVO' WHERE id = ?";
+        String sql = "UPDATE producto SET activo = '0' WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
