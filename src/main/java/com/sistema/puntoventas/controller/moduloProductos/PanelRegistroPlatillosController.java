@@ -7,6 +7,8 @@ import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.service.PlatilloService;
 import com.sistema.puntoventas.service.ProductoService;
+import com.sistema.puntoventas.util.AlertaCamposVacios;
+
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -76,6 +78,10 @@ public class PanelRegistroPlatillosController {
     private ObservableList<DetallePlatillo> listaIngredientesTemporal = FXCollections.observableArrayList();
 
     public void initialize() throws Exception {
+
+
+        AlertaCamposVacios.resaltarSiVacio(txtNombre,txtPrecio,txtCantidad);
+        AlertaCamposVacios.configurarValidacionAutomatica(txtNombre,txtPrecio,txtCantidad);
         productoService = new ProductoService();
         platilloService = new PlatilloService();
         try {
