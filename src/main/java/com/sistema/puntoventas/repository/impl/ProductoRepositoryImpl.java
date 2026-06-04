@@ -87,7 +87,6 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                 producto.setCantidadDefault(rs.getDouble(13));
                 // Agregamos el producto armado a nuestra lista
                 listaProductos.add(producto);
-                System.out.println(listaProductos);
             }
 
         } catch (SQLException e) {
@@ -126,7 +125,6 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
 
                     // Agregamos el producto armado a nuestra lista
                     listaProductos.add(producto);
-                    System.out.println(listaProductos);
                 }
             }
 
@@ -236,10 +234,6 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                     producto.setTipoProducto(TipoProducto.valueOf(rs.getString(12)));
                     producto.setCantidadDefault(rs.getDouble(13));
 
-                    // Agregamos el producto armado a nuestra lista
-                    System.out.println("producto encontrado correctamente");
-                    System.out.println(producto);
-                    // System.out.println(listaProductos); // This line was likely a debug print and can be removed or commented out.
                 }
             }
 
