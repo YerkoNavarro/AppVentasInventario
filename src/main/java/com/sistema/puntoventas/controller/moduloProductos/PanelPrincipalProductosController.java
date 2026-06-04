@@ -90,6 +90,7 @@ public class PanelPrincipalProductosController {
 
 
     private ProductoService productoService;
+    private java.util.List<String> nombresCriticos;
 
     
     
@@ -106,6 +107,7 @@ public class PanelPrincipalProductosController {
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
         colTipoProducto.setCellValueFactory(new PropertyValueFactory<>("tipoProducto"));
 
+        configurarRowFactory();
         obtenerProductos();
         actualizarMetricas();
 
@@ -117,6 +119,22 @@ public class PanelPrincipalProductosController {
             if(newSelection != null){
                 System.out.println("RECETA");
              //   btnVerReceta.setDisable(!newSelection.getTipoProducto().name().equals("PLATILLO"));
+            }
+        });
+    }
+
+    private void configurarRowFactory() {
+        tableProductos.setRowFactory(tv -> new TableRow<Producto>() {
+            @Override
+            protected void updateItem(Producto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty || nombresCriticos == null) {
+                    setStyle("");
+                } else if (nombresCriticos.contains(item.getNombre())) {
+                    setStyle("-fx-background-color: #ffcccc;");
+                } else {
+                    setStyle("");
+                }
             }
         });
     }
@@ -211,6 +229,8 @@ public class PanelPrincipalProductosController {
             if (productoService == null) {
                 productoService = new ProductoService();
             }
+
+            nombresCriticos = productoService.obtenerNombreStockCritico();
 
 
             java.util.List<Producto> productos = productoService.obtenerProductos();

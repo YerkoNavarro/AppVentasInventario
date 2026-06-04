@@ -313,6 +313,26 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     }
 
     @Override
+    public List<String> obtenerNombreStockCritico() {
+        List<String> nombres = new ArrayList<>();
+        String sql = "SELECT p.nombre FROM producto p WHERE p.stockActual <= p.stockMinimo";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                nombres.add(rs.getString("nombre"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener nombres de productos en stock crítico: " + e.getMessage());
+        }
+
+        return nombres;
+    }
+
+    @Override
     public boolean registrarCategoria(Categoria categoria) {
         if (categoria == null || categoria.getNombreCategoria() == null || categoria.getNombreCategoria().trim().isEmpty()) {
             return false;
