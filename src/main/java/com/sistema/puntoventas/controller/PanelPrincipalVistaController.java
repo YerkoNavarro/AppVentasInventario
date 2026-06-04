@@ -136,9 +136,10 @@ public class PanelPrincipalVistaController {
                 stageActual.setScene(loginScene);
                 stageActual.setTitle("Sistema Punto de Ventas - Iniciar Sesión");
 
-                // Forzar el reajuste al tamaño original del FXML (Evita que el logo se achique)
-                stageActual.sizeToScene();
-                stageActual.setResizable(false);  // Desactiva estirar la ventana en el login
+                // No forzamos sizeToScene() porque puede causar que la ventana se "achique".
+                // Permitimos que la ventana sea redimensionable para evitar tamaños demasiado pequeños
+                // y mantenemos que se centre en pantalla.
+                stageActual.setResizable(true);
                 stageActual.centerOnScreen();    // Re-centra la ventana en el monitor
 
                 stageActual.show();
