@@ -308,7 +308,7 @@ public class ProductoController {
                     nuevoProducto.setStockMinimo(stockMinimo);
                     nuevoProducto.setCategoria(cmbCategoria.getValue());
                     nuevoProducto.setFechaVenc(txtFechaVenc.getText());
-                   // nuevoProducto.setImagen(txtImagen.getText());
+                    nuevoProducto.setActivo(true);
                     nuevoProducto.setUnidadMedida(cmbUnidadMedida.getValue());
                     nuevoProducto.setCantidad(Double.parseDouble(txtCantidad.getText()));
                     nuevoProducto.setTipoProducto(cmbTipoProducto.getValue());

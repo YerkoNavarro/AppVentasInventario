@@ -356,7 +356,7 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
                     producto.setStockActual(rs.getInt("stockActual"));
                     producto.setStockMinimo(rs.getInt("stockMinimo"));
                     producto.setFechaVenc(rs.getString("fechaVenc"));
-                    producto.setImagen(rs.getString("imagen"));
+                    producto.setActivo(rs.getBoolean("activo"));
                     producto.setUnidadMedida(mapUnidadMedida(rs.getString("unidadMedida")));
                     producto.setCantidad(rs.getDouble("cantidad"));
                     producto.setTipoProducto(mapTipoProducto(rs.getString("tipoProducto")));
