@@ -29,8 +29,6 @@ public class PanelAgregarUsuarioController implements Initializable {
     @FXML private TextField txtTelefono;
 
     private UsuarioService usuarioService;
-
-    // --- NUEVAS VARIABLES PARA MODO EDICIÓN ---
     private boolean modoEdicion = false;
     private Usuario usuarioAEditar = null;
 
@@ -41,14 +39,10 @@ public class PanelAgregarUsuarioController implements Initializable {
         lblEstado.setText("Listo para registrar");
     }
 
-    // ==============================================================================
-    // NUEVO MÉTODO: Esto lo llamará tu PanelPrincipal cuando presiones "Editar"
-    // ==============================================================================
     public void cargarDatosUsuario(Usuario usuario) {
         this.modoEdicion = true;
         this.usuarioAEditar = usuario;
 
-        // Rellenamos los campos con los datos del usuario seleccionado
         txtNombre.setText(usuario.getNombre());
         txtApellido.setText(usuario.getApellido());
         txtRut.setText(usuario.getRut());
@@ -56,54 +50,38 @@ public class PanelAgregarUsuarioController implements Initializable {
         txtTelefono.setText(usuario.getTelefono());
         cmbRol.setValue(usuario.getRol());
 
-        // Bloqueamos el RUT para que no puedan cambiar su identificador
         txtRut.setEditable(false);
-        txtRut.setStyle("-fx-background-color: #e0e0e0;"); // Darle color gris visualmente
+        txtRut.setStyle("-fx-background-color: #e0e0e0;");
 
-        // Cambiamos los textos de la interfaz
         btnRegistrar.setText("Guardar Cambios");
         lblEstado.setText("Editando usuario: " + usuario.getRut());
     }
 
     @FXML
     void registrarUsuario(ActionEvent event) {
-        // 1. Validar campos vacíos
-        if (txtNombre.getText().isEmpty() || txtApellido.getText().isEmpty() ||
-                txtRut.getText().isEmpty() || txtContraseña.getText().isEmpty() ||
-                cmbRol.getValue() == null) {
-
-            mostrarAlerta("Campos incompletos", "Faltan datos", "Por favor, completa todos los campos obligatorios.", Alert.AlertType.WARNING);
-            return;
-        }
-
         try {
+            String mensajeRespuesta;
+
             if (modoEdicion) {
-                // ==========================================
-                // LÓGICA DE ACTUALIZAR (MODO EDICIÓN)
-                // ==========================================
+                // El controlador es TONTO: solo mapea los valores limpiando espacios de los extremos
                 usuarioAEditar.setNombre(txtNombre.getText().trim());
                 usuarioAEditar.setApellido(txtApellido.getText().trim());
                 usuarioAEditar.setContraseña(txtContraseña.getText().trim());
                 usuarioAEditar.setTelefono(txtTelefono.getText().trim());
                 usuarioAEditar.setRol(cmbRol.getValue());
 
-                // NOTA IMPORTANTE: Necesitarás crear este método en tu UsuarioService y Repository si aún no lo tienes.
-                // String mensaje = usuarioService.actualizarUsuario(usuarioAEditar);
+                // Se delega por completo la validación y actualización al servicio
+                mensajeRespuesta = usuarioService.actualizarUsuario(usuarioAEditar);
 
-                // --- Simulación temporal mientras creas el método ---
-
-                String mensaje = usuarioService.actualizarUsuario(usuarioAEditar);
-                if (mensaje.equals("Usuario actualizado exitosamente")) {
-                    mostrarAlerta("Éxito", "Actualización Completada", mensaje, Alert.AlertType.INFORMATION);
-                    // Opcional: Cerrar la ventana al terminar de editar
+                if (mensajeRespuesta.equals("Usuario actualizado exitosamente")) {
+                    mostrarAlerta("Éxito", "Actualización Completada", mensajeRespuesta, Alert.AlertType.INFORMATION);
                 } else {
-                    mostrarAlerta("Error", "No se pudo actualizar", mensaje, Alert.AlertType.ERROR);
+                    // Si el servicio rebota la acción por campos vacíos, se muestra el error aquí
+                    mostrarAlerta("Atención", "Campos obligatorios faltantes", mensajeRespuesta, Alert.AlertType.WARNING);
                 }
 
             } else {
-                // ==========================================
-                // LÓGICA DE REGISTRAR (MODO CREACIÓN)
-                // ==========================================
+                // Modo Creación: recolección básica de datos
                 Usuario nuevoUsuario = new Usuario();
                 nuevoUsuario.setNombre(txtNombre.getText().trim());
                 nuevoUsuario.setApellido(txtApellido.getText().trim());
@@ -113,13 +91,14 @@ public class PanelAgregarUsuarioController implements Initializable {
                 nuevoUsuario.setRol(cmbRol.getValue());
                 nuevoUsuario.setEstado(true);
 
-                String mensajeRespuesta = usuarioService.registrarNuevoUsuario(nuevoUsuario);
+                // Se delega por completo la validación y registro al servicio
+                mensajeRespuesta = usuarioService.registrarNuevoUsuario(nuevoUsuario);
 
                 if (mensajeRespuesta.equals("Usuario registrado exitosamente")) {
                     mostrarAlerta("Éxito", "Registro Completado", mensajeRespuesta, Alert.AlertType.INFORMATION);
                     limpiarCampos();
                 } else {
-                    mostrarAlerta("Error en el registro", "No se pudo registrar", mensajeRespuesta, Alert.AlertType.ERROR);
+                    mostrarAlerta("Atención", "Campos obligatorios faltantes", mensajeRespuesta, Alert.AlertType.WARNING);
                 }
             }
 
