@@ -1,5 +1,6 @@
 package com.sistema.puntoventas.controller;
 
+import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.util.MensajesAlerta; // Importación de tu utilidad de alertas
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -47,12 +48,9 @@ public class PanelPrincipalVistaController {
         // Cargar el Dashboard por defecto al iniciar
         cargarVistaModulo("DashboardVista.fxml", null);
 
-        // Configuración de las acciones de los botones (Evitamos usar FXML MouseEvent para componentes Sidebar)
+        // Configuración de las acciones comunes (permitidas para todos)
         if (btnDashboard != null) {
             btnDashboard.setOnAction(e -> cargarVistaModulo("DashboardVista.fxml", btnDashboard));
-        }
-        if (btnUsuarios != null) {
-            btnUsuarios.setOnAction(e -> cargarVistaModulo("PanelPrincipalUsuarios.fxml", btnUsuarios));
         }
         if (btnProductos != null) {
             btnProductos.setOnAction(e -> cargarVistaModulo("PanelPrincipalProductos.fxml", btnProductos));
@@ -60,19 +58,46 @@ public class PanelPrincipalVistaController {
         if (btnVentas != null) {
             btnVentas.setOnAction(e -> cargarVistaModulo("panelVentas.fxml", btnVentas));
         }
-        if (btnInventario != null) {
-            btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario.fxml", btnInventario));
+        if (btnPlatillos != null) {
+            btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelPrincipalPlatillosVista.fxml", btnPlatillos));
         }
         if (btnCategorias != null) {
             btnCategorias.setOnAction(e -> cargarVistaModulo("PanelPrincipalCategorias.fxml", btnCategorias));
         }
-        if (btnEstadisticas != null) {
-            btnEstadisticas.setOnAction(e -> cargarVistaModulo("PanelPrincipalEstadisticasVista.fxml", btnEstadisticas));
-        }
 
         // ==============================================================================
-        // ASIGNAR ACCIÓN AL BOTÓN CERRAR SESIÓN
+        // RESTRICCIÓN DE ACCESOS POR ROL: ADMINISTRADOR vs VENDEDOR
         // ==============================================================================
+        Usuario usuarioActivo = LoginController.usuarioLogueado;
+
+        if (usuarioActivo != null && "VENDEDOR".equalsIgnoreCase(usuarioActivo.getRol().name())) {
+
+            // 1. Bloqueamos los botones requeridos para el rol Vendedor
+            if (btnUsuarios != null) btnUsuarios.setDisable(true);
+            if (btnEstadisticas != null) btnEstadisticas.setDisable(true);
+            if (btnInventario != null) btnInventario.setDisable(true);
+
+            System.out.println("Seguridad: Se han bloqueado los accesos de Usuarios, Estadísticas e Inventario para el Vendedor.");
+
+        } else {
+            // 2. Si es Administrador (o cualquier otro rol), habilitamos los botones y asignamos sus funciones
+            if (btnUsuarios != null) {
+                btnUsuarios.setDisable(false);
+                btnUsuarios.setOnAction(e -> cargarVistaModulo("PanelPrincipalUsuarios.fxml", btnUsuarios));
+            }
+            if (btnEstadisticas != null) {
+                btnEstadisticas.setDisable(false);
+                btnEstadisticas.setOnAction(e -> cargarVistaModulo("PanelPrincipalEstadisticasVista.fxml", btnEstadisticas));
+            }
+            if (btnInventario != null) {
+                btnInventario.setDisable(false);
+                btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario.fxml", btnInventario));
+            }
+
+            System.out.println("Seguridad: Acceso total concedido al Administrador.");
+        }
+
+        // Asignar acción al botón cerrar sesión (Siempre activo para todos)
         if (btnCerrarSesion != null) {
             btnCerrarSesion.setOnAction(e -> cerrarSesion());
         }
@@ -92,9 +117,9 @@ public class PanelPrincipalVistaController {
         // 2. Si el usuario presiona "OK", procedemos con la desconexión segura
         if (confirmar) {
             try {
-                // Limpiamos los datos del usuario logueado en memoria por seguridad
+                // Destruimos la sesión global para evitar accesos remanentes
                 LoginController.usuarioLogueado = null;
-                System.out.println("Sesión finalizada con éxito.");
+                System.out.println("Sesión destruida y limpiada de la memoria.");
 
                 // Cargar la vista del Login desde tus recursos
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/LoginVista.fxml"));
@@ -103,21 +128,23 @@ public class PanelPrincipalVistaController {
                 // Obtener el Stage de manera segura usando el nodo contenedor principal
                 Stage stageActual = (Stage) contentArea.getScene().getWindow();
 
-                // Reemplazar la escena actual por la del Login
+                // Desactivar el maximizado para que vuelva a sus dimensiones de diseño nativas
+                stageActual.setMaximized(false);
+
+                // Creamos la nueva escena con el login y la asignamos
                 Scene loginScene = new Scene(root);
                 stageActual.setScene(loginScene);
                 stageActual.setTitle("Sistema Punto de Ventas - Iniciar Sesión");
 
-                // Desactivar el maximizado si estaba activo para que el Login se vea bien proporcionado
-                stageActual.setMaximized(false);
-                stageActual.setWidth(1920); // Dimensiones por defecto de tu LoginVista.fxml
-                stageActual.setHeight(1080);
-                stageActual.centerOnScreen();
+                // Forzar el reajuste al tamaño original del FXML (Evita que el logo se achique)
+                stageActual.sizeToScene();
+                stageActual.setResizable(false);  // Desactiva estirar la ventana en el login
+                stageActual.centerOnScreen();    // Re-centra la ventana en el monitor
 
                 stageActual.show();
 
             } catch (IOException e) {
-                System.err.println("❌ ERROR: No se pudo cargar el LoginVista.fxml al cerrar sesión.");
+                System.err.println(" ERROR: No se pudo cargar el LoginVista.fxml al cerrar sesión.");
                 e.printStackTrace();
             }
         } else {

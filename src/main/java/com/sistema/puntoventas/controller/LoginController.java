@@ -52,14 +52,14 @@ public class LoginController {
         Usuario usuario = usuarioService.iniciarSesion(rut, password);
 
         if (usuario != null) {
-            // 1. Guardamos al usuario antes de proceder
+            // ==============================================================================
+            // PASO CLAVE: Guardamos el usuario (con su ROL y datos) en la sesión global
+            // ==============================================================================
             usuarioLogueado = usuario;
+            System.out.println("Sesión iniciada exitosamente para: " + usuarioLogueado.getNombre() + " | Rol: " + usuarioLogueado.getRol());
 
             mostrarMensaje("Éxito", "Bienvenido " + usuario.getNombre(), Alert.AlertType.INFORMATION);
 
-            // ==============================================================================
-            // NUEVO: REDIRECCIÓN AL DASHBOARD PRINCIPAL
-            // ==============================================================================
             try {
                 // Cargar el archivo FXML del Dashboard Principal
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/panelPrincipalVista.fxml"));
@@ -72,15 +72,19 @@ public class LoginController {
                 Stage stageActual = (Stage) continuarButton.getScene().getWindow();
 
                 // Configurar el nuevo diseño en la ventana principal
-                stageActual.setScene(scene);
                 stageActual.setTitle("Sistema Punto de Ventas - Panel Principal");
+
+                // ==============================================================================
+                // CONFIGURACIÓN DE VENTANA: Permitir redimensionar el panel de administración
+                // ==============================================================================
+                stageActual.setResizable(true);
+                stageActual.setScene(scene);
                 stageActual.centerOnScreen(); // Centra la nueva ventana en la pantalla
-                // stageActual.setMaximized(true); // Opcional: Descomenta esta línea si deseas que abra en pantalla completa
 
                 stageActual.show();
 
             } catch (IOException e) {
-                System.err.println(" Error al cargar DashboardVista.fxml: " + e.getMessage());
+                System.err.println(" Error al cargar panelPrincipalVista.fxml: " + e.getMessage());
                 e.printStackTrace();
                 mostrarAlerta(Alert.AlertType.ERROR, "Error de Navegación", "No se pudo cargar el Panel Principal.");
             }
