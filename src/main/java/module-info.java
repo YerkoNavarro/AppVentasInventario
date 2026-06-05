@@ -40,4 +40,9 @@ module com.sistema.puntoventas {
     opens com.sistema.puntoventas.controller.moduloProductos to javafx.fxml;
     exports com.sistema.puntoventas.pruebas;
     opens com.sistema.puntoventas.pruebas to javafx.fxml;
+
+
+    // Permite a Mockito acceder a tus clases para hacer las pruebas
+    opens com.sistema.puntoventas.service to org.mockito;
+    opens com.sistema.puntoventas.repository.moduloProductos to org.mockito;
 }

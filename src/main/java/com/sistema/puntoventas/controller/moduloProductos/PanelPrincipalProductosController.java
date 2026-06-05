@@ -279,8 +279,17 @@ public class PanelPrincipalProductosController {
     public void eliminarProducto(javafx.event.ActionEvent event){
         Producto productoSeleccionado  =tableProductos.getSelectionModel().getSelectedItem();
 
+
+
         if(productoSeleccionado == null){
             mostrarMensaje("AVISO","Por favor seleccione un producto para eliminar", Alert.AlertType.WARNING);
+            return;
+        }
+
+        String nombreAeliminar = productoSeleccionado.getNombre();
+        boolean existeNombre = productoService.existeNombre(nombreAeliminar,0);
+        if(!existeNombre){
+            mostrarMensaje("AVISO","El producto seleccionado no existe ", Alert.AlertType.WARNING);
             return;
         }
 

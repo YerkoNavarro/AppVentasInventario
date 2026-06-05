@@ -68,7 +68,7 @@
                 <TableColumn fx:id="colPrecio" prefWidth="120.0" text="precio venta" />
                 <TableColumn fx:id="colCostoProduccion" prefWidth="140.0" text="costo producción" />
                 <TableColumn fx:id="colEstado" prefWidth="100.0" text="estado" />
-                <TableColumn fx:id="colStockActual" prefWidth="100.0" text="stock actual" />
+                <TableColumn fx:id="colStockActual" prefWidth="100.0" text="fabricables" />
             </columns>
         </TableView>
     </children>
