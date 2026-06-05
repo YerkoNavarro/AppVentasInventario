@@ -18,6 +18,7 @@ module com.sistema.puntoventas {
     // Otros
     requires jdk.jdi;
     requires net.datafaker;
+    requires static lombok;
 
     // --- CONFIGURACIÓN DE ACCESOS Y PERMISOS ---
 
