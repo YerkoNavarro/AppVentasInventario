@@ -18,8 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -38,6 +37,8 @@ public class ProductoServiceTest {
 
     @InjectMocks
     private Categoria categoria;
+    private Categoria categoria2;
+    private Categoria categoria3;
 
     @BeforeEach
     public void setUp(){
@@ -46,14 +47,19 @@ public class ProductoServiceTest {
         categoria.setNombreCategoria("Bebidas");
         categoria.setDescripcion("Productos líquidos para consumo");
 
-        categoria = new Categoria();
+        categoria2 = new Categoria();
         categoria.setId(2);
         categoria.setNombreCategoria("ingredientes");
         categoria.setDescripcion("Productos para preparar alimentos");
+
+        categoria3 = new Categoria();
+        categoria.setId(3);
+        categoria.setNombreCategoria("pasteleria");
+        categoria.setDescripcion("Productos dulces");
     }
 
     @Test
-    @DisplayName("Registrar producto exitoso")
+    @DisplayName("TC-01:Registrar producto exitoso")
     public void testRegistrarProductoExitoso()throws Exception{
         Producto producto1 = Producto.builder()
                 .nombre("coca-cola")
@@ -78,20 +84,22 @@ public class ProductoServiceTest {
         verify(productoRepository, times(1)).registrarProducto(producto1);
         verify(auditoriaService, times(1)).registrarEvento(any(AuditoriaEvento.class));
 
+        System.out.println("Test exitoso");
+
 
     }
 
 
     @Test
-    @DisplayName("Debería registrar producto SOLO_INVENTARIO forzando precio de venta a 0.0")
-    void registrarProducto_SoloInventario_ForzarPrecioVentaCero() throws Exception {
+    @DisplayName("TC-11:Debería registrar producto SOLO_INVENTARIO forzando precio de venta a 0.0")
+    public void registrarProducto_SoloInventario_ForzarPrecioVentaCero() throws Exception {
         Producto productoInventario = Producto.builder()
                 .nombre("Insumo de prueba")
                 .precioCompra(5000.0)
                 .precioVenta(9999.0)
                 .stockActual(10)
                 .stockMinimo(2)
-                .categoria(categoria)
+                .categoria(categoria2)
                 .unidadMedida(UnidadMedida.GRAMOS)
                 .cantidad(1.0)
                 .activo(true)
@@ -106,11 +114,14 @@ public class ProductoServiceTest {
         // Verificamos que el Service realmente modificó el precio de venta a 0.0
         assertEquals(0.0, productoInventario.getPrecioVenta());
         System.out.println("Precio de venta forzado a: " + productoInventario.getPrecioVenta());
+        System.out.println("Test exitoso");
     }
 
 
+    //Esperamos a que el guardado falle y lanze una excepción por el margen de ganancia insuficiente,
+    // y que NUNCA se intente guardar en la base de datos ni registrar la auditoría
     @Test
-    @DisplayName("Registrar producto con margen de ganancia insuficiente")
+    @DisplayName("TC-02:Registrar producto con margen de ganancia insuficiente")
     public void testRegistrarProductoErroneo() throws Exception{
         Producto producto2 = Producto.builder()
                 .nombre("donuts")
@@ -125,14 +136,105 @@ public class ProductoServiceTest {
                 .build();
 
         when(productoRepository.obtenerProductoPorNombre("donuts")).thenReturn(new ArrayList<>());
-        when(productoRepository.registrarProducto(producto2)).thenReturn(true);
-        when(auditoriaService.registrarEvento(any(AuditoriaEvento.class))).thenReturn(true);
 
-        assertDoesNotThrow(() -> productoService.registrarProducto(producto2));
 
-        verify(productoRepository, times(1)).registrarProducto(producto2);
-        verify(auditoriaService, times(1)).registrarEvento(any(AuditoriaEvento.class));
+        Exception excepcion = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(producto2);
+        });
 
+        assertEquals("Protección de Margen: El precio de venta debe ser al menos un 10% mayor al precio de compra.", excepcion.getMessage());
+
+
+        // Verificamos que NUNCA se intentó guardar en la base de datos ni registrar la auditoría
+        verify(productoRepository, never()).registrarProducto(any(Producto.class));
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
+    }
+
+
+
+    @Test
+    @DisplayName("TC-03:Intento de registrar un producto nulo")
+    public void testRegistrarProductoNulo() throws Exception{
+        Exception excepcion = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(null);
+        });
+
+
+        assertEquals("El producto no puede ser nulo", excepcion.getMessage());
+
+
+        // Comprobamos y aseguramos que el sistema se protegió y NUNCA tocó tus repositorios ni auditorías
+        verifyNoInteractions(productoRepository);
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-04: Registrar producto con nombre vacío o puros espacios")
+    public void testRegistrarProductoNombreVacio() throws Exception{
+
+        Producto productoConNombreVacio = Producto.builder()
+                .nombre("     ")
+                .precioCompra(1000.0)
+                .precioVenta(1500.0)
+                .stockActual(50)
+                .stockMinimo(10)
+                .categoria(categoria)
+                .unidadMedida(UnidadMedida.UNIDAD)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.DIRECTO)
+                .build();
+
+
+        Exception excepcion = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(productoConNombreVacio);
+        });
+
+
+        assertEquals("El nombre del producto es obligatorio.", excepcion.getMessage());
+
+
+        // Confirmamos que el flujo se cortó inmediatamente y protegió la base de datos
+        verifyNoInteractions(productoRepository);
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-05: Registrar producto con precio compra inválido")
+    public void testRegistrarProductoPrecioInvalido()throws Exception{
+
+        Producto producto5 = Producto.builder()
+                .nombre("empanada")
+                .precioCompra(-300.0)
+                .precioVenta(1500.0)
+                .stockActual(50)
+                .stockMinimo(10)
+                .categoria(categoria)
+                .unidadMedida(UnidadMedida.UNIDAD)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.DIRECTO)
+                .build();
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(producto5);
+        });
+
+        assertEquals("El precio de compra debe ser mayor a cero", exception.getMessage());
+
+
+        verifyNoInteractions(productoRepository);
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
     }
 
 }

@@ -29,10 +29,12 @@ public class ProductoService {
     //-----------------------------------------------------------------------------------------------------------------
 
     public void registrarProducto(Producto producto) throws Exception{
-        UnidadMedida unidad = producto.getUnidadMedida();
+
         if (producto == null){
             throw new Exception("El producto no puede ser nulo");
         }
+
+        UnidadMedida unidad = producto.getUnidadMedida();
 
         if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
             throw new Exception("El nombre del producto es obligatorio.");
