@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -488,6 +489,253 @@ public class ProductoServiceTest {
         assertEquals(2, resultado.size());
         assertEquals("Producto B", resultado.get(0).getNombre());
         verify(stockRepository, times(1)).obtenerStockCritico();
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-16: Obtener stock crítico retorna null (devuelve lista vacía segura)")
+    public void testObtenerStockCriticoNulo() {
+        when(stockRepository.obtenerStockCritico()).thenReturn(null);
+
+        List<Producto> resultado = productoService.obtenerStockCritico();
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+        System.out.println("Test exitoso");
+    }
+
+    /*--------------------------------------------------------------------------------------
+    * --------------------------------------------------------------------------------------*/
+
+    //Actualizar Producto
+
+    @Test
+    @DisplayName("TC-17: Actualizar producto exitoso")
+    public void testActualizarProductoExitoso() throws Exception{
+        Producto productoModificado = Producto.builder()
+                .id(1)
+                .nombre("manjar")
+                .precioCompra(1000.0)
+                .precioVenta(1500.0)
+                .stockActual(50)
+                .stockMinimo(10)
+                .categoria(categoria3)
+                .unidadMedida(UnidadMedida.GRAMOS)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.SOLO_INVENTARIO)
+                .build();
+
+        when(productoRepository.existeNombre("manjar", 1)).thenReturn(false);
+        when(productoRepository.actualizarProducto(productoModificado)).thenReturn(true);
+        when(auditoriaService.registrarEvento(any(AuditoriaEvento.class))).thenReturn(true);
+
+        boolean resultado = productoService.actualizarProducto(productoModificado);
+        assertTrue(resultado);
+        verify(productoRepository, times(1)).actualizarProducto(productoModificado);
+        verify(auditoriaService, times(1)).registrarEvento(any(AuditoriaEvento.class));
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-18: Actualizar producto nulo")
+    public void testActualizarProductoNulo() throws Exception{
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.actualizarProducto(null);
+        });
+
+        assertEquals("El producto no puede ser nulo", exception.getMessage());
+
+        verifyNoInteractions(productoRepository);
+        verifyNoInteractions(auditoriaService);
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-19: Actualizar producto con nombre vacío o puros espacios")
+    public void testActualizarProductoNombreVacio() throws Exception{
+        Producto productoVacio = Producto.builder()
+                .id(1)
+                .nombre("     ")
+                .precioCompra(1000.0)
+                .precioVenta(1500.0)
+                .stockActual(50)
+                .stockMinimo(10)
+                .categoria(categoria3)
+                .unidadMedida(UnidadMedida.GRAMOS)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.SOLO_INVENTARIO)
+                .build();
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.actualizarProducto(productoVacio);
+        });
+        assertEquals("El nombre del producto es obligatorio.", exception.getMessage());
+
+        verifyNoInteractions(productoRepository);
+        verifyNoInteractions(auditoriaService);
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-20: Actualizar producto con nombre que ya existe en otro producto")
+    public void testActualizarProductoConNombreExistente()throws Exception{
+        Producto productoNombreDuplicado = Producto.builder()
+                .id(1)
+                .nombre("manjar")
+                .precioCompra(1000.0)
+                .precioVenta(1500.0)
+                .stockActual(50)
+                .stockMinimo(10)
+                .categoria(categoria3)
+                .unidadMedida(UnidadMedida.GRAMOS)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.SOLO_INVENTARIO)
+                .build();
+
+        when(productoRepository.existeNombre("manjar", 1)).thenReturn(true);
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.actualizarProducto(productoNombreDuplicado);
+        });
+
+        assertEquals("Ya existe un producto con el nombre '" + productoNombreDuplicado.getNombre() + "'.", exception.getMessage());
+
+
+        verifyNoInteractions(auditoriaService);
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-21: Actualizar producto con precio de compra inválido retorna false")
+    public void testActualizarProductoPrecioCompraInvalido() throws Exception {
+        Producto productoMalo = Producto.builder().id(1).nombre("Galletas").precioCompra(0.0).build();
+
+        when(productoRepository.existeNombre("Galletas", 1)).thenReturn(false);
+
+
+        boolean resultado = productoService.actualizarProducto(productoMalo);
+
+        assertFalse(resultado);
+        verify(productoRepository, never()).actualizarProducto(any(Producto.class));
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-22: Actualizar producto falla en persistencia (BD)")
+    public void testActualizarProductoFalloPersistencia() throws Exception {
+        Producto productoValido = Producto.builder().id(1).nombre("Jugo").precioCompra(500.0).unidadMedida(UnidadMedida.UNIDAD).build();
+
+        when(productoRepository.existeNombre("Jugo", 1)).thenReturn(false);
+        when(productoRepository.actualizarProducto(productoValido)).thenReturn(false); // Simulamos error de BD
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.actualizarProducto(productoValido);
+        });
+
+        assertEquals("Error al actualizar el producto. Verifique que el producto exista y que los datos sean correctos.", exception.getMessage());
+        verifyNoInteractions(auditoriaService);
+        System.out.println("Test exitoso");
+    }
+
+
+    /*----------------------------------------------------------------------------
+    * ----------------------------------------------------------------------------*/
+
+    //ELIMINAR PRODUCTO
+
+    @Test
+    @DisplayName("TC-23: Eliminar producto con ID inválido")
+    public void testEliminarProductoIdInvalido() {
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.eliminarProducto(-1);
+        });
+
+        assertEquals("ID de producto no válido.", exception.getMessage());
+        verifyNoInteractions(productoRepository);
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-24: Eliminar producto que no existe")
+    public void testEliminarProductoInexistente() throws Exception {
+        when(productoRepository.obtenerProductoPorId(99)).thenReturn(null);
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.eliminarProducto(99);
+        });
+
+        assertEquals("El producto no existe", exception.getMessage());
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-25: Eliminar producto asociado a venta o platillo (Borrado Lógico)")
+    public void testEliminarProductoConAsociaciones() throws Exception {
+        Producto p = Producto.builder().id(1).nombre("Pan").build();
+
+        when(productoRepository.obtenerProductoPorId(1)).thenReturn(p);
+        when(productoRepository.estaAsociadoVentaOPlatillo(1)).thenReturn(true);
+        when(productoRepository.desactivarProducto(1)).thenReturn(true);
+
+        String resultado = productoService.eliminarProducto(1);
+
+        assertEquals("Este producto esta asociado a venta o platillo y fue desactivado", resultado);
+        verify(productoRepository, never()).eliminarProducto(anyInt());
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-26: Eliminar producto permanentemente (Exitoso)")
+    public void testEliminarProductoExitoso() throws Exception {
+        Producto productoEliminar = Producto.builder().id(2).nombre("Leche").build();
+
+        when(productoRepository.obtenerProductoPorId(2)).thenReturn(productoEliminar);
+        when(productoRepository.estaAsociadoVentaOPlatillo(2)).thenReturn(false);
+        when(productoRepository.eliminarProducto(2)).thenReturn(true);
+        when(auditoriaService.registrarEvento(any(AuditoriaEvento.class))).thenReturn(true);
+
+        String resultado = productoService.eliminarProducto(2);
+
+        assertEquals("ELIMINADO", resultado);
+        verify(productoRepository, times(1)).eliminarProducto(2);
+        verify(auditoriaService, times(1)).registrarEvento(any(AuditoriaEvento.class));
+        System.out.println("Test exitoso");
+    }
+
+
+    /*--------------------------------------------------------------------------------------
+    * --------------------------------------------------------------------------------------*/
+
+
+    //REGISTRAR CATEGORIA
+
+    @Test
+    @DisplayName("TC-27: Registrar categoría exitoso")
+    public void testRegistrarCategoriaExitoso() throws Exception {
+        Categoria nuevaCategoria = Categoria.builder()
+                .nombreCategoria("Lácteos")
+                .descripcion("Productos derivados de la leche")
+                .activa(true)
+                .build();
+
+        when(categoriaRepository.existeCategoria("Lácteos")).thenReturn(false);
+        when(categoriaRepository.registrarCategoria(nuevaCategoria)).thenReturn(true);
+        when(auditoriaService.registrarEvento(any(AuditoriaEvento.class))).thenReturn(true);
+
+        assertDoesNotThrow(() -> productoService.registrarCategoria(nuevaCategoria));
+
+        verify(categoriaRepository, times(1)).registrarCategoria(nuevaCategoria);
+        verify(auditoriaService, times(1)).registrarEvento(any(AuditoriaEvento.class));
         System.out.println("Test exitoso");
     }
 

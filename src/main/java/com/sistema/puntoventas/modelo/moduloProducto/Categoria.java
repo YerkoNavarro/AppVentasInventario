@@ -1,5 +1,9 @@
 package com.sistema.puntoventas.modelo.moduloProducto;
 
+
+import lombok.Builder;
+
+@Builder
 public class Categoria {
     private int id;
     private String nombreCategoria;
