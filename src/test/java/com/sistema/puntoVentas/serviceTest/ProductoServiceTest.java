@@ -5,7 +5,9 @@ import com.sistema.puntoventas.modelo.moduloProducto.Categoria;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.modelo.moduloProducto.TipoProducto;
 import com.sistema.puntoventas.modelo.moduloProducto.UnidadMedida;
+import com.sistema.puntoventas.repository.moduloProductos.ICategoriaRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
+import com.sistema.puntoventas.repository.moduloProductos.IstockRepository;
 import com.sistema.puntoventas.service.AuditoriaService;
 import com.sistema.puntoventas.service.ProductoService;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,12 @@ public class ProductoServiceTest {
 
     @Mock
     private AuditoriaService auditoriaService;
+
+    @Mock
+    private ICategoriaRepository categoriaRepository;
+
+    @Mock
+    private IstockRepository stockRepository;
 
     @InjectMocks
     private ProductoService productoService;
@@ -89,8 +97,6 @@ public class ProductoServiceTest {
 
 
     }
-
-
 
 
 
@@ -433,5 +439,56 @@ public class ProductoServiceTest {
 
     /*----------------------------------------------------------------------------------
     * ---------------------------------------------------------------------------------*/
+
+
+    @Test
+    @DisplayName("TC-13: Buscar por tipo de producto exitoso")
+    public void testBuscarPorTipoProductoExitoso() throws Exception {
+        List<Producto> listaSimulada = new ArrayList<>();
+        listaSimulada.add(new Producto()); // Agregamos un producto ficticio
+
+        when(productoRepository.buscarPorTipoProducto(TipoProducto.DIRECTO)).thenReturn(listaSimulada);
+
+        List<Producto> resultado = productoService.buscarPorTipoProducto(TipoProducto.DIRECTO);
+
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        verify(productoRepository, times(1)).buscarPorTipoProducto(TipoProducto.DIRECTO);
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-14: Buscar por tipo de producto nulo")
+    public void testBuscarPorTipoProductoNulo() {
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.buscarPorTipoProducto(null);
+        });
+
+        assertEquals("Debe seleccionar un tipo de producto.", exception.getMessage());
+        verifyNoInteractions(productoRepository);
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-15: Obtener stock crítico exitoso (ordena correctamente)")
+    public void testObtenerStockCriticoExitoso() {
+        Producto p1 = Producto.builder().nombre("Producto A").stockActual(5).build();
+        Producto p2 = Producto.builder().nombre("Producto B").stockActual(2).build();
+
+        List<Producto> listaStockCritico = new ArrayList<>();
+        listaStockCritico.add(p1);
+        listaStockCritico.add(p2);
+
+        when(stockRepository.obtenerStockCritico()).thenReturn(listaStockCritico);
+
+        List<Producto> resultado = productoService.obtenerStockCritico();
+
+        // Verificamos que devuelva la lista ordenada (el de stock 2 debe estar primero)
+        assertEquals(2, resultado.size());
+        assertEquals("Producto B", resultado.get(0).getNombre());
+        verify(stockRepository, times(1)).obtenerStockCritico();
+        System.out.println("Test exitoso");
+    }
 
 }

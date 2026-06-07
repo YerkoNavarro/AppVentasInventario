@@ -230,6 +230,7 @@ public class ProductoService {
         return productoRepository.existeNombre(nombre, id);
     }
 
+
     public List<Producto>obtenerStockCritico(){
         List<Producto> stockCritico = stockRepository.obtenerStockCritico();
 
