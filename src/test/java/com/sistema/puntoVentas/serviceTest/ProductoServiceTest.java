@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -90,32 +91,7 @@ public class ProductoServiceTest {
     }
 
 
-    @Test
-    @DisplayName("TC-11:Debería registrar producto SOLO_INVENTARIO forzando precio de venta a 0.0")
-    public void registrarProducto_SoloInventario_ForzarPrecioVentaCero() throws Exception {
-        Producto productoInventario = Producto.builder()
-                .nombre("Insumo de prueba")
-                .precioCompra(5000.0)
-                .precioVenta(9999.0)
-                .stockActual(10)
-                .stockMinimo(2)
-                .categoria(categoria2)
-                .unidadMedida(UnidadMedida.GRAMOS)
-                .cantidad(1.0)
-                .activo(true)
-                .tipoProducto(TipoProducto.SOLO_INVENTARIO) // Condición clave
-                .build();
 
-        when(productoRepository.obtenerProductoPorNombre(anyString())).thenReturn(new ArrayList<>());
-        when(productoRepository.registrarProducto(productoInventario)).thenReturn(true);
-
-        assertDoesNotThrow(() -> productoService.registrarProducto(productoInventario));
-
-        // Verificamos que el Service realmente modificó el precio de venta a 0.0
-        assertEquals(0.0, productoInventario.getPrecioVenta());
-        System.out.println("Precio de venta forzado a: " + productoInventario.getPrecioVenta());
-        System.out.println("Test exitoso");
-    }
 
 
     //Esperamos a que el guardado falle y lanze una excepción por el margen de ganancia insuficiente,
@@ -151,7 +127,6 @@ public class ProductoServiceTest {
 
         System.out.println("Test exitoso");
     }
-
 
 
     @Test
@@ -236,5 +211,227 @@ public class ProductoServiceTest {
 
         System.out.println("Test exitoso");
     }
+
+    @Test
+    @DisplayName("TC-06: Registrar producto con cantidad 0 para unidad de medida")
+    public void testRegistrarProductoUnidadMedidaCero() throws Exception{
+        Producto producto6 = Producto.builder()
+                .nombre("harina")
+                .precioCompra(500.0)
+                .precioVenta(700.0)
+                .stockActual(50)
+                .stockMinimo(10)
+                .categoria(categoria)
+                .unidadMedida(UnidadMedida.GRAMOS)
+                .cantidad(0.0) // Cantidad inválida para unidad de medida
+                .activo(true)
+                .tipoProducto(TipoProducto.DIRECTO)
+                .build();
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(producto6);
+        });
+
+        assertEquals("La cantidad debe ser mayor a cero para unidades de medida en gramos o mililitros.", exception.getMessage());
+
+        verifyNoInteractions(productoRepository);
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-07: Registrar producto con stock actual negativo")
+    public void testRegistrarProductoStockActualInvalido() throws Exception{
+        Producto producto7 = Producto.builder()
+                .nombre("azucar")
+                .precioCompra(300.0)
+                .precioVenta(500.0)
+                .stockActual(-5) // Stock actual inválido
+                .stockMinimo(10)
+                .categoria(categoria)
+                .unidadMedida(UnidadMedida.GRAMOS)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.DIRECTO)
+                .build();
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(producto7);
+        });
+
+        assertEquals("El stock actual debe ser mayor a cero", exception.getMessage());
+
+        verifyNoInteractions(productoRepository);
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
+
+
+    }
+
+
+    @Test
+    @DisplayName("TC-08: Registrar producto con stock mínimo negativo")
+    public void testRegistrarProductoStockMinimoInvalido() throws Exception{
+        Producto producto8 = Producto.builder()
+                .nombre("sal")
+                .precioCompra(200.0)
+                .precioVenta(400.0)
+                .stockActual(50)
+                .stockMinimo(-3) // Stock mínimo inválido
+                .categoria(categoria)
+                .unidadMedida(UnidadMedida.GRAMOS)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.DIRECTO)
+                .build();
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(producto8);
+        });
+
+        assertEquals("El stock mínimo debe ser mayor a cero", exception.getMessage());
+
+        verifyNoInteractions(productoRepository);
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-09: Registrar producto sin categoría asignada")
+    public void testRegistrarProductoSinCategoria() throws Exception{
+        Producto producto8 = Producto.builder()
+                .nombre("sal")
+                .precioCompra(200.0)
+                .precioVenta(400.0)
+                .stockActual(50)
+                .stockMinimo(3)
+                .categoria(null) // Sin categoría
+                .unidadMedida(UnidadMedida.GRAMOS)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.DIRECTO)
+                .build();
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(producto8);
+        });
+
+        assertEquals("El producto debe tener una categoría asignada", exception.getMessage());
+
+        verifyNoInteractions(productoRepository);
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-10: Registrar producto con nombre duplicado")
+    public void testRegistrarProductoConNombreDuplicado() throws Exception{
+        Producto producto10 = Producto.builder()
+                .nombre("coca-cola")
+                .precioCompra(1000.0)
+                .precioVenta(1500.0)
+                .stockActual(50)
+                .stockMinimo(10)
+                .categoria(categoria)
+                .unidadMedida(UnidadMedida.UNIDAD)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.DIRECTO)
+                .build();
+
+        List<Producto> listaDuplicados = new ArrayList<>();
+        listaDuplicados.add(producto10);
+
+        when(productoRepository.obtenerProductoPorNombre("coca-cola")).thenReturn(listaDuplicados); // Simulamos que ya existe un producto con ese nombre
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(producto10);
+        });
+
+        assertEquals("Ya existe un registro con el nombre '" + producto10.getNombre() , exception.getMessage());
+
+        verify(productoRepository, times(1)).obtenerProductoPorNombre("coca-cola");
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-11:Debería registrar producto SOLO_INVENTARIO forzando precio de venta a 0.0")
+    public void registrarProducto_SoloInventario_ForzarPrecioVentaCero() throws Exception {
+        Producto productoInventario = Producto.builder()
+                .nombre("Insumo de prueba")
+                .precioCompra(5000.0)
+                .precioVenta(9999.0)
+                .stockActual(10)
+                .stockMinimo(2)
+                .categoria(categoria2)
+                .unidadMedida(UnidadMedida.GRAMOS)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.SOLO_INVENTARIO) // Condición clave
+                .build();
+
+        when(productoRepository.obtenerProductoPorNombre(anyString())).thenReturn(new ArrayList<>());
+        when(productoRepository.registrarProducto(productoInventario)).thenReturn(true);
+
+        assertDoesNotThrow(() -> productoService.registrarProducto(productoInventario));
+
+        // Verificamos que el Service realmente modificó el precio de venta a 0.0
+        assertEquals(0.0, productoInventario.getPrecioVenta());
+        System.out.println("Precio de venta forzado a: " + productoInventario.getPrecioVenta());
+        System.out.println("Test exitoso");
+    }
+
+
+    @Test
+    @DisplayName("TC-12: Error interno cuando el repositorio falla al guardar en SQLite")
+    public void testRegistrarProductoErrorAlmacenamiento() throws Exception {
+
+        Producto productoPerfecto = Producto.builder()
+                .nombre("Agua Mineral")
+                .precioCompra(1000.0)
+                .precioVenta(1500.0)
+                .stockActual(50)
+                .stockMinimo(10)
+                .categoria(categoria)
+                .unidadMedida(UnidadMedida.UNIDAD)
+                .cantidad(1.0)
+                .activo(true)
+                .tipoProducto(TipoProducto.DIRECTO)
+                .build();
+
+
+        when(productoRepository.obtenerProductoPorNombre("Agua Mineral")).thenReturn(new ArrayList<>());
+
+        // Simulamos que el repositorio falla al intentar guardar el producto, devolviendo 'false'
+        when(productoRepository.registrarProducto(productoPerfecto)).thenReturn(false);
+
+
+
+        Exception excepcion = assertThrows(Exception.class, () -> {
+            productoService.registrarProducto(productoPerfecto);
+        });
+
+
+        assertEquals("Error interno: No se pudo guardar el producto en la base de datos.", excepcion.getMessage());
+
+
+        verify(productoRepository, times(1)).registrarProducto(productoPerfecto);
+
+
+        verifyNoInteractions(auditoriaService);
+
+        System.out.println("Test exitoso");
+    }
+
+    /*----------------------------------------------------------------------------------
+    * ---------------------------------------------------------------------------------*/
 
 }

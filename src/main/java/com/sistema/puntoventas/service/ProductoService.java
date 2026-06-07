@@ -68,7 +68,7 @@ public class ProductoService {
         if (!nombreproducto.isEmpty()) {
             for (Producto p : nombreproducto) {
                 if (p.getNombre().equalsIgnoreCase(producto.getNombre().trim())) {
-                    throw new Exception("Validación fallida: Ya existe un registro con el nombre '" + producto.getNombre() + "'.");
+                    throw new Exception("Ya existe un registro con el nombre '" + producto.getNombre());
                 }
             }
         }
