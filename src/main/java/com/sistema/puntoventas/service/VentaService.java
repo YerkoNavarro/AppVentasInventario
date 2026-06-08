@@ -25,10 +25,26 @@ import java.util.Set;
 
 public class VentaService {
     
-    DetalleVentaImpl detalleVentaImpl = new DetalleVentaImpl();
-    VentaRepositoryimpl ventaRepositoryimpl = new VentaRepositoryimpl();
-    ProductoService productoService = new ProductoService();
-    MovimientoRepositoryImpl movimientoRepo = new MovimientoRepositoryImpl();
+    DetalleVentaImpl detalleVentaImpl;
+    VentaRepositoryimpl ventaRepositoryimpl;
+    ProductoService productoService;
+    MovimientoRepositoryImpl movimientoRepo;
+
+    // Constructor para inyeccion de dependencias (usado en tests unitarios)
+    public VentaService(DetalleVentaImpl detalleVentaImpl, VentaRepositoryimpl ventaRepositoryimpl,
+                        ProductoService productoService, MovimientoRepositoryImpl movimientoRepo) {
+        this.detalleVentaImpl = detalleVentaImpl;
+        this.ventaRepositoryimpl = ventaRepositoryimpl;
+        this.productoService = productoService;
+        this.movimientoRepo = movimientoRepo;
+    }
+
+    public VentaService() {
+        this.detalleVentaImpl = new DetalleVentaImpl();
+        this.ventaRepositoryimpl = new VentaRepositoryimpl();
+        this.productoService = new ProductoService();
+        this.movimientoRepo = new MovimientoRepositoryImpl();
+    }
 
     
 
@@ -275,5 +291,8 @@ public class VentaService {
         }
         System.out.println("[STOCK] Proceso de descuento finalizado.");
     }
+
+
+    
 
 }
