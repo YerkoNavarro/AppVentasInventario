@@ -36,35 +36,30 @@
                                 </Button>
                                 <Button fx:id="btnUsuarios" maxWidth="Infinity" styleClass="menu-button" text="Usuarios">
                                     <graphic>
-                                        <Label style="-fx-background-color: #6366f1;" styleClass="icon-circle" text="U" />
+                                        <Label style="-fx-background-color: #3b82f6;" styleClass="icon-circle" text="U" />
                                     </graphic>
                                 </Button>
-                                <Button fx:id="btnProductos" maxWidth="Infinity" styleClass="menu-button, menu-button-active" text="Productos">
+                                <Button fx:id="btnProductos" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Productos">
                                     <graphic>
-                                        <Label style="-fx-background-color: #0ea5e9;" styleClass="icon-circle" text="P" />
+                                        <Label style="-fx-background-color: #10b981;" styleClass="icon-circle" text="P" />
                                     </graphic>
                                 </Button>
-                                <Button fx:id="btnVentas" maxWidth="Infinity" styleClass="menu-button" text="Ventas">
+                                <Button fx:id="btnCategorias" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Categorías">
                                     <graphic>
-                                        <Label style="-fx-background-color: #22c55e;" styleClass="icon-circle" text="V" />
+                                        <Label style="-fx-background-color: #f59e0b;" styleClass="icon-circle" text="C" />
                                     </graphic>
                                 </Button>
-                                <Button fx:id="btnInventario" maxWidth="Infinity" prefWidth="219.0" styleClass="menu-button" text="Inventario">
+                                <Button fx:id="btnVentas" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Ventas">
                                     <graphic>
-                                        <Label style="-fx-background-color: #f59e0b;" styleClass="icon-circle" text="I" />
+                                        <Label style="-fx-background-color: #ef4444;" styleClass="icon-circle" text="V" />
                                     </graphic>
                                 </Button>
-                                <Button fx:id="btnCategorias" maxWidth="Infinity" styleClass="menu-button" text="Categorias">
+                                <Button fx:id="btnInventario" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Inventario/Stock">
                                     <graphic>
-                                        <Label style="-fx-background-color: #10b981;" styleClass="icon-circle" text="C" />
+                                        <Label style="-fx-background-color: #6366f1;" styleClass="icon-circle" text="I" />
                                     </graphic>
                                 </Button>
-                                <Button fx:id="btnPlatillos" layoutX="10.0" layoutY="171.0" maxWidth="Infinity" prefWidth="219.0" styleClass="menu-button" text="Platillos">
-                                    <graphic>
-                                        <Label style="-fx-background-color: #C11C84;" styleClass="icon-circle" text="I" />
-                                    </graphic>
-                                </Button>
-                                <Button fx:id="btnEstadisticas" maxWidth="Infinity" styleClass="menu-button" text="Estadísticas">
+                                <Button fx:id="btnEstadisticas" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Estadísticas">
                                     <graphic>
                                         <Label style="-fx-background-color: #8b5cf6;" styleClass="icon-circle" text="E" />
                                     </graphic>
@@ -73,6 +68,12 @@
                         </VBox>
 
                         <Region VBox.vgrow="ALWAYS" />
+
+                        <Button fx:id="btnCerrarSesion" maxWidth="Infinity" styleClass="menu-button" text="Cerrar Sesión">
+                            <graphic>
+                                <Label style="-fx-background-color: #dc2626;" styleClass="icon-circle" text="↩" />
+                            </graphic>
+                        </Button>
 
                         <Button maxWidth="Infinity" styleClass="menu-button" text="Configuración">
                             <graphic>
