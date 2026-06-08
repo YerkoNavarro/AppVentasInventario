@@ -129,7 +129,7 @@ public class PanelPrincipalVistaController {
                 Stage stageActual = (Stage) contentArea.getScene().getWindow();
 
                 // Desactivar el maximizado para que vuelva a sus dimensiones de diseño nativas
-                stageActual.setMaximized(false);
+                stageActual.setMaximized(true);
 
                 // Creamos la nueva escena con el login y la asignamos
                 Scene loginScene = new Scene(root);
