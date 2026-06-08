@@ -1,5 +1,6 @@
 package com.sistema.puntoventas.service;
 
+import com.sistema.puntoventas.controller.LoginController;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
@@ -206,6 +207,7 @@ public class VentaService {
         v.setFechaHora(fecha);
         v.setTipoPago(pago);
         v.setDescripcion(desc);
+        v.setIdUsuario(LoginController.usuarioLogueado.getId());
 
         ventaAplicacion nuevaVentaApp = new ventaAplicacion();
         nuevaVentaApp.setVenta(v);

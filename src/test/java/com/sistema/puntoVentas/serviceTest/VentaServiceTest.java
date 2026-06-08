@@ -1,5 +1,7 @@
 package com.sistema.puntoVentas.serviceTest;
 
+import com.sistema.puntoventas.controller.LoginController;
+import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.modelo.moduloProducto.DetallePlatillo;
@@ -196,6 +198,10 @@ class VentaServiceTest {
             // ventaAplicacion con todos los campos correctamente asignados
             List<Producto> productos = new ArrayList<>();
             List<Platillo> platillos = new ArrayList<>();
+
+            Usuario usuario = new Usuario();
+            usuario.setId(1);
+            LoginController.usuarioLogueado = usuario;
 
             ventaAplicacion result = service.procesarNuevaVentaApp(
                     "1500", "2026-06-05", "EFECTIVO", "Venta normal", productos, platillos);
