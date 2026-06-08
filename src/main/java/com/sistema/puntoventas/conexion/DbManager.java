@@ -132,6 +132,23 @@ public class DbManager {
         }
     }
 
+    public void crearTablaSesion() {
+        String sql = "CREATE TABLE IF NOT EXISTS sesion ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " idUsuario INTEGER NOT NULL,"
+                + " tokenHash TEXT NOT NULL UNIQUE,"
+                + " fechaCreacion TEXT NOT NULL,"
+                + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
+                + ");";
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'sesion' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla sesion: " + e.getMessage());
+        }
+    }
+
     public void crearTodasLasTablas() {
         crearTablaUsuario();
         crearTablaCategoria();
@@ -143,6 +160,7 @@ public class DbManager {
         crearTablaAuditoria();
         crearTablaPlatillo();
         crearTablaDetallePlatillo();
+        crearTablaSesion();
         System.out.println("Inicialización de todas las tablas completada.");
     }
 
