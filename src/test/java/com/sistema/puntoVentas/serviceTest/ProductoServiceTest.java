@@ -739,4 +739,130 @@ public class ProductoServiceTest {
         System.out.println("Test exitoso");
     }
 
+    @Test
+    @DisplayName("TC-28: Registrar categoría nula")
+    public void testRegistrarCategoriaNula() {
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.registrarCategoria(null);
+        });
+
+        assertEquals("La categoría no puede ser nula.", exception.getMessage());
+        verifyNoInteractions(categoriaRepository);
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-29: Registrar categoría con nombre vacío")
+    public void testRegistrarCategoriaNombreVacio() {
+        Categoria catMala = new Categoria();
+        catMala.setNombreCategoria("");
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.registrarCategoria(catMala);
+        });
+
+        assertEquals("El nombre de la categoría es obligatorio.", exception.getMessage());
+        verifyNoInteractions(categoriaRepository);
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-30: Registrar categoría duplicada")
+    public void testRegistrarCategoriaDuplicada() throws Exception {
+        when(categoriaRepository.existeCategoria(anyString())).thenReturn(true);
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.registrarCategoria(categoria);
+        });
+
+        assertEquals("La categoría ya existe.", exception.getMessage());
+        verify(categoriaRepository, never()).registrarCategoria(any(Categoria.class));
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-31: Actualizar categoría exitoso")
+    public void testActualizarCategoriaExitosa() throws Exception {
+        when(categoriaRepository.actualizarCategoria(categoria)).thenReturn(true);
+        when(auditoriaService.registrarEvento(any(AuditoriaEvento.class))).thenReturn(true);
+
+        boolean resultado = productoService.actualizarCategoria(categoria);
+
+        assertTrue(resultado);
+        verify(categoriaRepository, times(1)).actualizarCategoria(categoria);
+        verify(auditoriaService, times(1)).registrarEvento(any(AuditoriaEvento.class));
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-32: Actualizar categoría inválida (ID cero)")
+    public void testActualizarCategoriaIdInvalido() {
+        Categoria catMala = new Categoria();
+        catMala.setId(0); // ID inválido
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.actualizarCategoria(catMala);
+        });
+
+        assertEquals("Categoria no valida.", exception.getMessage());
+        verifyNoInteractions(categoriaRepository);
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-33: Actualizar categoría con nombre vacío")
+    public void testActualizarCategoriaNombreVacio() {
+        Categoria catMala = new Categoria();
+        catMala.setId(1);
+        catMala.setNombreCategoria("   ");
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.actualizarCategoria(catMala);
+        });
+
+        assertEquals("El nombre de la categoria es obligatorio.", exception.getMessage());
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-34: Eliminar categoría con ID inválido")
+    public void testEliminarCategoriaIdInvalido() {
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.eliminarCategoria(-5);
+        });
+
+        assertEquals("ID de categoría no válido.", exception.getMessage());
+        verifyNoInteractions(categoriaRepository);
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-35: Eliminar categoría en uso")
+    public void testEliminarCategoriaEnUso() throws Exception {
+        when(categoriaRepository.tieneProductosAsociados(1)).thenReturn(true);
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            productoService.eliminarCategoria(1);
+        });
+
+        assertEquals("No se puede eliminar la categoria", exception.getMessage());
+        verify(categoriaRepository, never()).eliminarCategoria(anyInt());
+        System.out.println("Test exitoso");
+    }
+
+    @Test
+    @DisplayName("TC-36: Eliminar categoría exitoso")
+    public void testEliminarCategoriaExitoso() throws Exception {
+        when(categoriaRepository.tieneProductosAsociados(1)).thenReturn(false);
+        when(categoriaRepository.eliminarCategoria(1)).thenReturn(true);
+        when(auditoriaService.registrarEvento(any(AuditoriaEvento.class))).thenReturn(true);
+
+        boolean resultado = productoService.eliminarCategoria(1);
+
+        assertTrue(resultado);
+        verify(categoriaRepository, times(1)).eliminarCategoria(1);
+        verify(auditoriaService, times(1)).registrarEvento(any(AuditoriaEvento.class));
+        System.out.println("Test exitoso");
+    }
+
+
 }

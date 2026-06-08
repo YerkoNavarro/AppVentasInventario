@@ -13,13 +13,12 @@ public class Categoria {
     public Categoria() {
     }
 
-    public Categoria(int id, boolean activa, String descripcion, String nombreCategoria) {
+    public Categoria(int id, String nombreCategoria, String descripcion, boolean activa) {
         this.id = id;
-        this.activa = activa;
-        this.descripcion = descripcion;
         this.nombreCategoria = nombreCategoria;
+        this.descripcion = descripcion;
+        this.activa = activa;
     }
-
 
     public int getId() {
         return id;
