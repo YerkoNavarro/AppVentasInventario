@@ -6,11 +6,15 @@ import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.repository.IUsuarioRepository;
 import com.sistema.puntoventas.repository.impl.UsuarioRepositoryImpl;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class UsuarioService {
     private IUsuarioRepository usuarioRepository;
     private AuditoriaService auditoriaService;
+
+    private static final DateTimeFormatter formateadorTiempoReal = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public UsuarioService(){
         this.usuarioRepository = new UsuarioRepositoryImpl();
@@ -49,6 +53,7 @@ public class UsuarioService {
         boolean registrado = usuarioRepository.registrarUsuario(usuario);
 
         if (registrado) {
+            String horaActual = LocalDateTime.now().format(formateadorTiempoReal);
             // Guardar auditoría
             AuditoriaEvento evento = new AuditoriaEvento();
             evento.setModulo("Usuarios");

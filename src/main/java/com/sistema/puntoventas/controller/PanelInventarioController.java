@@ -54,6 +54,8 @@ public class PanelInventarioController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // 1. Inicializar Repositorios y Servicios
         movimientoRepo = new MovimientoRepositoryImpl();
+        // Crear servicio con repositorio vacío (ajusta si es necesario)
+        inventarioService = new InventarioService(movimientoRepo, null);
 
         // 2. Configurar el ComboBox con los valores del Enum
         CmbComboBox.setItems(FXCollections.observableArrayList(TipoMovimiento.values()));
@@ -98,34 +100,42 @@ public class PanelInventarioController implements Initializable {
 
     private void registrarMovimientoAction(ActionEvent event) {
         try {
+            // VALIDACIÓN: Campos incompletos
             if (TxtProductoNombre.getText().isEmpty() || TxtCantidad.getText().isEmpty() || CmbComboBox.getValue() == null) {
                 mostrarAlerta("Error", "Campos incompletos", "Por favor llena el Producto, Cantidad y Tipo de Movimiento.", Alert.AlertType.WARNING);
                 return;
             }
 
+            // RECOLECTAR DATOS DE LA UI (controller "tonto")
             int idProducto = Integer.parseInt(TxtProductoNombre.getText());
             int cantidad = Integer.parseInt(TxtCantidad.getText());
             TipoMovimiento tipo = CmbComboBox.getValue();
             String motivo = TxtMotivo.getText() != null ? TxtMotivo.getText() : "Sin motivo";
             int idUsuarioAdmin = 1;
 
-            MovimientoInventario nuevoMovimiento = new MovimientoInventario(idProducto, tipo, cantidad, motivo, idUsuarioAdmin);
+            // LLAMAR AL SERVICIO - El servicio maneja TODO (creación, fecha, validación, BD)
+            MovimientoInventario movimientoCreado = inventarioService.registrarMovimientoInventario(
+                    idProducto, tipo, cantidad, motivo, idUsuarioAdmin);
 
-            boolean registrado = movimientoRepo.registrarMovimiento(nuevoMovimiento);
-
-            // Para la actualización de stock: si es entrada suma, si no (salida/merma) resta
-            int cambioStock = (tipo == TipoMovimiento.ENTRADA) ? cantidad : -cantidad;
-            boolean stockActualizado = movimientoRepo.actualizarStockFisico(idProducto, cambioStock);
-
-            if (registrado && stockActualizado) {
+            // VERIFICAR RESULTADO
+            if (movimientoCreado != null) {
                 mostrarAlerta("Éxito", "Movimiento Registrado", "El inventario se ha actualizado correctamente.", Alert.AlertType.INFORMATION);
 
+                // LIMPIAR FORMULARIO
                 TxtProductoNombre.clear();
                 TxtCantidad.clear();
                 TxtMotivo.clear();
                 CmbComboBox.getSelectionModel().clearSelection();
 
-                cargarHistorial();
+                // ACTUALIZAR TABLA: Añadir el movimiento creado (ya tiene la fecha del servidor)
+                ObservableList<MovimientoInventario> elementos = tablaMovimientos.getItems();
+                if (elementos == null) {
+                    elementos = FXCollections.observableArrayList();
+                    tablaMovimientos.setItems(elementos);
+                }
+                elementos.add(0, movimientoCreado); // Añadir al principio
+                tablaMovimientos.refresh();
+                tablaMovimientos.scrollTo(0); // Asegurar que sea visible
             } else {
                 mostrarAlerta("Error", "Error en Base de Datos", "No se pudo registrar el movimiento.", Alert.AlertType.ERROR);
             }
@@ -134,6 +144,7 @@ public class PanelInventarioController implements Initializable {
             mostrarAlerta("Error de formato", "Datos inválidos", "El Producto y la Cantidad deben ser números enteros.", Alert.AlertType.ERROR);
         } catch (Exception e) {
             mostrarAlerta("Error fatal", "Excepción", e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
         }
     }
 
