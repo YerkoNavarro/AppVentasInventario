@@ -48,8 +48,14 @@
 .icon-circle {
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-padding: 4 9;
-    -fx-background-radius: 999;
+    -fx-alignment: CENTER;
+    -fx-min-width: 30px;
+    -fx-max-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+    -fx-background-radius: 15;
+    -fx-padding: 0;
+    -fx-font-size: 13px;
 }
 
 

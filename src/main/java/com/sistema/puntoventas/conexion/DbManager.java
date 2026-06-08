@@ -54,7 +54,7 @@ public class DbManager {
                 + " fechaVenc TEXT,"
                 + " stockActual INTEGER,"
                 + " stockMinimo INTEGER,"
-                + " imagen TEXT DEFAULT 'IMG',"
+                + " activo BOOLEAN DEFAULT 1,"
                 + " unidadMedida TEXT, "
                 + " cantidad DOUBLE, "
                 + " tipoProducto TEXT,"
@@ -135,6 +135,7 @@ public class DbManager {
     public void crearTodasLasTablas() {
         crearTablaUsuario();
         crearTablaCategoria();
+        insertarCategoriaPorDefecto();
         creartablaVentas();
         crearTablaDetalleVenta();
         crearTablaProductos();
@@ -201,6 +202,22 @@ public class DbManager {
         }
     }
 
+    //insertar categoria "otros" por defecto en tabla categoria , para cuando se inicia el programa por primera vez y no hay datos
+    public void insertarCategoriaPorDefecto() {
+        String sql = "INSERT OR IGNORE INTO categoria (nombreCategoria, descripcion, activa) VALUES (?, ?, ?)";
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "Otros");
+            pstmt.setString(2, "Categoría por defecto para productos sin clasificación específica");
+            pstmt.setBoolean(3, true);
+            pstmt.executeUpdate();
+            System.out.println("Categoría por defecto 'Otros' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear categoría por defecto: " + e.getMessage());
+        }
+    }
+
+
     public void crearTablaPlatillo(){
         String sql = "CREATE TABLE IF NOT EXISTS platillo ("
             + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -262,4 +279,5 @@ public class DbManager {
             System.err.println("Error al crear tabla auditoria_eventos: " + e.getMessage());
         }
     }
+
 }

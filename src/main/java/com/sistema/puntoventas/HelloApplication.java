@@ -21,7 +21,6 @@ public class HelloApplication extends Application {
         stage.setWidth(1920);
         stage.setHeight(1080);
         stage.setScene(scene);
-        stage.setResizable(true);
         stage.setMaximized(true);
 
         // Listener para controlar la posición cuando se restaura la ventana
@@ -50,6 +49,8 @@ public class HelloApplication extends Application {
         dbManager.crearTodasLasTablas();
         dbManager.crearUsuarioAdmin();
         dbManager.crearUsuarioVendedor();
+
+        
 
 
 
