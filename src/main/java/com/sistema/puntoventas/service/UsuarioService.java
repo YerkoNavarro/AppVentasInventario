@@ -9,6 +9,7 @@ import com.sistema.puntoventas.repository.impl.UsuarioRepositoryImpl;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import com.sistema.puntoventas.util.Encriptador;
 
 public class UsuarioService {
     private IUsuarioRepository usuarioRepository;
@@ -19,6 +20,10 @@ public class UsuarioService {
     public UsuarioService(){
         this.usuarioRepository = new UsuarioRepositoryImpl();
         this.auditoriaService = new AuditoriaService();
+    }
+    public UsuarioService(IUsuarioRepository usuarioRepository, AuditoriaService auditoriaService) {
+        this.usuarioRepository = usuarioRepository;
+        this.auditoriaService = auditoriaService;
     }
 
     // ==============================================================================
@@ -48,6 +53,11 @@ public class UsuarioService {
         if (errorValidacion != null) {
             return errorValidacion;
         }
+
+        // Hashear la contraseña antes de persistir (controller/tests esperan hash)
+        String contraseñaPlana = usuario.getContraseña();
+        String hash = Encriptador.hashPassword(contraseñaPlana);
+        usuario.setContraseña(hash);
 
         // Guardar en la base de datos
         boolean registrado = usuarioRepository.registrarUsuario(usuario);
@@ -102,8 +112,9 @@ public class UsuarioService {
             return null;
         }
 
-        // 1. Buscamos si el usuario existe en la base de datos con esas credenciales
-        Usuario usuario = usuarioRepository.iniciarSesion(rut, contraseña);
+        // 1. Hasheamos la contraseña y buscamos si el usuario existe en la base de datos con esas credenciales
+        String hash = Encriptador.hashPassword(contraseña);
+        Usuario usuario = usuarioRepository.iniciarSesion(rut, hash);
 
         // 2. Si las credenciales coinciden, validamos su Rol en base a su RUT real
         if (usuario != null) {
