@@ -252,7 +252,7 @@ public class PanelPrincipalProductosController {
                 items.setAll(productos);
             }
 
-            MensajesAlerta.mostrarMensaje("ÉXITO","Productos cargados correctamente: " + productos.size(), Alert.AlertType.INFORMATION);
+            //MensajesAlerta.mostrarMensaje("ÉXITO","Productos cargados correctamente: " + productos.size(), Alert.AlertType.INFORMATION);
         }catch (Exception e){
             MensajesAlerta.mostrarMensaje("ERROR","Error al obtener productos: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
