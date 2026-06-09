@@ -84,7 +84,7 @@ public class SesionService {
                     sesionRepository.eliminarToken(tokenHash);
                 }
                 Files.deleteIfExists(path);
-                System.out.println("Sesión persistente eliminada.");
+                
             }
         } catch (Exception e) {
             System.err.println("Error al cerrar sesión persistente: " + e.getMessage());
