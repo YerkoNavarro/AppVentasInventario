@@ -1,4 +1,10 @@
-# Eluney — Sistema Punto de Ventas e Inventario
+<div align="center">
+  <img src="Screenshoot.png" alt="Imagen del proyecto" width="70%">
+
+  # Eluney — Sistema Punto de Ventas e Inventario
+</div>
+
+
 
 Aplicacion de escritorio para gestion de ventas, control de inventario y prediccion de demanda con IA.
 
