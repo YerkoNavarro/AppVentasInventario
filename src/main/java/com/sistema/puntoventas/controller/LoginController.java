@@ -83,7 +83,7 @@ public class LoginController {
                 // ==============================================================================
                 stageActual.setResizable(true);
                 stageActual.setScene(scene);
-                stageActual.centerOnScreen(); // Centra la nueva ventana en la pantalla
+                stageActual.setMaximized(true);
 
                 stageActual.show();
 
