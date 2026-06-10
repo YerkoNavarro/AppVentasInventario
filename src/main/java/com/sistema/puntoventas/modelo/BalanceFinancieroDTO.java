@@ -24,12 +24,12 @@ public class BalanceFinancieroDTO {
         this.periodo = periodo;
     }
 
-    public double getIngresosTotales() {
-        return ingresosTotales;
+    public double getUtilidadNeta() {
+        return utilidadNeta;
     }
 
-    public void setIngresosTotales(double ingresosTotales) {
-        this.ingresosTotales = ingresosTotales;
+    public void setUtilidadNeta(double utilidadNeta) {
+        this.utilidadNeta = utilidadNeta;
     }
 
     public double getPerdidasTotales() {
@@ -40,11 +40,11 @@ public class BalanceFinancieroDTO {
         this.perdidasTotales = perdidasTotales;
     }
 
-    public double getUtilidadNeta() {
-        return utilidadNeta;
+    public double getIngresosTotales() {
+        return ingresosTotales;
     }
 
-    public void setUtilidadNeta(double utilidadNeta) {
-        this.utilidadNeta = utilidadNeta;
+    public void setIngresosTotales(double ingresosTotales) {
+        this.ingresosTotales = ingresosTotales;
     }
 }
