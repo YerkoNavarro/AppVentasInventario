@@ -1,10 +1,11 @@
 package com.sistema.puntoventas.service;
 
 import com.sistema.puntoventas.modelo.AuditoriaEvento;
-import com.sistema.puntoventas.modelo.Role; // Importamos el Enum de Roles
+import com.sistema.puntoventas.modelo.Role;
 import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.repository.IUsuarioRepository;
 import com.sistema.puntoventas.repository.impl.UsuarioRepositoryImpl;
+import com.sistema.puntoventas.util.Encriptador;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -49,6 +50,9 @@ public class UsuarioService {
             return errorValidacion;
         }
 
+        // Hashear contraseña antes de guardar
+        usuario.setContraseña(Encriptador.hashPassword(usuario.getContraseña()));
+
         // Guardar en la base de datos
         boolean registrado = usuarioRepository.registrarUsuario(usuario);
 
@@ -72,6 +76,9 @@ public class UsuarioService {
         if (usuario == null || usuario.getRut() == null || usuario.getRut().isEmpty()) {
             return "El RUT es obligatorio para actualizar";
         }
+
+        // Hashear contraseña antes de actualizar
+        usuario.setContraseña(Encriptador.hashPassword(usuario.getContraseña()));
 
         boolean actualizado = usuarioRepository.actualizarUsuario(usuario);
 
@@ -102,30 +109,29 @@ public class UsuarioService {
             return null;
         }
 
-        // 1. Buscamos si el usuario existe en la base de datos con esas credenciales
-        Usuario usuario = usuarioRepository.iniciarSesion(rut, contraseña);
+        // 1. Buscar usuario por RUT
+        Usuario usuario = usuarioRepository.obtenerUsuarioPorRut(rut);
 
-        // 2. Si las credenciales coinciden, validamos su Rol en base a su RUT real
-        if (usuario != null) {
+        // 2. Verificar que existe y que la contraseña hasheada coincide
+        if (usuario == null || !usuario.getContraseña().equals(Encriptador.hashPassword(contraseña))) {
+            return null;
+        }
 
-            // ⚠️ MODIFICA ESTOS RUTS CON LOS QUE TENGAS EN TU BASE DE DATOS EXACTAMENTE
-            String rutAdminMaster = "12.345.678-9";
-            String rutVendedorMaster = "23.456.789-0";
+        // 3. Asignar rol según RUT
+        String rutAdminMaster = "12.345.678-9";
+        String rutVendedorMaster = "23.456.789-0";
 
-            if (usuario.getRut().equals(rutAdminMaster)) {
-                usuario.setRol(Role.ADMIN);
-                System.out.println("Login correcto: Asignado rol de ADMINISTRADOR al RUT: " + rut);
+        if (usuario.getRut().equals(rutAdminMaster)) {
+            usuario.setRol(Role.ADMIN);
+            System.out.println("Login correcto: Asignado rol de ADMINISTRADOR al RUT: " + rut);
 
-            } else if (usuario.getRut().equals(rutVendedorMaster)) {
+        } else if (usuario.getRut().equals(rutVendedorMaster)) {
+            usuario.setRol(Role.VENDEDOR);
+            System.out.println("Login correcto: Asignado rol de VENDEDOR al RUT: " + rut);
+
+        } else {
+            if (usuario.getRol() == null) {
                 usuario.setRol(Role.VENDEDOR);
-                System.out.println("Login correcto: Asignado rol de VENDEDOR al RUT: " + rut);
-
-            } else {
-                // Si tienes más usuarios en la base de datos que no son el principal,
-                // por defecto podemos dejarlos como VENDEDOR o mantener el que traigan de la BD.
-                if (usuario.getRol() == null) {
-                    usuario.setRol(Role.VENDEDOR);
-                }
             }
         }
 
