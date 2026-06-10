@@ -31,7 +31,7 @@ public class PruebaBackend {
         EstadisticaService estadisticaService = new EstadisticaService(iestadisticasRepository, productoRepository);
         
         
-        Categoria categoria = new Categoria(1, true, "Bebidas calientes y frías", "Bebidas");
+    /*    Categoria categoria = new Categoria(1, true, "Bebidas calientes y frías", "Bebidas");
         Categoria categoria2 = new Categoria(2, true, "Pasteleria", "Pasteleria");
         Categoria categoria3 = new Categoria(3, true, "Postres ricos", "Postres");
         Categoria categoria4 = new Categoria(4, true, "chatarra", "Comida rapida");
