@@ -37,7 +37,7 @@ public class HelloApplication extends Application {
             stage.setMaximized(true);
             stage.show();
         } else {
-            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/sistema/puntoventas/loginVista.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/sistema/puntoventas/LoginVista.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             stage.setTitle("Eluney");
             stage.setWidth(1920);
