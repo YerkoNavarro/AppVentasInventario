@@ -3,6 +3,7 @@ package com.sistema.puntoventas.controller;
 import com.sistema.puntoventas.modelo.Role;
 import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.service.UsuarioService;
+import com.sistema.puntoventas.util.AlertaCamposVacios;
 
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -34,6 +35,10 @@ public class PanelAgregarUsuarioController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        AlertaCamposVacios.resaltarSiVacio(txtNombre, txtApellido, txtRut, txtContraseña);
+        AlertaCamposVacios.configurarValidacionAutomatica(txtNombre, txtApellido, txtRut, txtContraseña);
+
         usuarioService = new UsuarioService();
         cmbRol.setItems(FXCollections.observableArrayList(Role.values()));
         lblEstado.setText("Listo para registrar");

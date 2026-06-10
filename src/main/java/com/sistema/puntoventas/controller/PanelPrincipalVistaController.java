@@ -1,6 +1,7 @@
 package com.sistema.puntoventas.controller;
 
 import com.sistema.puntoventas.modelo.Usuario;
+import com.sistema.puntoventas.service.SesionService;
 import com.sistema.puntoventas.util.MensajesAlerta; // Importación de tu utilidad de alertas
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -116,36 +117,35 @@ public class PanelPrincipalVistaController {
 
         // 2. Si el usuario presiona "OK", procedemos con la desconexión segura
         if (confirmar) {
+            LoginController.usuarioLogueado = null;
+            new SesionService().cerrarSesionPersistente();
+
             try {
-                // Destruimos la sesión global para evitar accesos remanentes
-                LoginController.usuarioLogueado = null;
-                System.out.println("Sesión destruida y limpiada de la memoria.");
-
-                // Cargar la vista del Login desde tus recursos
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/LoginVista.fxml"));
-                Parent root = loader.load();
-
-                // Obtener el Stage de manera segura usando el nodo contenedor principal
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/LoginVista.fxml"));
+                Scene scene = new Scene(fxmlLoader.load());
                 Stage stageActual = (Stage) contentArea.getScene().getWindow();
+                stageActual.setTitle("Eluney");
+                stageActual.setWidth(1920);
+                stageActual.setHeight(1080);
+                stageActual.setScene(scene);
+                stageActual.setMaximized(true);
 
-                // Desactivar el maximizado para que vuelva a sus dimensiones de diseño nativas
-                stageActual.setMaximized(false);
-
-                // Creamos la nueva escena con el login y la asignamos
-                Scene loginScene = new Scene(root);
-                stageActual.setScene(loginScene);
-                stageActual.setTitle("Sistema Punto de Ventas - Iniciar Sesión");
-
-                // No forzamos sizeToScene() porque puede causar que la ventana se "achique".
-                // Permitimos que la ventana sea redimensionable para evitar tamaños demasiado pequeños
-                // y mantenemos que se centre en pantalla.
-                stageActual.setResizable(true);
-                stageActual.centerOnScreen();    // Re-centra la ventana en el monitor
+                stageActual.maximizedProperty().addListener((obs, wasMaximized, isMaximized) -> {
+                    if (!isMaximized) {
+                        double screenWidth = javafx.stage.Screen.getPrimary().getBounds().getWidth();
+                        double screenHeight = javafx.stage.Screen.getPrimary().getBounds().getHeight();
+                        double x = (screenWidth - stageActual.getWidth()) / 2;
+                        double y = (screenHeight - stageActual.getHeight()) / 2;
+                        if (y < 0) y = 20;
+                        if (x < 0) x = 20;
+                        stageActual.setX(x);
+                        stageActual.setY(y);
+                    }
+                });
 
                 stageActual.show();
-
             } catch (IOException e) {
-                System.err.println(" ERROR: No se pudo cargar el LoginVista.fxml al cerrar sesión.");
+                System.err.println("ERROR: No se pudo cargar LoginVista.fxml al cerrar sesión.");
                 e.printStackTrace();
             }
         } else {

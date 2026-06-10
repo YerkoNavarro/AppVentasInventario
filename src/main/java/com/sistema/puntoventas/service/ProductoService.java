@@ -17,6 +17,7 @@ public class ProductoService {
     private ICategoriaRepository categoriaRepository;
     private IstockRepository stockRepository;
     private AuditoriaService auditoriaService;
+    private ProductoRepositoryImpl productoRepositoryImpl;
 
 
     public ProductoService() {
@@ -412,4 +413,15 @@ public class ProductoService {
                 lista.stream().filter(p -> p.getCategoria() != null).map(p -> p.getCategoria().getId()).distinct().count()
         );
     }
+
+
+    public List<String> obtenerNombreStockCritico(){
+        return stockRepository.obtenerNombreStockCritico();
+    }
+
+    public int contarProductosStockMinimo(){
+        List<String> nombres = stockRepository.obtenerNombreStockCritico();
+        return nombres.size();
+    }
+
 }

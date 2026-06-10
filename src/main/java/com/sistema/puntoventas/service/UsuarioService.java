@@ -147,6 +147,10 @@ public class UsuarioService {
         return usuarioRepository.obtenerUsuarios();
     }
 
+    public Usuario obtenerUsuarioPorId(int id) {
+        return usuarioRepository.obtenerUsuarioPorId(id);
+    }
+
     public Usuario obtenerUsuarioPorRut(String rut) {
         if (rut == null || rut.isEmpty()) {
             return null;

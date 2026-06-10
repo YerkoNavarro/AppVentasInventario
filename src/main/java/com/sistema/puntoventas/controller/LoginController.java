@@ -3,6 +3,7 @@ package com.sistema.puntoventas.controller;
 import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.service.ProductoService;
+import com.sistema.puntoventas.service.SesionService;
 import com.sistema.puntoventas.service.UsuarioService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -38,6 +39,7 @@ public class LoginController {
 
     private UsuarioService usuarioService = new UsuarioService();
     private ProductoService productoService = new ProductoService();
+    private SesionService sesionService = new SesionService();
 
     @FXML
     public void handleLogin() {
@@ -57,6 +59,8 @@ public class LoginController {
             // ==============================================================================
             usuarioLogueado = usuario;
             System.out.println("Sesión iniciada exitosamente para: " + usuarioLogueado.getNombre() + " | Rol: " + usuarioLogueado.getRol());
+
+            sesionService.iniciarSesionPersistente(usuario.getId());
 
             mostrarMensaje("Éxito", "Bienvenido " + usuario.getNombre(), Alert.AlertType.INFORMATION);
 
