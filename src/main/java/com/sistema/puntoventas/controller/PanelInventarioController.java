@@ -3,6 +3,7 @@ package com.sistema.puntoventas.controller;
 import com.sistema.puntoventas.modelo.MovimientoInventario;
 import com.sistema.puntoventas.modelo.TipoMovimiento;
 import com.sistema.puntoventas.repository.impl.MovimientoRepositoryImpl;
+import com.sistema.puntoventas.repository.impl.ProductoRepositoryImpl;
 import com.sistema.puntoventas.service.InventarioService;
 
 import javafx.collections.FXCollections;
@@ -35,7 +36,7 @@ public class PanelInventarioController implements Initializable {
     // Cambiado de String a LocalDateTime para que coincida con tu Modelo
     @FXML private TableColumn<MovimientoInventario, LocalDateTime> ColFechaHora;
 
-    @FXML private TableColumn<MovimientoInventario, Integer> ColProducto;
+    @FXML private TableColumn<MovimientoInventario, String> ColProducto;
     @FXML private TableColumn<MovimientoInventario, String> ColTipo;
     @FXML private TableColumn<MovimientoInventario, Integer> ColCantidad;
     @FXML private TableColumn<MovimientoInventario, String> ColMotivo;
@@ -48,21 +49,24 @@ public class PanelInventarioController implements Initializable {
 
     // --- VARIABLES DEL BACKEND ---
     private MovimientoRepositoryImpl movimientoRepo;
+    private ProductoRepositoryImpl productoRepo;
     private InventarioService inventarioService;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // 1. Inicializar Repositorios y Servicios
         movimientoRepo = new MovimientoRepositoryImpl();
-        // Crear servicio con repositorio vacío (ajusta si es necesario)
-        inventarioService = new InventarioService(movimientoRepo, null);
+        productoRepo = new ProductoRepositoryImpl();
+        // Conectar el repositorio de productos al de movimientos
+        movimientoRepo.setProductoRepo(productoRepo);
+        inventarioService = new InventarioService(movimientoRepo, productoRepo);
 
         // 2. Configurar el ComboBox con los valores del Enum
         CmbComboBox.setItems(FXCollections.observableArrayList(TipoMovimiento.values()));
 
         // 3. Configurar las columnas de la tabla
         ColFechaHora.setCellValueFactory(new PropertyValueFactory<>("fecha"));
-        ColProducto.setCellValueFactory(new PropertyValueFactory<>("idProducto"));
+        ColProducto.setCellValueFactory(new PropertyValueFactory<>("nombreProducto"));
         ColTipo.setCellValueFactory(new PropertyValueFactory<>("tipoMovimiento"));
         ColCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
         ColMotivo.setCellValueFactory(new PropertyValueFactory<>("motivo"));
@@ -107,7 +111,12 @@ public class PanelInventarioController implements Initializable {
             }
 
             // RECOLECTAR DATOS DE LA UI (controller "tonto")
-            int idProducto = Integer.parseInt(TxtProductoNombre.getText());
+            int idProducto = obtenerIdProducto(TxtProductoNombre.getText());
+            if (idProducto == -1) {
+                mostrarAlerta("Error", "Producto no encontrado", "El producto ingresado no existe en la base de datos.", Alert.AlertType.WARNING);
+                return;
+            }
+
             int cantidad = Integer.parseInt(TxtCantidad.getText());
             TipoMovimiento tipo = CmbComboBox.getValue();
             String motivo = TxtMotivo.getText() != null ? TxtMotivo.getText() : "Sin motivo";
@@ -141,10 +150,25 @@ public class PanelInventarioController implements Initializable {
             }
 
         } catch (NumberFormatException e) {
-            mostrarAlerta("Error de formato", "Datos inválidos", "El Producto y la Cantidad deben ser números enteros.", Alert.AlertType.ERROR);
+            mostrarAlerta("Error de formato", "Datos inválidos", "La Cantidad debe ser un número entero.", Alert.AlertType.ERROR);
         } catch (Exception e) {
             mostrarAlerta("Error fatal", "Excepción", e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
+        }
+    }
+
+    // Método para obtener el ID del producto por nombre o por ID directo
+    private int obtenerIdProducto(String entrada) {
+        try {
+            // Intentar como número (ID directo)
+            return Integer.parseInt(entrada);
+        } catch (NumberFormatException e) {
+            // Si no es número, buscar por nombre
+            List<com.sistema.puntoventas.modelo.moduloProducto.Producto> productos = productoRepo.obtenerProductoPorNombre(entrada);
+            if (!productos.isEmpty()) {
+                return productos.get(0).getId();
+            }
+            return -1;
         }
     }
 

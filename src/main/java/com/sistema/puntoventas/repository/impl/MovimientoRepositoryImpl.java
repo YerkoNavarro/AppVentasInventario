@@ -15,11 +15,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
+import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 
 public class MovimientoRepositoryImpl implements IMovimientoRepository {
 
     // Misma URL de conexión que tienes en tu DbManager
     private final String url = "jdbc:sqlite:DBventasInventario.db";
+    private IProductoRepository productoRepo;
 
     @Override
     public boolean registrarMovimiento(MovimientoInventario movimiento) {
@@ -162,6 +165,11 @@ public class MovimientoRepositoryImpl implements IMovimientoRepository {
         return lista;
     }
 
+    // Inicializar el repositorio de productos para obtener nombres
+    public void setProductoRepo(IProductoRepository productoRepo) {
+        this.productoRepo = productoRepo;
+    }
+
     // Método auxiliar para evitar repetir código al leer los datos de la base de datos
     private MovimientoInventario mapearMovimiento(ResultSet rs) throws SQLException {
         MovimientoInventario mov = new MovimientoInventario();
@@ -171,6 +179,14 @@ public class MovimientoRepositoryImpl implements IMovimientoRepository {
         mov.setCantidad(rs.getInt("cantidad"));
         mov.setMotivo(rs.getString("motivo"));
         mov.setIdUsuario(rs.getInt("idUsuario"));
+
+        // Obtener el nombre del producto
+        if (productoRepo != null) {
+            Producto producto = productoRepo.obtenerProductoPorId(mov.getIdProducto());
+            if (producto != null) {
+                mov.setNombreProducto(producto.getNombre());
+            }
+        }
 
         // 2. EL BLOQUE QUE FALTA PARA LEER Y CONVERTIR LA FECHA A LOCALDATETIME
         String fechaTexto = rs.getString("fecha");
