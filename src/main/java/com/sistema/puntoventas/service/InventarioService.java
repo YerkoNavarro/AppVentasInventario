@@ -77,8 +77,21 @@ public class InventarioService {
                                                                int cantidad, String motivo, int idUsuario) {
         try {
             // 1. Crear el movimiento CON LA FECHA ACTUAL (hora en vivo)
-            MovimientoInventario movimiento = new MovimientoInventario(idProducto, tipo, cantidad, motivo, idUsuario);
+            MovimientoInventario movimiento = new MovimientoInventario();
+            movimiento.setIdProducto(idProducto);
+            movimiento.setTipoMovimiento(tipo);
+            movimiento.setCantidad(cantidad);
+            movimiento.setMotivo(motivo);
+            movimiento.setIdUsuario(idUsuario);
             movimiento.setFecha(LocalDateTime.now());
+
+            // Obtener el nombre del producto
+            if (productoRepo != null) {
+                com.sistema.puntoventas.modelo.moduloProducto.Producto producto = productoRepo.obtenerProductoPorId(idProducto);
+                if (producto != null) {
+                    movimiento.setNombreProducto(producto.getNombre());
+                }
+            }
 
             // 2. Ajustar el signo de la cantidad según el tipo de movimiento
             // ENTRADA: suma (+), SALIDA_VENTA/MERMA/AJUSTE: resta (-)
