@@ -1,7 +1,9 @@
 package com.sistema.puntoventas.modelo;
 
-import java.time.LocalDateTime;
+import lombok.Builder;
 
+import java.time.LocalDateTime;
+@Builder
 public class MovimientoInventario {
     private int idMovimiento;
     private int idProducto;

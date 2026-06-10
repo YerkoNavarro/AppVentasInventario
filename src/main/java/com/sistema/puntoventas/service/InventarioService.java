@@ -19,6 +19,10 @@ public class InventarioService {
         this.productoRepo = productoRepo;
     }
 
+    public void setStockRepo(IstockRepository stockRepo) {
+        this.stockRepo = stockRepo;
+    }
+
     // RN-INV-01: Validación de Disponibilidad (Pre-Check)
     public boolean validarDisponibilidad(int idProducto, int cantidadRequerida) {
         // TODO: Si implementas lógica de "Platillos", aquí deberías verificar el tipo de producto
