@@ -23,7 +23,7 @@ public class MovimientoRepositoryImpl implements IMovimientoRepository {
 
     @Override
     public boolean registrarMovimiento(MovimientoInventario movimiento) {
-        String sql = "INSERT INTO historial_inventario (idProducto, tipoMovimiento, cantidad, motivo, idUsuario) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO historial_inventario (idProducto, tipoMovimiento, cantidad, motivo, idUsuario, fecha) VALUES (?, ?, ?, ?, ?,?)";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -33,6 +33,13 @@ public class MovimientoRepositoryImpl implements IMovimientoRepository {
             pstmt.setInt(3, movimiento.getCantidad());
             pstmt.setString(4, movimiento.getMotivo());
             pstmt.setInt(5, movimiento.getIdUsuario());
+            // Guardar la fecha como texto con formato compatible con el mapeo (yyyy-MM-dd HH:mm:ss)
+            if (movimiento.getFecha() != null) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                pstmt.setString(6, movimiento.getFecha().format(formatter));
+            } else {
+                pstmt.setNull(6, java.sql.Types.VARCHAR);
+            }
 
             int filasAfectadas = pstmt.executeUpdate();
             return filasAfectadas > 0;
