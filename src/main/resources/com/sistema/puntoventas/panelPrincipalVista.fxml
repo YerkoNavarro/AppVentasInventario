@@ -44,6 +44,11 @@
                                         <Label style="-fx-background-color: #10b981;" styleClass="icon-circle" text="P" />
                                     </graphic>
                                 </Button>
+                                <Button fx:id="btnPlatillos" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Platillos">
+                                    <graphic>
+                                        <Label style="-fx-background-color: #ec4899;" styleClass="icon-circle" text="PL" />
+                                    </graphic>
+                                </Button>
                                 <Button fx:id="btnCategorias" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Categorías">
                                     <graphic>
                                         <Label style="-fx-background-color: #f59e0b;" styleClass="icon-circle" text="C" />
