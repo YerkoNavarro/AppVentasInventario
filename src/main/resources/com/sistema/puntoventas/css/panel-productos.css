@@ -14,17 +14,20 @@
     -fx-font-size: 24px;
     -fx-font-weight: 700;
     -fx-text-fill: #163a70;
+    -fx-font-family: "Arial";
 }
 
 .subtitle {
     -fx-font-size: 12px;
     -fx-text-fill: #607399;
+    -fx-font-family: "Arial";
 }
 
 .field-label {
     -fx-font-size: 13px;
     -fx-font-weight: 600;
     -fx-text-fill: #2b3d5d;
+    -fx-font-family: "Arial";
 }
 
 .field {
@@ -59,6 +62,7 @@
     -fx-padding: 10 18;
     -fx-background-radius: 10;
     -fx-cursor: hand;
+    -fx-font-family: "Arial";
 }
 
 .btn-primary:hover {
@@ -93,12 +97,14 @@
     -fx-font-weight: 700;
     -fx-text-fill: #3a4f73;
     -fx-padding: 2 0 2 0;
+    -fx-font-family: "Arial";
 }
 
 .summary-value {
     -fx-font-size: 22px;
     -fx-font-weight: 800;
     -fx-text-fill: #173f7a;
+    -fx-font-family: "Arial";
 }
 
 
@@ -106,6 +112,7 @@
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
+    -fx-font-family: "Arial";
 }
 
 /* --- Estilos para la Tabla de Productos --- */
@@ -139,6 +146,7 @@
     -fx-text-fill: #3a4f73;
     -fx-alignment: center-left;
     -fx-padding: 0;
+    -fx-font-family: "Arial";
 }
 
 .table-row-cell {
@@ -166,6 +174,7 @@
     -fx-font-size: 13px;
     -fx-alignment: center-left;
     -fx-padding: 0 10;
+    -fx-font-family: "Arial";
 }
 
 .table-view .scroll-bar:horizontal,
