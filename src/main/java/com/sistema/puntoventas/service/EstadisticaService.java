@@ -6,7 +6,7 @@ import com.sistema.puntoventas.modelo.RankingVendedoresDTO;
 import com.sistema.puntoventas.modelo.moduloProducto.RankingProductosDTO;
 import com.sistema.puntoventas.repository.IEstadisticasRepository;
 import com.sistema.puntoventas.repository.moduloProductos.IProductoRepository;
-import com.sistema.puntoventas.repository.impl.AuditoriaRepositoryImpl;
+import com.sistema.puntoventas.repository.IAuditoriaRepository;
 import com.sistema.puntoventas.modelo.AuditoriaEvento;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 
@@ -21,12 +21,18 @@ public class EstadisticaService {
 
     private final IEstadisticasRepository estadisticasRepository;
     private final IProductoRepository productoRepository;
-    private final AuditoriaRepositoryImpl auditoriaRepository;
+    private final IAuditoriaRepository auditoriaRepository;
 
     public EstadisticaService(IEstadisticasRepository estadisticasRepository, IProductoRepository productoRepository) {
         this.estadisticasRepository = estadisticasRepository;
         this.productoRepository = productoRepository;
-        this.auditoriaRepository = new AuditoriaRepositoryImpl();
+        this.auditoriaRepository = new com.sistema.puntoventas.repository.impl.AuditoriaRepositoryImpl();
+    }
+
+    public EstadisticaService(IEstadisticasRepository estadisticasRepository, IProductoRepository productoRepository, IAuditoriaRepository auditoriaRepository) {
+        this.estadisticasRepository = estadisticasRepository;
+        this.productoRepository = productoRepository;
+        this.auditoriaRepository = auditoriaRepository;
     }
 
 
@@ -307,6 +313,13 @@ public class EstadisticaService {
         } catch (Exception e) {
             System.err.println("Error en IA: " + e.getMessage());
         }
+
+        AuditoriaEvento evento = new AuditoriaEvento();
+        evento.setModulo("INVENTARIO");
+        evento.setAccion("BATCH_PREDICCION");
+        evento.setEntidad("STOCK");
+        evento.setDetalle("Ejecución batch de predicción de stock completada. Productos analizados: " + predicciones.size());
+        auditoriaRepository.registrarEvento(evento);
 
         return predicciones;
     }
