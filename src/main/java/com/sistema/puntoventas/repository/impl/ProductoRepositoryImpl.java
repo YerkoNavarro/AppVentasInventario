@@ -87,7 +87,6 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                 producto.setCantidadDefault(rs.getDouble(13));
                 // Agregamos el producto armado a nuestra lista
                 listaProductos.add(producto);
-                System.out.println(listaProductos);
             }
 
         } catch (SQLException e) {
@@ -126,7 +125,6 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
 
                     // Agregamos el producto armado a nuestra lista
                     listaProductos.add(producto);
-                    System.out.println(listaProductos);
                 }
             }
 
@@ -236,10 +234,6 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
                     producto.setTipoProducto(TipoProducto.valueOf(rs.getString(12)));
                     producto.setCantidadDefault(rs.getDouble(13));
 
-                    // Agregamos el producto armado a nuestra lista
-                    System.out.println("producto encontrado correctamente");
-                    System.out.println(producto);
-                    // System.out.println(listaProductos); // This line was likely a debug print and can be removed or commented out.
                 }
             }
 
@@ -316,6 +310,26 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
         }
 
         return productosStockCritico;
+    }
+
+    @Override
+    public List<String> obtenerNombreStockCritico() {
+        List<String> nombres = new ArrayList<>();
+        String sql = "SELECT p.nombre FROM producto p WHERE p.stockActual <= p.stockMinimo";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                nombres.add(rs.getString("nombre"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener nombres de productos en stock crítico: " + e.getMessage());
+        }
+
+        return nombres;
     }
 
     @Override
