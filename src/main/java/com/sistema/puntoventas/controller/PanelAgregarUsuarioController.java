@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -35,31 +36,60 @@ public class PanelAgregarUsuarioController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        // El helper resaltarSiVacio acepta TextField... por eso no podemos pasar un ComboBox aquí.
+        // Cambio mínimo: solo pasar los TextField. Si se desea resaltar el ComboBox, añadir
+        // una sobrecarga en AlertaCamposVacios sería la opción, pero evitamos tocar otras clases.
         AlertaCamposVacios.resaltarSiVacio(txtNombre, txtApellido, txtRut, txtContraseña);
-        AlertaCamposVacios.configurarValidacionAutomatica(txtNombre, txtApellido, txtRut, txtContraseña);
-
         usuarioService = new UsuarioService();
         cmbRol.setItems(FXCollections.observableArrayList(Role.values()));
         lblEstado.setText("Listo para registrar");
+
+        // ==============================================================================
+        // RESTRICCIÓN EN TIEMPO REAL: Limitar caracteres máximos en los campos
+        // ==============================================================================
+
+        // El RUT Chileno formateado completo (con puntos y guion) tiene máximo 12 caracteres (ej: 12.345.678-9)
+        txtRut.setTextFormatter(new TextFormatter<>(change -> {
+            if (change.getControlNewText().length() > 12) {
+                return null; // Rechaza el cambio si excede los 12 caracteres
+            }
+            return change;
+        }));
+
+        // El número de teléfono celular en Chile consta estrictamente de 9 dígitos (ej: 912345678)
+        txtTelefono.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            // Permite solo números y restringe a un máximo de 9 caracteres
+            if (newText.matches("\\d*") && newText.length() <= 9) {
+                return change;
+            }
+            return null; // Rechaza letras o exceder los 9 dígitos
+        }));
     }
 
+    public void setUsuarioAEditar(Usuario usuario) {
+        if (usuario != null) {
+            this.modoEdicion = true;
+            this.usuarioAEditar = usuario;
+
+            txtNombre.setText(usuario.getNombre());
+            txtApellido.setText(usuario.getApellido());
+            txtRut.setText(usuario.getRut());
+            txtRut.setDisable(true); // El RUT no se edita por ser la Clave Primaria de búsqueda
+            txtContraseña.setText(usuario.getContraseña());
+            txtTelefono.setText(usuario.getTelefono());
+            cmbRol.setValue(usuario.getRol());
+
+            btnRegistrar.setText("Actualizar");
+            lblEstado.setText("Modo Edición Activo");
+        }
+    }
+
+    // Método adaptador mínimo para que otras clases (FXML loaders) puedan
+    // invocar la carga de datos con el nombre esperado `cargarDatosUsuario`.
+    // Internamente reutiliza `setUsuarioAEditar` para aplicar el mismo comportamiento.
     public void cargarDatosUsuario(Usuario usuario) {
-        this.modoEdicion = true;
-        this.usuarioAEditar = usuario;
-
-        txtNombre.setText(usuario.getNombre());
-        txtApellido.setText(usuario.getApellido());
-        txtRut.setText(usuario.getRut());
-        txtContraseña.setText(usuario.getContraseña());
-        txtTelefono.setText(usuario.getTelefono());
-        cmbRol.setValue(usuario.getRol());
-
-        txtRut.setEditable(false);
-        txtRut.setStyle("-fx-background-color: #e0e0e0;");
-
-        btnRegistrar.setText("Guardar Cambios");
-        lblEstado.setText("Editando usuario: " + usuario.getRut());
+        setUsuarioAEditar(usuario);
     }
 
     @FXML
@@ -68,42 +98,42 @@ public class PanelAgregarUsuarioController implements Initializable {
             String mensajeRespuesta;
 
             if (modoEdicion) {
-                // El controlador es TONTO: solo mapea los valores limpiando espacios de los extremos
-                usuarioAEditar.setNombre(txtNombre.getText().trim());
-                usuarioAEditar.setApellido(txtApellido.getText().trim());
-                usuarioAEditar.setContraseña(txtContraseña.getText().trim());
-                usuarioAEditar.setTelefono(txtTelefono.getText().trim());
+                usuarioAEditar.setNombre(txtNombre.getText());
+                usuarioAEditar.setApellido(txtApellido.getText());
+                usuarioAEditar.setContraseña(txtContraseña.getText());
+                usuarioAEditar.setTelefono(txtTelefono.getText());
                 usuarioAEditar.setRol(cmbRol.getValue());
 
-                // Se delega por completo la validación y actualización al servicio
                 mensajeRespuesta = usuarioService.actualizarUsuario(usuarioAEditar);
 
                 if (mensajeRespuesta.equals("Usuario actualizado exitosamente")) {
                     mostrarAlerta("Éxito", "Actualización Completada", mensajeRespuesta, Alert.AlertType.INFORMATION);
+                    limpiarCampos();
+                    modoEdicion = false;
+                    usuarioAEditar = null;
+                    btnRegistrar.setText("Registrar");
+                    txtRut.setDisable(false);
                 } else {
-                    // Si el servicio rebota la acción por campos vacíos, se muestra el error aquí
-                    mostrarAlerta("Atención", "Campos obligatorios faltantes", mensajeRespuesta, Alert.AlertType.WARNING);
+                    mostrarAlerta("Atención", "Error al actualizar", mensajeRespuesta, Alert.AlertType.WARNING);
                 }
 
             } else {
-                // Modo Creación: recolección básica de datos
                 Usuario nuevoUsuario = new Usuario();
-                nuevoUsuario.setNombre(txtNombre.getText().trim());
-                nuevoUsuario.setApellido(txtApellido.getText().trim());
-                nuevoUsuario.setRut(txtRut.getText().trim());
-                nuevoUsuario.setContraseña(txtContraseña.getText().trim());
-                nuevoUsuario.setTelefono(txtTelefono.getText().trim());
+                nuevoUsuario.setNombre(txtNombre.getText());
+                nuevoUsuario.setApellido(txtApellido.getText());
+                nuevoUsuario.setRut(txtRut.getText());
+                nuevoUsuario.setContraseña(txtContraseña.getText());
+                nuevoUsuario.setTelefono(txtTelefono.getText());
                 nuevoUsuario.setRol(cmbRol.getValue());
                 nuevoUsuario.setEstado(true);
 
-                // Se delega por completo la validación y registro al servicio
                 mensajeRespuesta = usuarioService.registrarNuevoUsuario(nuevoUsuario);
 
                 if (mensajeRespuesta.equals("Usuario registrado exitosamente")) {
                     mostrarAlerta("Éxito", "Registro Completado", mensajeRespuesta, Alert.AlertType.INFORMATION);
                     limpiarCampos();
                 } else {
-                    mostrarAlerta("Atención", "Campos obligatorios faltantes", mensajeRespuesta, Alert.AlertType.WARNING);
+                    mostrarAlerta("Atención", "Validación de Campos Faltante", mensajeRespuesta, Alert.AlertType.WARNING);
                 }
             }
 

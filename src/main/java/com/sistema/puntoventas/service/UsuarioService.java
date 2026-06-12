@@ -22,8 +22,14 @@ public class UsuarioService {
         this.auditoriaService = new AuditoriaService();
     }
 
+    // Constructor adicional para permitir inyección de mocks en pruebas (cambio mínimo)
+    public UsuarioService(IUsuarioRepository usuarioRepository, AuditoriaService auditoriaService) {
+        this.usuarioRepository = usuarioRepository;
+        this.auditoriaService = auditoriaService;
+    }
+
     // ==============================================================================
-    // VALIDACIÓN ESTRICTA: Fuerza a que todos los campos tengan texto real
+    // VALIDACIÓN ESTRICTA: Fuerza a que todos los campos tengan texto real y formato válido
     // ==============================================================================
     private String validarCamposObligatorios(Usuario usuario) {
         if (usuario == null) {
@@ -35,103 +41,107 @@ public class UsuarioService {
         if (usuario.getApellido() == null || usuario.getApellido().trim().isEmpty()) {
             return "El apellido del usuario es obligatorio.";
         }
+
+        // --- VALIDACIÓN DE RUT ---
         if (usuario.getRut() == null || usuario.getRut().trim().isEmpty()) {
             return "El RUT del usuario es obligatorio.";
         }
+
+        // Expresión regular para RUT Chileno válido (Acepta: 12345678-9, 12.345.678-K, 9.876.543-2, etc.)
+        String regexRut = "^(\\d{1,2}\\.\\d{3}\\.\\d{3}|\\d{7,8})-[0-9kK]$";
+        if (!usuario.getRut().trim().matches(regexRut)) {
+            return "El formato del RUT no es válido. Debe incluir guion (ej: 12345678-9 o 12.345.678-9).";
+        }
+
         if (usuario.getContraseña() == null || usuario.getContraseña().trim().isEmpty()) {
             return "La contraseña del usuario es obligatoria.";
         }
-        return null; // Todo está correcto
-    }
 
-    public String registrarNuevoUsuario(Usuario usuario){
-        String errorValidacion = validarCamposObligatorios(usuario);
-        if (errorValidacion != null) {
-            return errorValidacion;
+        // --- VALIDACIÓN DE TELÉFONO ---
+        if (usuario.getTelefono() != null && !usuario.getTelefono().trim().isEmpty()) {
+            String telefonoLimpio = usuario.getTelefono().trim();
+            // Verifica que contenga exactamente 9 dígitos numéricos
+            if (!telefonoLimpio.matches("^\\d{9}$")) {
+                return "El número de teléfono debe contener exactamente 9 dígitos numéricos.";
+            }
         }
 
-        // Hashear contraseña antes de guardar
-        usuario.setContraseña(Encriptador.hashPassword(usuario.getContraseña()));
+        return "OK";
+    }
 
-        // Guardar en la base de datos
+    public String registrarNuevoUsuario(Usuario usuario) {
+        String validacion = validarCamposObligatorios(usuario);
+        if (!validacion.equals("OK")) {
+            return validacion;
+        }
+
+        String passwordPlano = usuario.getContraseña();
+        String passwordHash = Encriptador.hashPassword(passwordPlano);
+        usuario.setContraseña(passwordHash);
+
         boolean registrado = usuarioRepository.registrarUsuario(usuario);
 
         if (registrado) {
-            String horaActual = LocalDateTime.now().format(formateadorTiempoReal);
-            // Guardar auditoría
             AuditoriaEvento evento = new AuditoriaEvento();
             evento.setModulo("Usuarios");
             evento.setEntidad("Usuario");
             evento.setAccion("Registro");
-            evento.setDetalle("Se registró un nuevo usuario: " + usuario.getNombre());
-            auditoriaService.registrarEvento(evento);
 
+            String horaEnVivo = LocalDateTime.now().format(formateadorTiempoReal);
+            evento.setDetalle("Se registró un nuevo usuario: " + usuario.getNombre() + " a las " + horaEnVivo);
+
+            boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+            if (!auditoriaRegistrada) {
+                System.out.println("El usuario se registró, pero no se pudo guardar el evento de auditoria.");
+            }
             return "Usuario registrado exitosamente";
-        } else {
-            return "Error al registrar el usuario en la base de datos";
         }
+
+        return "Error: No se pudo registrar el usuario en el Repositorio.";
     }
 
     public String actualizarUsuario(Usuario usuario) {
-        if (usuario == null || usuario.getRut() == null || usuario.getRut().isEmpty()) {
+        if (usuario == null || usuario.getRut() == null || usuario.getRut().trim().isEmpty()) {
             return "El RUT es obligatorio para actualizar";
         }
 
-        // Hashear contraseña antes de actualizar
-        usuario.setContraseña(Encriptador.hashPassword(usuario.getContraseña()));
-
         boolean actualizado = usuarioRepository.actualizarUsuario(usuario);
 
-        AuditoriaEvento evento = new AuditoriaEvento();
-        evento.setModulo("Usuarios");
-        evento.setEntidad("Usuario");
-        evento.setAccion("Actualización");
-        evento.setDetalle("Se actualizo un  usuario: " + usuario.getNombre());
-
-        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
-        if (!auditoriaRegistrada) {
-            System.out.println("El usuario se actualizo, pero no se pudo guardar el evento de auditoria.");
-        }
-        System.out.println("Evento registrado "+evento.getAccion()+" para el usuario: " + usuario.getNombre());
-
         if (actualizado) {
+            AuditoriaEvento evento = new AuditoriaEvento();
+            evento.setModulo("Usuarios");
+            evento.setEntidad("Usuario");
+            evento.setAccion("Actualización");
+
+            String horaEnVivo = LocalDateTime.now().format(formateadorTiempoReal);
+            evento.setDetalle("Se actualizó el usuario con RUT: " + usuario.getRut() + " a las " + horaEnVivo);
+
+            auditoriaService.registrarEvento(evento);
             return "Usuario actualizado exitosamente";
-        } else {
-            return "Error al actualizar el usuario en la base de datos";
         }
+
+        return "Error: No se pudo actualizar el usuario.";
     }
 
-    // ==============================================================================
-    // INICIO DE SESIÓN CON VALIDACIÓN DE ROLES POR RUT
-    // ==============================================================================
     public Usuario iniciarSesion(String rut, String contraseña) {
-        if (rut == null || rut.isEmpty() || contraseña == null || contraseña.isEmpty()) {
+        if (rut == null || rut.trim().isEmpty() || contraseña == null || contraseña.trim().isEmpty()) {
             return null;
         }
 
-        // 1. Buscar usuario por RUT
-        Usuario usuario = usuarioRepository.obtenerUsuarioPorRut(rut);
+        String passwordHash = Encriptador.hashPassword(contraseña);
+        Usuario usuario = usuarioRepository.iniciarSesion(rut, passwordHash);
 
-        // 2. Verificar que existe y que la contraseña hasheada coincide
-        if (usuario == null || !usuario.getContraseña().equals(Encriptador.hashPassword(contraseña))) {
-            return null;
-        }
-
-        // 3. Asignar rol según RUT
-        String rutAdminMaster = "12.345.678-9";
-        String rutVendedorMaster = "23.456.789-0";
-
-        if (usuario.getRut().equals(rutAdminMaster)) {
-            usuario.setRol(Role.ADMIN);
-            System.out.println("Login correcto: Asignado rol de ADMINISTRADOR al RUT: " + rut);
-
-        } else if (usuario.getRut().equals(rutVendedorMaster)) {
-            usuario.setRol(Role.VENDEDOR);
-            System.out.println("Login correcto: Asignado rol de VENDEDOR al RUT: " + rut);
-
-        } else {
-            if (usuario.getRol() == null) {
+        if (usuario != null) {
+            if (rut.equals("12.345.678-9")) {
+                usuario.setRol(Role.ADMIN);
+                System.out.println("¡Bienvenido Administrador Maestro!");
+            } else if (rut.equals("23.456.789-0")) {
                 usuario.setRol(Role.VENDEDOR);
+                System.out.println("¡Bienvenido Vendedor Maestro!");
+            } else {
+                if (usuario.getRol() == null) {
+                    usuario.setRol(Role.VENDEDOR);
+                }
             }
         }
 
@@ -159,18 +169,28 @@ public class UsuarioService {
         }
 
         Usuario usuarioEliminado = usuarioRepository.eliminarUsuario(rut);
-        AuditoriaEvento evento = new AuditoriaEvento();
-        evento.setModulo("Usuarios");
-        evento.setEntidad("Usuario");
-        evento.setAccion("Eliminación");
-        evento.setDetalle("Se eliminó un nuevo usuario: " + usuarioEliminado.getNombre());
+        if (usuarioEliminado != null) {
+            AuditoriaEvento evento = new AuditoriaEvento();
+            evento.setModulo("Usuarios");
+            evento.setEntidad("Usuario");
+            evento.setAccion("Eliminación");
+            evento.setDetalle("Se eliminó un nuevo usuario: " + usuarioEliminado.getNombre());
 
-        boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
-        if (!auditoriaRegistrada) {
-            System.out.println("El usuario se eliminó, pero no se pudo guardar el evento de auditoria.");
+            boolean auditoriaRegistrada = auditoriaService.registrarEvento(evento);
+            if (!auditoriaRegistrada) {
+                System.out.println("El usuario se eliminó, pero no se pudo guardar el evento de auditoria.");
+            }
+            System.out.println("Evento registrado " + evento.getAccion() + " para el usuario.");
         }
-        System.out.println("Evento registrado " + evento.getAccion() + " para el usuario: " + usuarioEliminado.getNombre());
-
         return usuarioEliminado;
+    }
+
+    // Métodos setters añadidos para inyección de Mocks en las pruebas de software
+    public void setUsuarioRepository(IUsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    public void setAuditoriaService(AuditoriaService auditoriaService) {
+        this.auditoriaService = auditoriaService;
     }
 }
