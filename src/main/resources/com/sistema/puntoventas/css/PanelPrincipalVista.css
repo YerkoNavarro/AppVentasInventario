@@ -13,6 +13,7 @@
     -fx-text-fill: #111827;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
+    -fx-font-family: "Arial";
     -fx-padding: 0 0 20 0;
 }
 
@@ -20,10 +21,11 @@
 .menu-button {
     -fx-background-color: transparent;
     -fx-text-fill: #6b7280;
-    -fx-font-size: 14px;
+    -fx-font-size: 13px;
     -fx-font-weight: 600;
-    -fx-background-radius: 8;
-    -fx-padding: 10 15;
+    -fx-font-family: "Arial";
+    -fx-background-radius: 7;
+    -fx-padding: 8 13;
     -fx-cursor: hand;
     -fx-alignment: CENTER_LEFT;
 }
@@ -49,13 +51,13 @@
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-alignment: CENTER;
-    -fx-min-width: 30px;
-    -fx-max-width: 30px;
-    -fx-min-height: 30px;
-    -fx-max-height: 30px;
-    -fx-background-radius: 15;
+    -fx-min-width: 26px;
+    -fx-max-width: 26px;
+    -fx-min-height: 26px;
+    -fx-max-height: 26px;
+    -fx-background-radius: 13;
     -fx-padding: 0;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
 }
 
 
@@ -92,6 +94,7 @@
     -fx-font-weight: bold;
     -fx-font-size: 18px;
     -fx-text-fill: #1e293b;
+    -fx-font-family: "Arial";
 }
 
 /* =========================================
@@ -158,4 +161,5 @@
 .big-value {
     -fx-font-size: 36px; /* coincide con FXML pero permite override */
     -fx-font-weight: bold;
+    -fx-font-family: "Arial";
 }

@@ -36,7 +36,7 @@
                <children>
                   <Label layoutX="114.0" layoutY="50.0" text="Control Inventario">
                      <font>
-                        <Font name="System Bold" size="32.0" />
+                        <Font name="Arial" size="32.0" />
                      </font>
                   </Label>
 
@@ -48,20 +48,20 @@
 
                   <!-- Campo RUT -->
                   <Label layoutX="50.0" layoutY="190.0" text="RUT">
-                     <font> <Font name="System Bold" size="14.0" /> </font>
+                     <font> <Font name="Arial" size="14.0" /> </font>
                   </Label>
                   <TextField fx:id="rutTextField" layoutX="50.0" layoutY="215.0" prefHeight="50.0" prefWidth="400.0" promptText="12.345.678-9" style="-fx-font-size: 16px;" />
 
                   <!-- Campo Contraseña -->
                   <Label layoutX="50.0" layoutY="290.0" text="Contraseña">
-                     <font> <Font name="System Bold" size="14.0" /> </font>
+                     <font> <Font name="Arial" size="14.0" /> </font>
                   </Label>
                   <PasswordField fx:id="passwordField" layoutX="50.0" layoutY="315.0" prefHeight="50.0" prefWidth="400.0" style="-fx-font-size: 16px;" />
 
                   <!-- Botón -->
                   <Button fx:id="continuarButton" layoutX="50.0" layoutY="410.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="60.0" prefWidth="400.0" styleClass="button" text="CONTINUAR">
                      <font>
-                        <Font name="System Bold" size="18.0" />
+                        <Font name="Arial" size="18.0" />
                      </font>
                   </Button>
                </children>

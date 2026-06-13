@@ -20,7 +20,7 @@
                <children>
                   <Label fx:id="lblTotalProductos" layoutX="21.0" layoutY="14.0" text="TOTAL PRODUCTOS" textFill="WHITE">
                      <font>
-                        <Font name="Arial Black" size="12.0" />
+                        <Font name="Arial" size="12.0" />
                      </font>
                   </Label>
                </children>
@@ -29,7 +29,7 @@
                <children>
                   <Label fx:id="lblMovimientoHoy" layoutX="14.0" layoutY="14.0" text="MOVIMIENTO HOY " textFill="WHITE">
                      <font>
-                        <Font name="Arial Black" size="12.0" />
+                        <Font name="Arial" size="12.0" />
                      </font>
                   </Label>
                </children>
@@ -38,7 +38,7 @@
                <children>
                   <Label fx:id="lblAlertaStock" layoutX="14.0" layoutY="14.0" text="ALERTAS STOCK MÍNIMO" textFill="WHITE">
                      <font>
-                        <Font name="Arial Black" size="12.0" />
+                        <Font name="Arial" size="12.0" />
                      </font></Label>
                </children>
             </Pane>
