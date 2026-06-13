@@ -30,6 +30,7 @@ public class PanelPrincipalVistaController {
     @FXML private Button btnPlatillos;
     @FXML private Button btnEstadisticas;
     @FXML private Button btnCategorias;
+    @FXML private Button btnIASql;
 
     // ==============================================================================
     // BOTÓN DE CERRAR SESIÓN
@@ -64,6 +65,9 @@ public class PanelPrincipalVistaController {
         }
         if (btnCategorias != null) {
             btnCategorias.setOnAction(e -> cargarVistaModulo("PanelPrincipalCategorias.fxml", btnCategorias));
+        }
+        if (btnIASql != null) {
+            btnIASql.setOnAction(e -> cargarVistaModulo("vistaIASql.fxml", btnIASql));
         }
 
         // ==============================================================================
@@ -186,7 +190,8 @@ public class PanelPrincipalVistaController {
     private void actualizarEstiloBotones(Button botonActivo) {
         List<Button> botones = Arrays.asList(
                 btnDashboard, btnUsuarios, btnProductos, btnVentas,
-                btnInventario, btnPlatillos, btnEstadisticas, btnCategorias, btnCerrarSesion
+                btnInventario, btnPlatillos, btnEstadisticas, btnCategorias,
+                btnIASql, btnCerrarSesion
         );
 
         for (Button btn : botones) {

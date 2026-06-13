@@ -149,6 +149,20 @@ public class DbManager {
         }
     }
 
+    public void crearTablaLLM() {
+        String sql = "CREATE TABLE IF NOT EXISTS llm ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " key TEXT NOT NULL"
+                + ");";
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'llm' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla llm: " + e.getMessage());
+        }
+    }
+
     public void crearTodasLasTablas() {
         crearTablaUsuario();
         crearTablaCategoria();
@@ -161,6 +175,7 @@ public class DbManager {
         crearTablaPlatillo();
         crearTablaDetallePlatillo();
         crearTablaSesion();
+        crearTablaLLM();
         System.out.println("Inicialización de todas las tablas completada.");
     }
 
