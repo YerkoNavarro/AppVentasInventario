@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.LoginController">
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" style="-fx-background-color: #FFF5EB;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.LoginController">
    <stylesheets>
       <URL value="@css/LoginVista.css" />
    </stylesheets>
@@ -35,9 +35,10 @@
             <Pane maxWidth="500.0" prefHeight="550.0" prefWidth="500.0" styleClass="login-card">
                <children>
                   <Label layoutX="114.0" layoutY="50.0" text="Control Inventario">
-                     <font>
-                        <Font name="Arial" size="32.0" />
-                     </font>
+                        <font>
+                            <Font name="Arial" size="32.0" />
+                        </font>
+                        <textFill>#3E2723</textFill>
                   </Label>
 
                   <Label layoutX="85.0" layoutY="110.0" text="Ingresa tus credenciales para acceder" textFill="#666666">

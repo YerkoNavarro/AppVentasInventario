@@ -27,7 +27,7 @@
                      </font>
                   </Label>
 
-                  <Label text="Escribe en lenguaje natural lo que deseas consultar. Ej: &quot;productos con bajo stock&quot; o &quot;ventas de la semana&quot;" textFill="#607399">
+                  <Label text="Escribe en lenguaje natural lo que deseas consultar. Ej: &quot;productos con bajo stock&quot; o &quot;ventas de la semana&quot;" textFill="#8D6E63">
                      <font>
                         <Font name="Arial" size="13.0" />
                      </font>
@@ -56,7 +56,7 @@
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </padding>
                      <children>
-                        <Label text="Resultados" textFill="#274f8d">
+                        <Label text="Resultados" textFill="#5D4037">
                            <font>
                               <Font name="Arial" size="16.0" />
                            </font>

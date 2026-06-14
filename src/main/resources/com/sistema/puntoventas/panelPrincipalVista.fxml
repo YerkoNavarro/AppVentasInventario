@@ -16,7 +16,7 @@
         <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
             <left>
-                <VBox prefWidth="260.0" spacing="10.0" style="-fx-background-color: #fcf4eb;" styleClass="sidebar" BorderPane.alignment="CENTER">
+                <VBox prefWidth="260.0" spacing="10.0" styleClass="sidebar" BorderPane.alignment="CENTER">
                     <padding>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="30.0" />
                     </padding>
@@ -31,47 +31,47 @@
                             <children>
                                 <Button fx:id="btnDashboard" maxWidth="Infinity" styleClass="menu-button" text="Inicio">
                                     <graphic>
-                                        <Label style="-fx-background-color: #64748b;" styleClass="icon-circle" text="🏠" />
+                                        <Label style="-fx-background-color: #D4893B;" styleClass="icon-circle" text="🏠" />
                                     </graphic>
                                 </Button>
                                 <Button fx:id="btnUsuarios" maxWidth="Infinity" styleClass="menu-button" text="Usuarios">
                                     <graphic>
-                                        <Label style="-fx-background-color: #3b82f6;" styleClass="icon-circle" text="U" />
+                                        <Label style="-fx-background-color: #5D4037;" styleClass="icon-circle" text="U" />
                                     </graphic>
                                 </Button>
                                 <Button fx:id="btnProductos" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Productos">
                                     <graphic>
-                                        <Label style="-fx-background-color: #10b981;" styleClass="icon-circle" text="P" />
+                                        <Label style="-fx-background-color: #4A7C59;" styleClass="icon-circle" text="P" />
                                     </graphic>
                                 </Button>
                                 <Button fx:id="btnPlatillos" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Platillos">
                                     <graphic>
-                                        <Label style="-fx-background-color: #ec4899;" styleClass="icon-circle" text="PL" />
+                                        <Label style="-fx-background-color: #BF6B3F;" styleClass="icon-circle" text="PL" />
                                     </graphic>
                                 </Button>
                                 <Button fx:id="btnCategorias" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Categorías">
                                     <graphic>
-                                        <Label style="-fx-background-color: #f59e0b;" styleClass="icon-circle" text="C" />
+                                        <Label style="-fx-background-color: #D4A373;" styleClass="icon-circle" text="C" />
                                     </graphic>
                                 </Button>
                                 <Button fx:id="btnVentas" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Ventas">
                                     <graphic>
-                                        <Label style="-fx-background-color: #ef4444;" styleClass="icon-circle" text="V" />
+                                        <Label style="-fx-background-color: #9C522E;" styleClass="icon-circle" text="V" />
                                     </graphic>
                                 </Button>
                                 <Button fx:id="btnInventario" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Inventario">
                                     <graphic>
-                                        <Label style="-fx-background-color: #6366f1;" styleClass="icon-circle" text="I" />
+                                        <Label style="-fx-background-color: #7D8A76;" styleClass="icon-circle" text="I" />
                                     </graphic>
                                 </Button>
                                 <Button fx:id="btnEstadisticas" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Estadísticas">
                                     <graphic>
-                                        <Label style="-fx-background-color: #8b5cf6;" styleClass="icon-circle" text="E" />
+                                        <Label style="-fx-background-color: #B58B6A;" styleClass="icon-circle" text="E" />
                                     </graphic>
                                 </Button>
                                 <Button fx:id="btnIASql" maxWidth="Infinity" styleClass="menu-button" text="IA SQL">
                                     <graphic>
-                                        <Label style="-fx-background-color: #7c3aed;" styleClass="icon-circle" text="AI" />
+                                        <Label style="-fx-background-color: #5D4037;" styleClass="icon-circle" text="AI" />
                                     </graphic>
                                 </Button>
                             </children>
@@ -81,13 +81,13 @@
 
                         <Button fx:id="btnCerrarSesion" maxWidth="Infinity" styleClass="menu-button" text="Cerrar Sesión">
                             <graphic>
-                                <Label style="-fx-background-color: #dc2626;" styleClass="icon-circle" text="↩" />
+                                <Label style="-fx-background-color: #922B21;" styleClass="icon-circle" text="↩" />
                             </graphic>
                         </Button>
 
                         <Button maxWidth="Infinity" styleClass="menu-button" text="Configuración">
                             <graphic>
-                                <Label style="-fx-background-color: pink;" styleClass="icon-circle" text="C" />
+                                <Label style="-fx-background-color: #B87333;" styleClass="icon-circle" text="C" />
                             </graphic>
                         </Button>
                     </children>
@@ -95,7 +95,7 @@
             </left>
 
             <center>
-                <StackPane fx:id="contentArea" style="-fx-background-color: #f1f5f9;" />
+                <StackPane fx:id="contentArea" style="-fx-background-color: #FFF5EB;" />
             </center>
 
         </BorderPane>
