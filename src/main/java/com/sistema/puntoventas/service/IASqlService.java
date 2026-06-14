@@ -41,7 +41,7 @@ public class IASqlService {
 
         String respuestaIA = ejecutarPython();
 
-        String sql = respuestaIA; //limpiarRespuesta(respuestaIA); 
+        String sql = limpiarRespuesta(respuestaIA); 
 
         if (sql.toUpperCase().startsWith("SELECT")) {
             ResultadoConsulta resultado = consultaRepository.ejecutarSelect(sql);
