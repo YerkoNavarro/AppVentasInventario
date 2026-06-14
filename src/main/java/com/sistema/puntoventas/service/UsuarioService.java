@@ -120,6 +120,13 @@ public class UsuarioService {
             return "El RUT ingresado ya está registrado por otro usuario.";
         }
 
+        String password = usuario.getContraseña();
+        if (password != null && !password.trim().isEmpty()) {
+            if (existente == null || !password.equals(existente.getContraseña())) {
+                usuario.setContraseña(Encriptador.hashPassword(password));
+            }
+        }
+
         boolean actualizado = usuarioRepository.actualizarUsuario(usuario);
 
         if (actualizado) {

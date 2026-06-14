@@ -59,7 +59,7 @@
                                         <Label style="-fx-background-color: #ef4444;" styleClass="icon-circle" text="V" />
                                     </graphic>
                                 </Button>
-                                <Button fx:id="btnInventario" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Inventario/Stock">
+                                <Button fx:id="btnInventario" maxWidth="Infinity" onMouseClicked="#handleNavegacion" styleClass="menu-button" text="Inventario">
                                     <graphic>
                                         <Label style="-fx-background-color: #6366f1;" styleClass="icon-circle" text="I" />
                                     </graphic>

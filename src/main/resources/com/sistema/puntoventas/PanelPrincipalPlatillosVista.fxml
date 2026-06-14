@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="Infinity" maxWidth="Infinity" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.moduloProductos.PanelPrincipalPlatillosController">
+<AnchorPane maxHeight="Infinity" maxWidth="Infinity" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.moduloProductos.PanelPrincipalPlatillosController">
     <children>
         <HBox spacing="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
             <children>
@@ -55,8 +50,6 @@
                 <Button fx:id="btnEliminarPlatillo" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Eliminar Platillo" />
 
                 <Pane HBox.hgrow="ALWAYS" />
-
-                <Button fx:id="btnVerPlatillos" mnemonicParsing="false" prefHeight="35.0" prefWidth="151.0" styleClass="btn-primary" stylesheets="@css/panel-productos.css" text="Ver platillos" />
             </children>
         </HBox>
 
