@@ -41,7 +41,7 @@ public class IASqlService {
 
         String respuestaIA = ejecutarPython();
 
-        String sql = respuestaIA; //limpiarRespuesta(respuestaIA); 
+        String sql = limpiarRespuesta(respuestaIA); 
 
         if (sql.toUpperCase().startsWith("SELECT")) {
             ResultadoConsulta resultado = consultaRepository.ejecutarSelect(sql);
@@ -64,10 +64,17 @@ public class IASqlService {
         }
     }
 
+    private String obtenerPythonPath() {
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            return "python";
+        }
+        return System.getProperty("user.dir") + "/venv/bin/python";
+    }
+
     private String ejecutarPython() throws Exception {
         File dir = new File(RUTA_IA_SQL);
 
-        ProcessBuilder pb = new ProcessBuilder("python", "main.py");
+        ProcessBuilder pb = new ProcessBuilder(obtenerPythonPath(), "main.py");
         pb.directory(dir);
         pb.redirectErrorStream(true);
 
