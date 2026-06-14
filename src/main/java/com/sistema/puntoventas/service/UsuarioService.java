@@ -3,8 +3,10 @@ package com.sistema.puntoventas.service;
 import com.sistema.puntoventas.modelo.AuditoriaEvento;
 import com.sistema.puntoventas.modelo.Role;
 import com.sistema.puntoventas.modelo.Usuario;
+import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.repository.IUsuarioRepository;
 import com.sistema.puntoventas.repository.impl.UsuarioRepositoryImpl;
+import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
 import com.sistema.puntoventas.util.Encriptador;
 
 import java.time.LocalDateTime;
@@ -14,18 +16,21 @@ import java.util.List;
 public class UsuarioService {
     private IUsuarioRepository usuarioRepository;
     private AuditoriaService auditoriaService;
+    private VentaRepositoryimpl ventaRepository;
 
     private static final DateTimeFormatter formateadorTiempoReal = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     public UsuarioService(){
         this.usuarioRepository = new UsuarioRepositoryImpl();
         this.auditoriaService = new AuditoriaService();
+        this.ventaRepository = new VentaRepositoryimpl();
     }
 
     // Constructor adicional para permitir inyección de mocks en pruebas (cambio mínimo)
-    public UsuarioService(IUsuarioRepository usuarioRepository, AuditoriaService auditoriaService) {
+    public UsuarioService(IUsuarioRepository usuarioRepository, AuditoriaService auditoriaService, VentaRepositoryimpl ventaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.auditoriaService = auditoriaService;
+        this.ventaRepository = ventaRepository;
     }
 
     // ==============================================================================
@@ -75,6 +80,11 @@ public class UsuarioService {
             return validacion;
         }
 
+        Usuario existente = usuarioRepository.obtenerUsuarioPorRut(usuario.getRut().trim());
+        if (existente != null) {
+            return "El RUT ingresado ya está registrado en el sistema.";
+        }
+
         String passwordPlano = usuario.getContraseña();
         String passwordHash = Encriptador.hashPassword(passwordPlano);
         usuario.setContraseña(passwordHash);
@@ -103,6 +113,11 @@ public class UsuarioService {
     public String actualizarUsuario(Usuario usuario) {
         if (usuario == null || usuario.getRut() == null || usuario.getRut().trim().isEmpty()) {
             return "El RUT es obligatorio para actualizar";
+        }
+
+        Usuario existente = usuarioRepository.obtenerUsuarioPorRut(usuario.getRut().trim());
+        if (existente != null && existente.getId() != usuario.getId()) {
+            return "El RUT ingresado ya está registrado por otro usuario.";
         }
 
         boolean actualizado = usuarioRepository.actualizarUsuario(usuario);
@@ -166,6 +181,19 @@ public class UsuarioService {
     public Usuario eliminarUsuario(String rut) {
         if (rut == null || rut.isEmpty()) {
             return null;
+        }
+
+        Usuario usuario = usuarioRepository.obtenerUsuarioPorRut(rut);
+        if (usuario == null) {
+            return null;
+        }
+
+        List<venta> ventas = ventaRepository.obtenerVentas();
+        for (venta v : ventas) {
+            if (v.getIdUsuario() == usuario.getId()) {
+                System.out.println("El usuario tiene ventas asociadas y no puede ser eliminado.");
+                return null;
+            }
         }
 
         Usuario usuarioEliminado = usuarioRepository.eliminarUsuario(rut);

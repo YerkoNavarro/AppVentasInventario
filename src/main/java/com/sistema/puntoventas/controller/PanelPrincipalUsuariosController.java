@@ -217,6 +217,8 @@ public class PanelPrincipalUsuariosController implements Initializable {
                 if (eliminado != null) {
                     mostrarAlerta("Éxito", "Usuario eliminado", "El usuario fue borrado correctamente.", Alert.AlertType.INFORMATION);
                     cargarUsuarios();
+                } else {
+                    mostrarAlerta("Error", "No se pudo eliminar", "El usuario tiene ventas asociadas y no puede ser eliminado.", Alert.AlertType.WARNING);
                 }
             }
         });

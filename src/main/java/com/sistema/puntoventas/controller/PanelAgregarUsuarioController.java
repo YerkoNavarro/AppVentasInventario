@@ -133,7 +133,7 @@ public class PanelAgregarUsuarioController implements Initializable {
                     mostrarAlerta("Éxito", "Registro Completado", mensajeRespuesta, Alert.AlertType.INFORMATION);
                     limpiarCampos();
                 } else {
-                    mostrarAlerta("Atención", "Validación de Campos Faltante", mensajeRespuesta, Alert.AlertType.WARNING);
+                    mostrarAlerta("Atención", "Error de validación", mensajeRespuesta, Alert.AlertType.WARNING);
                 }
             }
 

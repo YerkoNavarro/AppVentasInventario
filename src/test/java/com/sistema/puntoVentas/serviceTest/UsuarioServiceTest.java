@@ -7,6 +7,7 @@ import com.sistema.puntoventas.modelo.AuditoriaEvento;
 import com.sistema.puntoventas.modelo.Role;
 import com.sistema.puntoventas.modelo.Usuario;
 import com.sistema.puntoventas.repository.IUsuarioRepository;
+import com.sistema.puntoventas.repository.impl.VentaRepositoryimpl;
 import com.sistema.puntoventas.service.AuditoriaService;
 import com.sistema.puntoventas.service.UsuarioService;
 import com.sistema.puntoventas.util.Encriptador;
@@ -28,13 +29,14 @@ public class UsuarioServiceTest {
 
     @Mock private IUsuarioRepository usuarioRepository;
     @Mock private AuditoriaService auditoriaService;
+    @Mock private VentaRepositoryimpl ventaRepository;
     private UsuarioService usuarioService;
 
     private Usuario usuarioValido;
 
     @BeforeEach
     public void setUp() {
-        usuarioService = new UsuarioService(usuarioRepository, auditoriaService);
+        usuarioService = new UsuarioService(usuarioRepository, auditoriaService, ventaRepository);
         usuarioValido = Usuario.builder()
                 .nombre("Juan")
                 .apellido("Pérez")
@@ -183,6 +185,8 @@ public class UsuarioServiceTest {
     @DisplayName("TC-13: Camino Feliz - Eliminación exitosa")
     public void testTC13_EliminarUsuarioExitoso() {
         String rut = "19.876.543-2";
+        when(usuarioRepository.obtenerUsuarioPorRut(rut)).thenReturn(usuarioValido);
+        when(ventaRepository.obtenerVentas()).thenReturn(Collections.emptyList());
         when(usuarioRepository.eliminarUsuario(rut)).thenReturn(usuarioValido);
         when(auditoriaService.registrarEvento(any(AuditoriaEvento.class))).thenReturn(true);
 
