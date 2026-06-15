@@ -81,7 +81,7 @@ public class PanelPrincipalVistaController {
             if (btnUsuarios != null) btnUsuarios.setDisable(true);
             if (btnEstadisticas != null) btnEstadisticas.setDisable(true);
             if (btnInventario != null) btnInventario.setDisable(true);
-            if(btnIASql != null) btnIASql.setDisable(true);
+            if (btnIASql != null) btnIASql.setDisable(true);
 
             System.out.println("Seguridad: Se han bloqueado los accesos de Usuarios, Estadísticas e Inventario para el Vendedor.");
 
