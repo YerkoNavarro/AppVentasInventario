@@ -96,6 +96,13 @@ public class VistaIASqlController implements Initializable {
         ButtonType btnEliminar = new ButtonType("Eliminar");
         dialog.getDialogPane().getButtonTypes().add(btnEliminar);
 
+        dialog.setResultConverter(btn -> {
+            if (btn == btnEliminar) {
+                return "";
+            }
+            return dialog.getEditor().getText();
+        });
+
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             String valor = result.get().trim();
