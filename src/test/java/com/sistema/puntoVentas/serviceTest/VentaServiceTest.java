@@ -522,8 +522,21 @@ void pasaListaVaciadePlatillos() {
     void retornaFalseDelRepo() {
         // Verifica que un fallo en el repositorio se propague correctamente
         when(ventaRepositoryimpl.registrarVentaCompleta(any(), any(), any())).thenReturn(false);
-
+        //para venta individual
         assertFalse(service.guardarVenta(new venta(), List.of()));
+    }
+
+
+    @Test
+    @DisplayName("verifica que service delega al repositorio y retorna true si este retorna true")
+    void retornaTrueYVerificaPasoAlRepository() {
+        ArrayList<ventaAplicacion> tabla = new ArrayList<>();
+        when(ventaRepositoryimpl.registrarTabladeVentaCompleta(tabla)).thenReturn(true);
+
+        assertTrue(service.subirTablaBD(tabla));
+
+        // Verifica que el servicio si delego la llamada al repositorio (que conecta con la bd)
+        verify(ventaRepositoryimpl).registrarTabladeVentaCompleta(tabla);
     }
 
 }
