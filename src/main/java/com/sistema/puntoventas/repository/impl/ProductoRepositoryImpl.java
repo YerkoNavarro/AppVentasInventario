@@ -138,7 +138,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
     @Override
     public boolean actualizarProducto(Producto producto) {
         String sql = "UPDATE producto SET nombre = ?, precioCompra = ?, precioVenta = ?, idcategoria = ?, " +
-                "fechaVenc = ?, stockActual = ?, stockMinimo = ?, imagen = ?, unidadMedida = ?, cantidad = ?, tipoProducto = ?, cantidadDefault = ? WHERE id = ?";
+                "fechaVenc = ?, stockActual = ?, stockMinimo = ?,activo = ?, unidadMedida = ?, cantidad = ?, tipoProducto = ?, cantidadDefault = ? WHERE id = ?";
 
         try (var conn = DriverManager.getConnection(url);
              var pstmt = conn.prepareStatement(sql)) {
