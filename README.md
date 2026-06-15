@@ -42,6 +42,13 @@
 - Python 3.8+ con `pip install prophet pandas`
 - (Opcional) SQLite CLI para depuracion
 
+## Dependencias necesarias para la IA
+- pip install prophet
+- pip install pandas
+- pip install numpy
+- pip install -q -U google-genai (en linux usar venv:  python3 -m venv venv / source venv/bin/activate /pip install -q -U google-genai)
+
+
 ## Testing
 
 ```bash
