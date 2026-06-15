@@ -18,32 +18,9 @@ public class DbManager {
     }
 
 
-/* 
-    public void crearTablaProductos(){
-        // SQL statement for creating a new table
-        String sql = "CREATE TABLE IF NOT EXISTS producto ("
-                + " id INTEGER PRIMARY KEY ,"
-                + " nombre TEXT NOT NULL,"
-                + " precioCompra REAL,"
-                + " precioVenta REAL,"
-                + " categoria TEXT,"
-                + " fechaVenc TEXT,"
-                + " stockActual INTEGER,"
-                + " stockMinimo INTEGER,"
-                + " imagen TEXT,"
-                + " unidadMedida TEXT"
-                + ");";
 
-        try (var conn = DriverManager.getConnection(url);
-             var stmt = conn.createStatement()) {
-            // create a new table
-            stmt.execute(sql);
-            System.out.println("Tabla productos creada correctamente");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-*/
+
+
     public void crearTablaUsuario(){
 
         // SQL statement for creating a new table
@@ -77,10 +54,11 @@ public class DbManager {
                 + " fechaVenc TEXT,"
                 + " stockActual INTEGER,"
                 + " stockMinimo INTEGER,"
-                + " imagen TEXT DEFAULT 'IMG',"
+                + " activo BOOLEAN DEFAULT 1,"
                 + " unidadMedida TEXT, "
                 + " cantidad DOUBLE, "
                 + " tipoProducto TEXT,"
+                + " cantidadDefault DOUBLE,"
                 + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
                 + ");";
 
@@ -118,8 +96,10 @@ public class DbManager {
                 + " idDetalle INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + " idVenta INTEGER,"
                 + " idProducto INTEGER,"
+                + " idPlatillo INTEGER,"
                 + " FOREIGN KEY (idVenta) REFERENCES venta(idVenta) ON DELETE CASCADE,"
-                + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
+                + " FOREIGN KEY (idProducto) REFERENCES producto(id),"
+                + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id)"
                 + ");";
         try (var conn = DriverManager.getConnection(url);
              var stmt = conn.createStatement()) {
@@ -152,15 +132,50 @@ public class DbManager {
         }
     }
 
+    public void crearTablaSesion() {
+        String sql = "CREATE TABLE IF NOT EXISTS sesion ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " idUsuario INTEGER NOT NULL,"
+                + " tokenHash TEXT NOT NULL UNIQUE,"
+                + " fechaCreacion TEXT NOT NULL,"
+                + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
+                + ");";
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'sesion' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla sesion: " + e.getMessage());
+        }
+    }
+
+    public void crearTablaLLM() {
+        String sql = "CREATE TABLE IF NOT EXISTS llm ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " key TEXT NOT NULL"
+                + ");";
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'llm' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla llm: " + e.getMessage());
+        }
+    }
+
     public void crearTodasLasTablas() {
         crearTablaUsuario();
         crearTablaCategoria();
+        insertarCategoriaPorDefecto();
         creartablaVentas();
         crearTablaDetalleVenta();
         crearTablaProductos();
         crearTablaHistorialInventario();
+        crearTablaAuditoria();
         crearTablaPlatillo();
         crearTablaDetallePlatillo();
+        crearTablaSesion();
+        crearTablaLLM();
         System.out.println("Inicialización de todas las tablas completada.");
     }
 
@@ -171,7 +186,7 @@ public class DbManager {
             pstmt.setString(1, "Admin");
             pstmt.setString(2, "Admin");
             pstmt.setString(3, "12345678-9");
-            pstmt.setString(4, "admin");
+            pstmt.setString(4, "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"); //admin
             pstmt.setString(5, "99999999");
             pstmt.setString(6, "ADMIN");
             pstmt.setInt(7, 1);
@@ -179,6 +194,26 @@ public class DbManager {
             System.out.println("Usuario administrador verificado/creado.");
         } catch (SQLException e) {
             System.err.println("Error al crear admin: " + e.getMessage());
+        }
+    }
+
+    public void crearUsuarioVendedor() {
+        String sql = "INSERT OR IGNORE INTO usuario (nombre, apellido, rut, password, telefono, rol, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "Vendedor");
+            pstmt.setString(2, "Juan");
+            pstmt.setString(3, "98765432-1"); // RUT de ejemplo para el vendedor
+            pstmt.setString(4, "vendedor123");  // Contraseña de acceso
+            pstmt.setString(5, "88888888");
+            pstmt.setString(6, "VENDEDOR");    // Rol configurado exactamente como tu Enum (Role.VENDEDOR)
+            pstmt.setInt(7, 1);                // Estado Activo (1)
+
+            pstmt.executeUpdate();
+            System.out.println("Usuario vendedor verificado/creado con éxito.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear vendedor por defecto: " + e.getMessage());
         }
     }
 
@@ -200,6 +235,22 @@ public class DbManager {
         }
     }
 
+    //insertar categoria "otros" por defecto en tabla categoria , para cuando se inicia el programa por primera vez y no hay datos
+    public void insertarCategoriaPorDefecto() {
+        String sql = "INSERT OR IGNORE INTO categoria (nombreCategoria, descripcion, activa) VALUES (?, ?, ?)";
+        try (var conn = DriverManager.getConnection(url);
+             var pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "Otros");
+            pstmt.setString(2, "Categoría por defecto para productos sin clasificación específica");
+            pstmt.setBoolean(3, true);
+            pstmt.executeUpdate();
+            System.out.println("Categoría por defecto 'Otros' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear categoría por defecto: " + e.getMessage());
+        }
+    }
+
+
     public void crearTablaPlatillo(){
         String sql = "CREATE TABLE IF NOT EXISTS platillo ("
             + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -208,7 +259,7 @@ public class DbManager {
             + " idCategoria INTEGER, "    
             + " estado boolean DEFAULT 1, "
             + " costoProduccion double DEFAULT 0.0, "
-            + " stockActual INTEGER DEFAULT 0, "
+            + " fabricables INTEGER DEFAULT 0, "
             + " tipoProducto TEXT DEFAULT 'PLATILLO', "
             + " FOREIGN KEY (idCategoria) REFERENCES categoria(id) ON UPDATE CASCADE ON DELETE RESTRICT"
             + ");";
@@ -226,7 +277,7 @@ public class DbManager {
         String sql = "CREATE TABLE IF NOT EXISTS detalle_platillo ("
             + " id INTEGER PRIMARY KEY AUTOINCREMENT, "
             + " idPlatillo INTEGER NOT NULL, "
-            + " idProducto INTEGER NOT NULL, " // idProducto asume que el ingrediente es un producto del inventario
+            + " idProducto INTEGER NOT NULL, "
             + " cantidadIngrediente DOUBLE NOT NULL, "
             + " FOREIGN KEY (idPlatillo) REFERENCES platillo(id) ON DELETE CASCADE, "
             + " FOREIGN KEY (idProducto) REFERENCES producto(id)"
@@ -239,4 +290,27 @@ public class DbManager {
             System.err.println("Error al crear tabla detalle_platillo: " + e.getMessage());
         }
     }
+
+    public void crearTablaAuditoria() {
+        String sql = "CREATE TABLE IF NOT EXISTS auditoria_eventos ("
+                + " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + " fecha TEXT DEFAULT CURRENT_TIMESTAMP,"
+                + " modulo TEXT,"
+                + " entidad TEXT,"
+                + " accion TEXT,"
+                + " idEntidad INTEGER,"
+                + " detalle TEXT,"
+                + " idUsuario INTEGER,"
+                + " FOREIGN KEY (idUsuario) REFERENCES usuario(id)"
+                + ");";
+
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            System.out.println("Tabla 'auditoria_eventos' verificada/creada.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla auditoria_eventos: " + e.getMessage());
+        }
+    }
+
 }

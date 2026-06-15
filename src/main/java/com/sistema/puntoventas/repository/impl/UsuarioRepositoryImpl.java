@@ -27,7 +27,7 @@ public class UsuarioRepositoryImpl implements IUsuarioRepository {
             ps.setString(5, usuario.getTelefono());
             // Conversión de Enum Role a String para la base de datos
             ps.setString(6, usuario.getRol().name());
-            // Uso de setBoolean para el tipo de dato correcto[cite: 1]
+            // Uso de setBoolean para el tipo de dato correcto
             ps.setBoolean(7, usuario.getEstado());
 
             int rowsInserted = ps.executeUpdate();
@@ -40,13 +40,12 @@ public class UsuarioRepositoryImpl implements IUsuarioRepository {
 
     @Override
     public Usuario iniciarSesion(String rut, String contraseña) {
-        // Se utiliza 'password' para la consulta SQL[cite: 2]
-        String sql = "SELECT * FROM Usuario WHERE rut = ? AND password = ?";
+        // Buscar por RUT únicamente; la validación del hash la hace UsuarioService
+        String sql = "SELECT * FROM Usuario WHERE rut = ?";
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, rut);
-            ps.setString(2, contraseña);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -55,6 +54,23 @@ public class UsuarioRepositoryImpl implements IUsuarioRepository {
             }
         } catch (SQLException e) {
             System.err.println("Error en inicio de sesión: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public Usuario obtenerUsuarioPorId(int id) {
+        String sql = "SELECT * FROM Usuario WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapearUsuario(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener usuario por ID: " + e.getMessage());
         }
         return null;
     }
@@ -112,21 +128,26 @@ public class UsuarioRepositoryImpl implements IUsuarioRepository {
         }
     }
 
-    // Método auxiliar para mapear los resultados respetando los tipos del modelo[cite: 1]
+    // Método auxiliar para mapear los resultados respetando los tipos del modelo
     private Usuario mapearUsuario(ResultSet rs) throws SQLException {
         Usuario user = new Usuario();
+
+        // === AQUÍ ESTÁ LA LÍNEA AGREGADA PARA EL ID ===
+        user.setId(rs.getInt("id"));
+
         user.setNombre(rs.getString("nombre"));
         user.setApellido(rs.getString("apellido"));
         user.setRut(rs.getString("rut"));
-        // Se lee la columna 'password' de la DB[cite: 2]
+        // Se lee la columna 'password' de la DB
         user.setContraseña(rs.getString("password"));
         user.setTelefono(rs.getString("telefono"));
-        // Conversión del String de la DB al Enum Role[cite: 1]
+        // Conversión del String de la DB al Enum Role
         user.setRol(Role.valueOf(rs.getString("rol")));
-        // Uso de getBoolean para el estado[cite: 1]
+        // Uso de getBoolean para el estado
         user.setEstado(rs.getBoolean("estado"));
         return user;
     }
+
     @Override
     public boolean actualizarUsuario(Usuario usuario) {
         // El RUT no se cambia (es el WHERE), actualizamos el resto

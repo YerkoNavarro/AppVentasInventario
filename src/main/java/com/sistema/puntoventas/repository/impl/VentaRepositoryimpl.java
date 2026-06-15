@@ -2,6 +2,7 @@
 package com.sistema.puntoventas.repository.impl;
 
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
+import com.sistema.puntoventas.modelo.moduloProducto.Platillo;
 import com.sistema.puntoventas.modelo.venta;
 import com.sistema.puntoventas.modelo.ventaAplicacion;
 import com.sistema.puntoventas.repository.IventaRepository;
@@ -24,9 +25,9 @@ public class VentaRepositoryimpl implements IventaRepository {
     private static final String url = "jdbc:sqlite:DBventasInventario.db";
  
     @Override
-    public Boolean registrarVentaCompleta(venta venta, List<Integer> idProductos) {
+    public Boolean registrarVentaCompleta(venta venta, List<Integer> idProductos, List<Integer> idPlatillos) {
         String sqlVenta = "INSERT INTO venta (fechaHora, idUsuario, totalVenta, tipoPago, descripcion, estado) VALUES (?, ?, ?, ?, ?, ?)";
-        String sqlDetalle = "INSERT INTO detalle_venta (idVenta, idProducto) VALUES (?, ?)";
+        String sqlDetalle = "INSERT INTO detalle_venta (idVenta, idProducto, idPlatillo) VALUES (?, ?, ?)";
     
         try (Connection conn = DriverManager.getConnection(url)) {
             conn.setAutoCommit(false);
@@ -47,6 +48,13 @@ public class VentaRepositoryimpl implements IventaRepository {
                         for (Integer idProducto : idProductos) {
                             pstmtDetalle.setInt(1, idVenta);
                             pstmtDetalle.setInt(2, idProducto);
+                            pstmtDetalle.setNull(3, java.sql.Types.INTEGER);
+                            pstmtDetalle.executeUpdate();
+                        }
+                        for (Integer idPlatillo : idPlatillos) {
+                            pstmtDetalle.setInt(1, idVenta);
+                            pstmtDetalle.setNull(2, java.sql.Types.INTEGER);
+                            pstmtDetalle.setInt(3, idPlatillo);
                             pstmtDetalle.executeUpdate();
                         }
                     }
@@ -67,7 +75,7 @@ public class VentaRepositoryimpl implements IventaRepository {
 
     public boolean registrarTabladeVentaCompleta(ArrayList<ventaAplicacion> tablaVentaAplicacion) {
         String sqlVenta = "INSERT INTO venta (fechaHora, idUsuario, totalVenta, tipoPago, descripcion, estado) VALUES (?, ?, ?, ?, ?, ?)";
-        String sqlDetalle = "INSERT INTO detalle_venta (idVenta, idProducto) VALUES (?, ?)";
+        String sqlDetalle = "INSERT INTO detalle_venta (idVenta, idProducto, idPlatillo) VALUES (?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(url)) {
             conn.setAutoCommit(false);
@@ -92,6 +100,13 @@ public class VentaRepositoryimpl implements IventaRepository {
                             for (Producto producto : va.getDetalleVentas()) {
                                 pstmtDetalle.setInt(1, idVenta);
                                 pstmtDetalle.setInt(2, producto.getId());
+                                pstmtDetalle.setNull(3, java.sql.Types.INTEGER);
+                                pstmtDetalle.addBatch();
+                            }
+                            for (Platillo platillo : va.getDetallePlatillos()) {
+                                pstmtDetalle.setInt(1, idVenta);
+                                pstmtDetalle.setNull(2, java.sql.Types.INTEGER);
+                                pstmtDetalle.setInt(3, platillo.getId());
                                 pstmtDetalle.addBatch();
                             }
                             pstmtDetalle.executeBatch();

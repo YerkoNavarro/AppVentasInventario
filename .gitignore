@@ -15,6 +15,18 @@ target/
 
 DBventasInventario.db
 datos_ventas.csv
+*.json
+.json
+/modelos_ia
+*.csv
+
+# IA SQL - datos sensibles 
+src/main/java/com/sistema/puntoventas/util/ia_sql/input.json
+src/main/java/com/sistema/puntoventas/util/ia_sql/respuesta.json
+
+# Python cache
+__pycache__/
+*.pyc
 
 ### Eclipse ###
 .apt_generated
@@ -41,3 +53,5 @@ build/
 ### Mac OS ###
 .DS_Store
 
+#entorno de python
+/venv/

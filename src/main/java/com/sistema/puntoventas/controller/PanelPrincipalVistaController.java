@@ -1,102 +1,213 @@
-package com.sistema.puntoventas.controller.moduloProductos;
+package com.sistema.puntoventas.controller;
+
+import com.sistema.puntoventas.modelo.Usuario;
+import com.sistema.puntoventas.service.SesionService;
+import com.sistema.puntoventas.util.MensajesAlerta; // Importación de tu utilidad de alertas
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PanelPrincipalVistaController {
 
+    @FXML private Button btnDashboard;
+    @FXML private Button btnUsuarios;
+    @FXML private Button btnProductos;
+    @FXML private Button btnVentas;
+    @FXML private Button btnInventario;
+    @FXML private Button btnPlatillos;
+    @FXML private Button btnEstadisticas;
+    @FXML private Button btnCategorias;
+    @FXML private Button btnIASql;
 
+    // ==============================================================================
+    // BOTÓN DE CERRAR SESIÓN
+    // ==============================================================================
+    @FXML private Button btnCerrarSesion;
 
+    @FXML private StackPane contentArea;
 
+    // Variable para no perder el dashboard original al cambiar de pantallas
+    private Node vistaDashboardInicial;
 
+    // Cache para almacenar las vistas ya cargadas y preservar su estado (tablas, textos, etc.)
+    private final Map<String, Node> vistasCache = new HashMap<>();
 
+    @FXML
+    public void initialize() {
+        // Cargar el Dashboard por defecto al iniciar
+        cargarVistaModulo("DashboardVista.fxml", null);
 
-        // 1. CONEXIÓN CON LOS ELEMENTOS DEL FXML
-        @FXML private Button btnUsuarios;
-        @FXML private Button btnProductos;
-        @FXML private Button btnVentas;
-        @FXML private Button btnInventario;
-
-        @FXML private StackPane contentArea;
-
-        // Variable para no perder el dashboard original al cambiar de pantallas
-        private Node vistaDashboardInicial;
-
-        // 2. MÉTODO DE INICIALIZACIÓN
-        @FXML
-        public void initialize() {
-            cargarVistaMódulo("DashboardVista.fxml", null);
-
-            // Asignamos qué archivo FXML se abrirá al hacer clic en cada botón
-            // (Asegúrate de que los nombres de los archivos .fxml coincidan con los tuyos)
-            btnUsuarios.setOnAction(e -> cargarVistaMódulo("PanelUsuarios-vista.fxml", btnUsuarios));
-            btnProductos.setOnAction(e -> cargarVistaMódulo("PanelRegistrarProductosvista.fxml", btnProductos));
-            btnVentas.setOnAction(e -> cargarVistaMódulo("panelVentas.fxml", btnVentas));
-            btnInventario.setOnAction(e -> cargarVistaMódulo("PanelInventario-vista.fxml", btnInventario));
+        // Configuración de las acciones comunes (permitidas para todos)
+        if (btnDashboard != null) {
+            btnDashboard.setOnAction(e -> cargarVistaModulo("DashboardVista.fxml", btnDashboard));
+        }
+        if (btnProductos != null) {
+            btnProductos.setOnAction(e -> cargarVistaModulo("PanelPrincipalProductos.fxml", btnProductos));
+        }
+        if (btnVentas != null) {
+            btnVentas.setOnAction(e -> cargarVistaModulo("panelVentas.fxml", btnVentas));
+        }
+        if (btnPlatillos != null) {
+            btnPlatillos.setOnAction(e -> cargarVistaModulo("PanelPrincipalPlatillosVista.fxml", btnPlatillos));
+        }
+        if (btnCategorias != null) {
+            btnCategorias.setOnAction(e -> cargarVistaModulo("PanelPrincipalCategorias.fxml", btnCategorias));
+        }
+        if (btnIASql != null) {
+            btnIASql.setOnAction(e -> cargarVistaModulo("vistaIASql.fxml", btnIASql));
         }
 
-        // 3. SISTEMA DE NAVEGACIÓN DINÁMICA
-        private void cargarVistaMódulo(String archivoFxml, Button botonActivo) {
-            try {
-                // Cargar el archivo FXML del módulo correspondiente
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + archivoFxml));
-                Parent nuevaVista = loader.load();
+        // ==============================================================================
+        // RESTRICCIÓN DE ACCESOS POR ROL: ADMINISTRADOR vs VENDEDOR
+        // ==============================================================================
+        Usuario usuarioActivo = LoginController.usuarioLogueado;
 
-                // Reemplazar el contenido del centro por la nueva vista
-                contentArea.getChildren().setAll(nuevaVista);
+        if (usuarioActivo != null && "VENDEDOR".equalsIgnoreCase(usuarioActivo.getRol().name())) {
 
-                // Cambiar el color del botón
-                actualizarEstiloBotones(botonActivo);
+            // 1. Bloqueamos los botones requeridos para el rol Vendedor
+            if (btnUsuarios != null) btnUsuarios.setDisable(true);
+            if (btnEstadisticas != null) btnEstadisticas.setDisable(true);
+            if (btnInventario != null) btnInventario.setDisable(true);
+            if (btnIASql != null) btnIASql.setDisable(true);
 
-            } catch (IOException e) {
-                System.err.println("Error al cargar la vista: " + archivoFxml);
-                e.printStackTrace();
+            System.out.println("Seguridad: Se han bloqueado los accesos de Usuarios, Estadísticas e Inventario para el Vendedor.");
+
+        } else {
+            // 2. Si es Administrador (o cualquier otro rol), habilitamos los botones y asignamos sus funciones
+            if (btnUsuarios != null) {
+                btnUsuarios.setDisable(false);
+                btnUsuarios.setOnAction(e -> cargarVistaModulo("PanelPrincipalUsuarios.fxml", btnUsuarios));
             }
+            if (btnEstadisticas != null) {
+                btnEstadisticas.setDisable(false);
+                btnEstadisticas.setOnAction(e -> cargarVistaModulo("PanelPrincipalEstadisticasVista.fxml", btnEstadisticas));
+            }
+            if (btnInventario != null) {
+                btnInventario.setDisable(false);
+                btnInventario.setOnAction(e -> cargarVistaModulo("PanelInventario.fxml", btnInventario));
+            }
+
+            System.out.println("Seguridad: Acceso total concedido al Administrador.");
         }
 
-        // Método extra: Para poder volver al Dashboard desde el código
-        private void volverAlDashboard(Button botonActivo) {
-            if (vistaDashboardInicial != null) {
-                contentArea.getChildren().setAll(vistaDashboardInicial);
-                actualizarEstiloBotones(botonActivo);
-            }
-        }
-
-        // 4. CAMBIO DE COLOR DEL BOTÓN (Estado Activo/Inactivo)
-        private void actualizarEstiloBotones(Button botonActivo) {
-            // Agrupamos los botones en una lista
-            List<Button> botones = Arrays.asList(btnUsuarios, btnProductos, btnVentas, btnInventario);
-
-            // A todos les quitamos la clase azul
-            for (Button btn : botones) {
-                if (btn != null) {
-                    btn.getStyleClass().remove("menu-button-active");
-                }
-            }
-
-            // Solo al que presionamos le ponemos la clase azul
-            if (botonActivo != null) {
-                botonActivo.getStyleClass().add("menu-button-active");
-            }
-        }
-
-        // 5. EVENTOS DE LAS TARJETAS DEL DASHBOARD
-        // En tu FXML pusiste 'onMouseClicked="#handleNavegacion"' en las VBox del centro
-        @FXML
-        public void handleNavegacion(MouseEvent event) {
-        /* Aquí puedes detectar en qué tarjeta se hizo clic.
-           Por ejemplo, si hacen clic en la tarjeta "Productos",
-           podrías llamar a cargarVistaMódulo("PanelRegistrarProductosvista.fxml", btnProductos);
-        */
-            System.out.println("Clic detectado en una tarjeta del Dashboard!");
+        // Asignar acción al botón cerrar sesión (Siempre activo para todos)
+        if (btnCerrarSesion != null) {
+            btnCerrarSesion.setOnAction(e -> cerrarSesion());
         }
     }
 
+    /**
+     * Lógica de Cierre de Sesión con Ventana de Confirmación
+     */
+    private void cerrarSesion() {
+        // 1. Desplegamos la alerta de confirmación usando tu clase utilitaria MensajesAlerta
+        boolean confirmar = MensajesAlerta.mostrarConfirmacion(
+                "Cerrar Sesión",
+                "¿Estás seguro de que deseas salir del sistema?",
+                Alert.AlertType.CONFIRMATION
+        );
+
+        // 2. Si el usuario presiona "OK", procedemos con la desconexión segura
+        if (confirmar) {
+            LoginController.usuarioLogueado = null;
+            new SesionService().cerrarSesionPersistente();
+
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/LoginVista.fxml"));
+                Scene scene = new Scene(fxmlLoader.load());
+                Stage stageActual = (Stage) contentArea.getScene().getWindow();
+                stageActual.setTitle("Eluney");
+                stageActual.setWidth(1920);
+                stageActual.setHeight(1080);
+                stageActual.setScene(scene);
+                stageActual.setMaximized(true);
+
+                stageActual.maximizedProperty().addListener((obs, wasMaximized, isMaximized) -> {
+                    if (!isMaximized) {
+                        double screenWidth = javafx.stage.Screen.getPrimary().getBounds().getWidth();
+                        double screenHeight = javafx.stage.Screen.getPrimary().getBounds().getHeight();
+                        double x = (screenWidth - stageActual.getWidth()) / 2;
+                        double y = (screenHeight - stageActual.getHeight()) / 2;
+                        if (y < 0) y = 20;
+                        if (x < 0) x = 20;
+                        stageActual.setX(x);
+                        stageActual.setY(y);
+                    }
+                });
+
+                stageActual.show();
+            } catch (IOException e) {
+                System.err.println("ERROR: No se pudo cargar LoginVista.fxml al cerrar sesión.");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Cierre de sesión cancelado de forma voluntaria.");
+        }
+    }
+
+    private void cargarVistaModulo(String archivoFxml, Button botonActivo) {
+        try {
+            Node vista;
+
+            if (archivoFxml.equals("DashboardVista.fxml")) {
+                if (vistaDashboardInicial == null) {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + archivoFxml));
+                    vistaDashboardInicial = loader.load();
+                }
+                vista = vistaDashboardInicial;
+            } else if (archivoFxml.equals("panelVentas.fxml") && vistasCache.containsKey(archivoFxml)) {
+                vista = vistasCache.get(archivoFxml);
+            } else {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + archivoFxml));
+                vista = loader.load();
+
+                if (archivoFxml.equals("panelVentas.fxml")) {
+                    vistasCache.put(archivoFxml, vista);
+                }
+            }
+
+            contentArea.getChildren().setAll(vista);
+            actualizarEstiloBotones(botonActivo);
+
+        } catch (IOException e) {
+            System.err.println("Error al cargar la vista interna: " + archivoFxml);
+            e.printStackTrace();
+        }
+    }
+
+    private void actualizarEstiloBotones(Button botonActivo) {
+        List<Button> botones = Arrays.asList(
+                btnDashboard, btnUsuarios, btnProductos, btnVentas,
+                btnInventario, btnPlatillos, btnEstadisticas, btnCategorias,
+                btnIASql, btnCerrarSesion
+        );
+
+        for (Button btn : botones) {
+            if (btn != null) {
+                btn.getStyleClass().remove("menu-button-active");
+            }
+        }
+
+        if (botonActivo != null) {
+            botonActivo.getStyleClass().add("menu-button-active");
+        }
+    }
+
+    @FXML
+    public void handleNavegacion(MouseEvent event) {
+        // Reservado para clicks auxiliares sobre componentes del Dashboard central
+    }
+}

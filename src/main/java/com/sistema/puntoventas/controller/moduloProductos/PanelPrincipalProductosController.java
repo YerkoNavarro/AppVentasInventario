@@ -7,6 +7,8 @@ import com.sistema.puntoventas.modelo.moduloProducto.MetricasDTO;
 import com.sistema.puntoventas.modelo.moduloProducto.Producto;
 import com.sistema.puntoventas.service.ProductoService;
 import com.sistema.puntoventas.util.MensajesAlerta;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -88,6 +90,7 @@ public class PanelPrincipalProductosController {
 
 
     private ProductoService productoService;
+    private java.util.List<String> nombresCriticos;
 
     
     
@@ -104,6 +107,7 @@ public class PanelPrincipalProductosController {
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
         colTipoProducto.setCellValueFactory(new PropertyValueFactory<>("tipoProducto"));
 
+        configurarRowFactory();
         obtenerProductos();
         actualizarMetricas();
 
@@ -119,6 +123,53 @@ public class PanelPrincipalProductosController {
         });
     }
 
+    private void configurarRowFactory() {
+        tableProductos.setRowFactory(tv -> new TableRow<Producto>() {
+            @Override
+            protected void updateItem(Producto item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty || nombresCriticos == null) {
+                    setStyle("");
+                } else if (nombresCriticos.contains(item.getNombre())) {
+                    setStyle("-fx-background-color: #ffcccc;");
+                } else {
+                    setStyle("");
+                }
+            }
+        });
+    }
+
+    private void configurarColumnasTabla() {
+        // Configuración de Responsividad (Anchos Proporcionales)
+        colId.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.05));
+        colNombre.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.15));
+        colPrecioCompra.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.10));
+        colPrecioVenta.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.10));
+        colCategoria.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.10));
+        colFechaVenc.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.10));
+        colStockActual.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.08));
+        colStockMin.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.08));
+        colUnidadMedida.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.08));
+        colCantidad.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.08));
+        colTipoProducto.prefWidthProperty().bind(tableProductos.widthProperty().multiply(0.08));
+
+        // Mapeo de Celdas con Lambdas
+        colId.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getId()));
+        colNombre.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNombre()));
+        colPrecioCompra.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getPrecioCompra()));
+        colPrecioVenta.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getPrecioVenta()));
+        colCategoria.setCellValueFactory(cellData -> 
+            new SimpleStringProperty(cellData.getValue().getCategoria() != null ? cellData.getValue().getCategoria().getNombreCategoria() : "N/A"));
+        colFechaVenc.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFechaVenc()));
+        colStockActual.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getStockActual()));
+        colStockMin.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getStockMinimo()));
+        colUnidadMedida.setCellValueFactory(cellData -> 
+            new SimpleStringProperty(cellData.getValue().getUnidadMedida() != null ? cellData.getValue().getUnidadMedida().name() : "N/A"));
+        colCantidad.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getCantidad()));
+        colTipoProducto.setCellValueFactory(cellData -> 
+            new SimpleStringProperty(cellData.getValue().getTipoProducto() != null ? cellData.getValue().getTipoProducto().name() : "N/A"));
+    }
+
     private void cargarVistaAgregarProducto(String fxml) {
         try{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sistema/puntoventas/" + fxml));
@@ -128,7 +179,7 @@ public class PanelPrincipalProductosController {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Registrar producto");
-            stage.setScene(new Scene(root,1200,768));
+            stage.setScene(new Scene(root,900,600));
             stage.showAndWait();
             obtenerProductos();
             actualizarMetricas();
@@ -179,6 +230,8 @@ public class PanelPrincipalProductosController {
                 productoService = new ProductoService();
             }
 
+            nombresCriticos = productoService.obtenerNombreStockCritico();
+
 
             java.util.List<Producto> productos = productoService.obtenerProductos();
 
@@ -199,7 +252,7 @@ public class PanelPrincipalProductosController {
                 items.setAll(productos);
             }
 
-            MensajesAlerta.mostrarMensaje("ÉXITO","Productos cargados correctamente: " + productos.size(), Alert.AlertType.INFORMATION);
+            //MensajesAlerta.mostrarMensaje("ÉXITO","Productos cargados correctamente: " + productos.size(), Alert.AlertType.INFORMATION);
         }catch (Exception e){
             MensajesAlerta.mostrarMensaje("ERROR","Error al obtener productos: " + e.getMessage(), Alert.AlertType.ERROR);
             e.printStackTrace();
@@ -226,8 +279,17 @@ public class PanelPrincipalProductosController {
     public void eliminarProducto(javafx.event.ActionEvent event){
         Producto productoSeleccionado  =tableProductos.getSelectionModel().getSelectedItem();
 
+
+
         if(productoSeleccionado == null){
             mostrarMensaje("AVISO","Por favor seleccione un producto para eliminar", Alert.AlertType.WARNING);
+            return;
+        }
+
+        String nombreAeliminar = productoSeleccionado.getNombre();
+        boolean existeNombre = productoService.existeNombre(nombreAeliminar,0);
+        if(!existeNombre){
+            mostrarMensaje("AVISO","El producto seleccionado no existe ", Alert.AlertType.WARNING);
             return;
         }
 

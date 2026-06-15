@@ -5,6 +5,7 @@ public class detalleVenta {
     private int idDetalle;
     private int idVenta;
     private int idProducto; 
+    private int idPlatillo;
 
 
     //constructor
@@ -12,10 +13,20 @@ public class detalleVenta {
     public detalleVenta() {
     }
 
-    public detalleVenta(int idDetalle, int idVenta, int idProducto) {
+    public detalleVenta(int idDetalle, int idVenta, int idProducto, int idPlatillo) {
         this.idDetalle = idDetalle;
         this.idVenta = idVenta;
         this.idProducto = idProducto;
+        this.idPlatillo = idPlatillo;
+    }
+
+    /**
+     * Constructor sobrecargado para facilitar la creación de detalles sin ID (autoincremental).
+     */
+    public detalleVenta(int idVenta, int idProducto, int idPlatillo) {
+        this.idVenta = idVenta;
+        this.idProducto = idProducto;
+        this.idPlatillo = idPlatillo;
     }
 
     //getters y setters 
@@ -43,6 +54,14 @@ public class detalleVenta {
         return idProducto;
     }
 
+    public int getIdPlatillo() {
+        return idPlatillo;
+    }
+
+    public void setIdPlatillo(int idPlatillo) {
+        this.idPlatillo = idPlatillo;
+    }
+
     //toString
     @Override
     public String toString() {
@@ -50,6 +69,7 @@ public class detalleVenta {
                 "idDetalle=" + idDetalle +
                 ", idVenta=" + idVenta +
                 ", idProducto=" + idProducto +
+                ", idPlatillo=" + idPlatillo +
                 '}';
     }
 

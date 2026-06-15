@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="595.0" prefWidth="898.0" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelInventarioController">
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" styleClass="panel-root" stylesheets="@css/panel-productos.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sistema.puntoventas.controller.PanelInventarioController">
    <children>
       <HBox fx:id="Hbox" layoutX="46.0" layoutY="52.0" prefHeight="74.0" prefWidth="805.0" spacing="20.0">
          <children>
@@ -20,7 +20,7 @@
                <children>
                   <Label fx:id="lblTotalProductos" layoutX="21.0" layoutY="14.0" text="TOTAL PRODUCTOS" textFill="WHITE">
                      <font>
-                        <Font name="Arial Black" size="12.0" />
+                        <Font name="Arial" size="12.0" />
                      </font>
                   </Label>
                </children>
@@ -29,44 +29,47 @@
                <children>
                   <Label fx:id="lblMovimientoHoy" layoutX="14.0" layoutY="14.0" text="MOVIMIENTO HOY " textFill="WHITE">
                      <font>
-                        <Font name="Arial Black" size="12.0" />
+                        <Font name="Arial" size="12.0" />
                      </font>
                   </Label>
                </children>
             </Pane>
-            <Pane fx:id="cardAlertaStock" layoutX="228.0" layoutY="10.0" prefHeight="74.0" prefWidth="239.0" styleClass="card-kpi-yellow" stylesheets="@css/PanelPrincipalVista.css">
+            <Pane fx:id="cardAlertaStock" layoutX="228.0" layoutY="10.0" prefHeight="74.0" prefWidth="252.0" styleClass="card-kpi-yellow" stylesheets="@css/PanelPrincipalVista.css">
                <children>
                   <Label fx:id="lblAlertaStock" layoutX="14.0" layoutY="14.0" text="ALERTAS STOCK MÍNIMO" textFill="WHITE">
                      <font>
-                        <Font name="Arial Black" size="12.0" />
+                        <Font name="Arial" size="12.0" />
                      </font></Label>
                </children>
             </Pane>
          </children>
       </HBox>
-      <Pane fx:id="PaneMovimiento" layoutX="27.0" layoutY="157.0" prefHeight="407.0" prefWidth="258.0" style="-fx-background-color: WHITE;" styleClass="panel-root" stylesheets="@css/panel-productos.css">
+      <Pane fx:id="PaneMovimiento" layoutX="27.0" layoutY="157.0" prefHeight="590.0" prefWidth="320.0" style="-fx-background-color: WHITE;" styleClass="panel-root" stylesheets="@css/panel-productos.css">
          <children>
-            <Label fx:id="lblRegistrarMovimiento" layoutX="21.0" layoutY="23.0" prefHeight="17.0" prefWidth="148.0" text="REGISTRAR MOVIMIENTO" />
-            <TextField fx:id="TxtProductoNombre" layoutX="19.0" layoutY="73.0" prefHeight="25.0" prefWidth="218.0" />
-            <TextField fx:id="TxtCantidad" layoutX="19.0" layoutY="127.0" prefHeight="25.0" prefWidth="218.0" />
-            <Label fx:id="lblProductoNombre" layoutX="21.0" layoutY="56.0" prefHeight="17.0" prefWidth="148.0" text="Producto (Nombre o ID )" />
-            <Label fx:id="lblCantidad" layoutX="21.0" layoutY="110.0" text="Cantidad" />
-            <ComboBox fx:id="CmbComboBox" layoutX="20.0" layoutY="164.0" prefHeight="25.0" prefWidth="218.0" styleClass="field" />
-            <TextArea fx:id="TxtMotivo" layoutX="19.0" layoutY="221.0" prefHeight="114.0" prefWidth="218.0" />
-            <Button fx:id="BtnRegistrarMovimiento" layoutX="19.0" layoutY="356.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="218.0" styleClass="btn-primary" text="REGISTRAR MOVIMIENTO">
+             <Label fx:id="lblRegistrarMovimiento" layoutX="50.0" layoutY="24.0" prefHeight="32.0" prefWidth="209.0" text="REGISTRAR MOVIMIENTO" textFill="#3E2723">
+                <font>
+                   <Font size="14.0" />
+                </font></Label>
+            <TextField fx:id="TxtProductoNombre" layoutX="45.0" layoutY="130.0" prefHeight="32.0" prefWidth="218.0" />
+            <TextField fx:id="TxtCantidad" layoutX="45.0" layoutY="195.0" prefHeight="32.0" prefWidth="218.0" />
+             <Label fx:id="lblProductoNombre" layoutX="45.0" layoutY="103.0" prefHeight="17.0" prefWidth="148.0" text="Producto (Nombre o ID )" textFill="#5D4037" />
+             <Label fx:id="lblCantidad" layoutX="45.0" layoutY="170.0" text="Cantidad" textFill="#5D4037" />
+            <ComboBox fx:id="CmbComboBox" layoutX="45.0" layoutY="256.0" prefHeight="25.0" prefWidth="218.0" styleClass="field" />
+            <TextArea fx:id="TxtMotivo" layoutX="45.0" layoutY="329.0" prefHeight="160.0" prefWidth="218.0" />
+            <Button fx:id="BtnRegistrarMovimiento" layoutX="45.0" layoutY="511.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="218.0" styleClass="btn-primary" text="REGISTRAR MOVIMIENTO">
                <font>
                   <Font name="Arial" size="12.0" />
                </font></Button>
          </children>
       </Pane>
-      <TableView fx:id="tablaMovimientos" layoutX="302.0" layoutY="157.0" prefHeight="407.0" prefWidth="578.0">
+      <TableView fx:id="tablaMovimientos" layoutX="363.0" layoutY="157.0" prefHeight="598.0" prefWidth="863.0">
         <columns>
-          <TableColumn fx:id="ColFechaHora" prefWidth="104.79998779296875" text="Fecha y Hora" />
-          <TableColumn fx:id="ColProducto" minWidth="4.79998779296875" prefWidth="103.20001220703125" text="Producto" />
-            <TableColumn fx:id="ColTipo" minWidth="0.0" prefWidth="96.79998779296875" text="Tipo" />
-            <TableColumn fx:id="ColCantidad" prefWidth="80.00006103515625" text="Cantidad" />
-            <TableColumn fx:id="ColMotivo" prefWidth="89.60009765625" text="Motivo" />
-            <TableColumn fx:id="ColUsuario" prefWidth="101.5999755859375" text="Usuario" />
+          <TableColumn fx:id="ColFechaHora" prefWidth="179.20004272460938" text="Fecha y Hora" />
+          <TableColumn fx:id="ColProducto" minWidth="4.79998779296875" prefWidth="120.00006103515625" text="Producto" />
+            <TableColumn fx:id="ColTipo" minWidth="0.0" prefWidth="148.79998779296875" text="Tipo" />
+            <TableColumn fx:id="ColCantidad" prefWidth="128.00006103515625" text="Cantidad" />
+            <TableColumn fx:id="ColMotivo" prefWidth="159.20001220703125" text="Motivo" />
+            <TableColumn fx:id="ColUsuario" prefWidth="156.800048828125" text="Usuario" />
         </columns>
       </TableView>
    </children>
