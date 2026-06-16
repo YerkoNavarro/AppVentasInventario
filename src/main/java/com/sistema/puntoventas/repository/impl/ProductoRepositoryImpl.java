@@ -366,7 +366,7 @@ public class ProductoRepositoryImpl implements IProductoRepository, ICategoriaRe
 
 
     public boolean tieneProductosAsociados(int id){
-        String sql = "SELECT COUNT(*) FROM producto WHERE id = ?";
+        String sql = "SELECT COUNT(*) FROM producto WHERE idCategoria = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
