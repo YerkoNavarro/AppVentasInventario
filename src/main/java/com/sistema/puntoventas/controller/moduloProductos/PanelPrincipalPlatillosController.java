@@ -176,7 +176,7 @@ public class PanelPrincipalPlatillosController {
             }
             listaPlatillos = FXCollections.observableArrayList(platillos);
             tablePlatillos.setItems(listaPlatillos);
-            MensajesAlerta.mostrarMensaje("Éxito", "Platillos cargados correctamente", Alert.AlertType.INFORMATION);
+            //MensajesAlerta.mostrarMensaje("Éxito", "Platillos cargados correctamente", Alert.AlertType.INFORMATION);
         } catch (Exception e) {
             System.err.println("Error al cargar platillos: " + e.getMessage());
             MensajesAlerta.mostrarMensaje("Error", "No se pudieron cargar los platillos", Alert.AlertType.ERROR);

@@ -176,7 +176,7 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
                 "        dp.cantidadIngrediente AS cantidad_total " +
                 "    FROM detalle_venta dv " +
                 "    INNER JOIN venta v ON dv.idVenta = v.idVenta " +
-                "    INNER JOIN detalle_platillo dp ON dv.idPlatillo = dv.idPlatillo " +
+                "    INNER JOIN detalle_platillo dp ON dp.idPlatillo = dv.idPlatillo " +
                 "    WHERE v.estado = 1 AND dv.idPlatillo IS NOT NULL" +
                 ") AS consumo_global " +
                 "WHERE idProducto IS NOT NULL " +
@@ -335,7 +335,7 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
         }
 
         String sql = "SELECT id, nombre, precioVenta, precioCompra, stockActual, stockMinimo, " +
-                     "fechaVenc, imagen, unidadMedida, cantidad, tipoProducto " +
+                     "fechaVenc,activo, unidadMedida, cantidad, tipoProducto " +
                      "FROM producto WHERE id IN (" + placeholders + ")";
 
         try (Connection conn = DriverManager.getConnection(url);
