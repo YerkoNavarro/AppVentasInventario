@@ -28,6 +28,9 @@ src/main/java/com/sistema/puntoventas/util/ia_sql/respuesta.json
 __pycache__/
 *.pyc
 
+#markdown
+*.md
+
 ### Eclipse ###
 .apt_generated
 .classpath

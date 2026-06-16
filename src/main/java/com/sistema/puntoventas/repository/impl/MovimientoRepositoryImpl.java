@@ -26,22 +26,26 @@ public class MovimientoRepositoryImpl implements IMovimientoRepository {
 
     @Override
     public boolean registrarMovimiento(MovimientoInventario movimiento) {
-        String sql = "INSERT INTO historial_inventario (idProducto, tipoMovimiento, cantidad, motivo, idUsuario, fecha) VALUES (?, ?, ?, ?, ?,?)";
+        String sql = "INSERT INTO historial_inventario (idProducto, nombreProducto, tipoMovimiento, cantidad, motivo, idUsuario, fecha) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, movimiento.getIdProducto());
-            pstmt.setString(2, movimiento.getTipoMovimiento().name()); // Guardamos el Enum como texto
-            pstmt.setInt(3, movimiento.getCantidad());
-            pstmt.setString(4, movimiento.getMotivo());
-            pstmt.setInt(5, movimiento.getIdUsuario());
-            // Guardar la fecha como texto con formato compatible con el mapeo (yyyy-MM-dd HH:mm:ss)
+            if (movimiento.getNombreProducto() != null) {
+                pstmt.setString(2, movimiento.getNombreProducto());
+            } else {
+                pstmt.setNull(2, java.sql.Types.VARCHAR);
+            }
+            pstmt.setString(3, movimiento.getTipoMovimiento().name());
+            pstmt.setInt(4, movimiento.getCantidad());
+            pstmt.setString(5, movimiento.getMotivo());
+            pstmt.setInt(6, movimiento.getIdUsuario());
             if (movimiento.getFecha() != null) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                pstmt.setString(6, movimiento.getFecha().format(formatter));
+                pstmt.setString(7, movimiento.getFecha().format(formatter));
             } else {
-                pstmt.setNull(6, java.sql.Types.VARCHAR);
+                pstmt.setNull(7, java.sql.Types.VARCHAR);
             }
 
             int filasAfectadas = pstmt.executeUpdate();
@@ -175,13 +179,14 @@ public class MovimientoRepositoryImpl implements IMovimientoRepository {
         MovimientoInventario mov = new MovimientoInventario();
         mov.setIdMovimiento(rs.getInt("idMovimiento"));
         mov.setIdProducto(rs.getInt("idProducto"));
+        mov.setNombreProducto(rs.getString("nombreProducto"));
         mov.setTipoMovimiento(TipoMovimiento.valueOf(rs.getString("tipoMovimiento")));
         mov.setCantidad(rs.getInt("cantidad"));
         mov.setMotivo(rs.getString("motivo"));
         mov.setIdUsuario(rs.getInt("idUsuario"));
 
-        // Obtener el nombre del producto
-        if (productoRepo != null) {
+        // Fallback: si no hay nombre guardado, obtenerlo del repositorio
+        if (mov.getNombreProducto() == null && productoRepo != null) {
             Producto producto = productoRepo.obtenerProductoPorId(mov.getIdProducto());
             if (producto != null) {
                 mov.setNombreProducto(producto.getNombre());

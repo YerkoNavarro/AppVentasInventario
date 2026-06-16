@@ -114,7 +114,7 @@
                                     <Label text="Rendimiento por Vendedor" textFill="#5D4037">
                                        <font><Font name="Arial" size="14.0" /></font>
                                     </Label>
-                                    <Pane fx:id="vboxVentasUsuarios" prefHeight="120.0" VBox.vgrow="ALWAYS" />
+                                    <VBox fx:id="vboxVentasUsuarios" prefHeight="120.0" spacing="4.0" VBox.vgrow="ALWAYS" />
                                  </children>
                               </VBox>
 
