@@ -114,6 +114,7 @@ public class DbManager {
         String sql = "CREATE TABLE IF NOT EXISTS historial_inventario ("
                 + " idMovimiento INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + " idProducto INTEGER NOT NULL,"
+                + " nombreProducto TEXT,"
                 + " tipoMovimiento TEXT NOT NULL,"
                 + " cantidad INTEGER NOT NULL,"
                 + " fecha TEXT DEFAULT CURRENT_TIMESTAMP,"
@@ -126,6 +127,12 @@ public class DbManager {
         try (var conn = DriverManager.getConnection(url);
              var stmt = conn.createStatement()) {
             stmt.execute(sql);
+            // Agregar columna si la tabla ya existía sin ella
+            try {
+                stmt.execute("ALTER TABLE historial_inventario ADD COLUMN nombreProducto TEXT");
+            } catch (SQLException ignored) {
+                // La columna ya existe
+            }
             System.out.println("Tabla 'historial_inventario' verificada/creada.");
         } catch (SQLException e) {
             System.err.println("Error al crear tabla historial_inventario: " + e.getMessage());
