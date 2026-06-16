@@ -213,7 +213,7 @@ public class EstadisticasRepositoryImpl implements IEstadisticasRepository {
         }
 
         // Unimos historial y producto, y aplicamos el mismo filtro de fecha
-        String sql = "SELECT COALESCE(SUM(h.cantidad * p.precioCompra), 0) AS total "
+        String sql = "SELECT COALESCE(SUM(ABS(h.cantidad) * p.precioCompra), 0) AS total "
                 + "FROM historial_inventario h "
                 + "INNER JOIN producto p ON p.id = h.idProducto "
                 + "WHERE h.tipoMovimiento IN ('MERMA', 'AJUSTE') "
