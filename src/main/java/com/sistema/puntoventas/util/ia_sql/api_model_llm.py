@@ -26,7 +26,7 @@ def ejecutarModelo(cliente, prompt, reglas_sistema, esquema_db):
 
 def cargarModeloLocal(model_path):
     try:
-        llm = Llama(model_path=model_path,n_gpu_layers= -1, n_ctx=4096, verbose=False)
+        llm = Llama(model_path=model_path, n_ctx=4096, verbose=False)
         return llm
     except Exception as e:
         print(f"Error al cargar modelo local: {e}")
