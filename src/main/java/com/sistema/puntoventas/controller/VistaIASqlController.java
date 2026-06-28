@@ -56,7 +56,7 @@ public class VistaIASqlController implements Initializable {
         this.iaSqlService = new IASqlService(llmRepository, consultaRepository);
 
         cmbModo.getItems().addAll("Gemini", "Local (Qwen2.5-3B)");
-        cmbModo.setValue("Gemini");
+        cmbModo.setValue("Local (Qwen2.5-3B)");
         cmbModo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> actualizarEstadoModo());
 
         actualizarEstadoModo();
