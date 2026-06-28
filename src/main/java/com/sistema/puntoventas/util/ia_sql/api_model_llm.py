@@ -13,7 +13,7 @@ def cargarModelo(api_key):
 
 def ejecutarModelo(cliente, prompt, reglas_sistema, esquema_db):
     
-    response = cliente.models._generate_content(
+    response = cliente.models.generate_content(
         model = "gemini-3.5-flash",
         contents=[esquema_db, prompt],
         config=types.GenerateContentConfig(
