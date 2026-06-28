@@ -41,7 +41,6 @@ public class PanelAgregarUsuarioController implements Initializable {
         // una sobrecarga en AlertaCamposVacios sería la opción, pero evitamos tocar otras clases.
         AlertaCamposVacios.resaltarSiVacio(txtNombre, txtApellido, txtRut, txtContraseña);
         AlertaCamposVacios.configurarValidacionAutomatica(txtNombre, txtApellido, txtRut, txtContraseña);
-
         usuarioService = new UsuarioService();
         cmbRol.setItems(FXCollections.observableArrayList(Role.values()));
         lblEstado.setText("Listo para registrar");
